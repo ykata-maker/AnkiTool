@@ -4,11 +4,134 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>長文暗記ツール</title>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, collection, doc, setDoc, deleteDoc,
+           onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ★ ここを自分のfirebaseConfigに書き換える ★
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCDcg0WWetaHspC3lKziN6kBwZiPILZ10w",
+  authDomain: "ankitool-3e1d7.firebaseapp.com",
+  projectId: "ankitool-3e1d7",
+  storageBucket: "ankitool-3e1d7.firebasestorage.app",
+  messagingSenderId: "959520253501",
+  appId: "1:959520253501:web:db39b346f8df1d5d542c54",
+  measurementId: "G-0QQYCL1831"
+};
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+  let unsubData    = null; // Firestoreリスナー解除用
+  let unsubRecords = null;
+
+  // ===== 認証状態の監視 =====
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+    if (user) {
+      // ログイン済み
+      document.getElementById('auth-bar').innerHTML = `
+        <img src="${user.photoURL}" style="width:32px;height:32px;border-radius:50%;border:2px solid white;">
+        <span style="font-size:0.85rem;">${user.displayName}</span>
+        <button onclick="window.doSignOut()"
+          style="background:rgba(255,255,255,0.2);border:none;color:white;
+                 padding:6px 12px;border-radius:16px;cursor:pointer;font-size:0.8rem;">
+          ログアウト
+        </button>
+      `;
+      document.getElementById('login-overlay').style.display = 'none';
+      startFirestoreSync(user.uid);
+    } else {
+      // 未ログイン
+      document.getElementById('auth-bar').innerHTML = `
+        <button onclick="window.doSignIn()"
+          style="background:white;color:#2c3e50;border:none;
+                 padding:8px 18px;border-radius:20px;cursor:pointer;
+                 font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;">
+          <img src="https://www.google.com/favicon.ico" style="width:16px;height:16px;">
+          Googleでログイン
+        </button>
+      `;
+      document.getElementById('login-overlay').style.display = 'flex';
+      // リスナー解除
+      if (unsubData)    { unsubData();    unsubData    = null; }
+      if (unsubRecords) { unsubRecords(); unsubRecords = null; }
+    }
+  });
+
+  // ===== Firestoreリアルタイム同期 =====
+  function startFirestoreSync(uid) {
+    // data コレクション
+    const dataRef = collection(db, 'users', uid, 'data');
+    unsubData = onSnapshot(query(dataRef), snap => {
+      window.data = snap.docs.map(d => d.data());
+      window.renderTree();
+      // 選択中アイテムが消えていたら解除
+      if (window.selectedId && !window.data.find(d => d.id === window.selectedId)) {
+        window.selectedId = null;
+        document.getElementById('manage-empty').style.display = 'block';
+        document.getElementById('manage-editor').style.display = 'none';
+      }
+    });
+
+    // records コレクション
+    const recRef = collection(db, 'users', uid, 'records');
+    unsubRecords = onSnapshot(query(recRef), snap => {
+      window.records = snap.docs.map(d => d.data());
+      window.renderTree();
+      window.renderHistory();
+      window.renderCalendar();
+      window.updateHistoryFilter();
+    });
+  }
+
+  // ===== Firestore書き込み関数（グローバル公開） =====
+  window.saveData = async () => {
+    if (!currentUser) return;
+    const uid = currentUser.uid;
+    // 全アイテムをupsert（差分のみ更新でもよいが簡略化）
+    for (const item of window.data) {
+      await setDoc(doc(db, 'users', uid, 'data', item.id), item);
+    }
+  };
+
+  window.saveRecords = async () => {
+    if (!currentUser) return;
+    const uid = currentUser.uid;
+    for (const rec of window.records) {
+      await setDoc(doc(db, 'users', uid, 'records', rec.id), rec);
+    }
+  };
+
+  window.deleteItemFromDB = async (itemId) => {
+    if (!currentUser) return;
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'data', itemId));
+  };
+
+  window.deleteRecordFromDB = async (recId) => {
+    if (!currentUser) return;
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'records', recId));
+  };
+
+  // ===== 認証操作 =====
+  window.doSignIn  = () => signInWithPopup(auth, provider).catch(console.error);
+  window.doSignOut = () => signOut(auth);
+</script>
+
 <style>
+  /* ===== 前回と同じCSSをここに貼る ===== */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; }
 
-  /* ===== ヘッダー ===== */
   header {
     background: linear-gradient(135deg, #2c3e50, #3498db);
     color: white; padding: 12px 16px;
@@ -17,17 +140,38 @@
     position: sticky; top: 0; z-index: 200;
   }
   header h1 { font-size: 1.1rem; flex: 1; }
-
-  /* ハンバーガー */
   .hamburger {
     background: rgba(255,255,255,0.15); border: none; color: white;
     width: 38px; height: 38px; border-radius: 8px; cursor: pointer;
     font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .hamburger:hover { background: rgba(255,255,255,0.3); }
+  #auth-bar {
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
 
-  /* ===== タブナビ（ヘッダー下固定） ===== */
+  /* ログインオーバーレイ */
+  #login-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 500;
+    align-items: center; justify-content: center;
+  }
+  .login-card {
+    background: white; border-radius: 20px; padding: 40px 32px;
+    text-align: center; max-width: 340px; width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .login-card h2 { margin-bottom: 8px; color: #2c3e50; }
+  .login-card p  { color: #888; font-size: 0.88rem; margin-bottom: 24px; }
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: white; border: 2px solid #dde3ea; border-radius: 12px;
+    padding: 12px 24px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
+    color: #333; width: 100%; transition: all 0.2s;
+  }
+  .google-btn:hover { background: #f7f9fc; border-color: #3498db; }
+
+  /* 以下、前回のCSSをすべてコピー */
   .tab-nav {
     display: flex; background: #2c3e50;
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -40,19 +184,14 @@
     transition: all 0.2s; border-bottom: 3px solid transparent;
   }
   .tab-btn .tab-icon { font-size: 1.1rem; }
-  .tab-btn.active {
-    color: white; border-bottom-color: #3498db;
-    background: rgba(255,255,255,0.08);
-  }
-  .tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+  .tab-btn.active { color: white; border-bottom-color: #3498db; background: rgba(255,255,255,0.08); }
+  .tab-btn:hover  { color: white; background: rgba(255,255,255,0.05); }
 
-  /* ===== サイドバー（オーバーレイ） ===== */
   .sidebar-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.45); z-index: 300;
   }
   .sidebar-overlay.open { display: block; }
-
   .sidebar {
     position: fixed; top: 0; left: -300px; width: 280px; height: 100%;
     background: #fff; z-index: 310;
@@ -61,309 +200,141 @@
     transition: left 0.28s cubic-bezier(.4,0,.2,1);
   }
   .sidebar.open { left: 0; }
-
   .sidebar-header {
     padding: 14px 16px; background: #f7f9fc;
     border-bottom: 1px solid #dde3ea; font-weight: 700; font-size: 0.95rem;
-    display: flex; justify-content: space-between; align-items: center;
-    flex-shrink: 0;
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
   }
   .sidebar-close {
     background: none; border: none; font-size: 1.3rem; cursor: pointer;
     color: #666; padding: 2px 6px; border-radius: 6px;
   }
-  .sidebar-close:hover { background: #eee; }
-
   .sidebar-actions {
     padding: 10px 12px; border-bottom: 1px solid #dde3ea;
     display: flex; gap: 8px; flex-shrink: 0;
   }
-
   .tree { flex: 1; overflow-y: auto; padding: 8px; }
 
-  /* ===== ボタン共通 ===== */
-  .btn-small {
-    background: #3498db; color: white; border: none;
-    padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
-    white-space: nowrap;
-  }
+  .btn-small   { background: #3498db; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
   .btn-small:hover { background: #2980b9; }
   .btn-danger  { background: #e74c3c; } .btn-danger:hover  { background: #c0392b; }
   .btn-success { background: #27ae60; } .btn-success:hover { background: #219a52; }
   .btn-warning { background: #f39c12; } .btn-warning:hover { background: #d68910; }
-  .btn-primary {
-    background: #3498db; color: white; border: none;
-    padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
-    transition: background 0.2s; white-space: nowrap;
-  }
+  .btn-primary { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; white-space: nowrap; }
   .btn-primary:hover { background: #2980b9; }
 
-  /* ===== ツリー ===== */
   .tree-subject { margin-bottom: 4px; }
-  .tree-subject-label {
-    display: flex; align-items: center; gap: 6px;
-    padding: 9px 10px; border-radius: 8px; cursor: pointer;
-    font-weight: 700; font-size: 0.9rem; color: #2c3e50;
-    background: #eaf2fb; transition: background 0.15s;
-  }
+  .tree-subject-label { display: flex; align-items: center; gap: 6px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: #2c3e50; background: #eaf2fb; transition: background 0.15s; }
   .tree-subject-label:hover { background: #d6eaf8; }
   .tree-chapter { margin-left: 12px; margin-top: 2px; }
-  .tree-chapter-label {
-    display: flex; align-items: center; gap: 6px;
-    padding: 7px 10px; border-radius: 6px; cursor: pointer;
-    font-size: 0.86rem; color: #555; background: #f4f6f8;
-    transition: background 0.15s;
-  }
+  .tree-chapter-label { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.86rem; color: #555; background: #f4f6f8; transition: background 0.15s; }
   .tree-chapter-label:hover { background: #e8ecf0; }
   .tree-items { margin-left: 12px; margin-top: 2px; }
-  .tree-item {
-    padding: 8px 10px; border-radius: 6px; cursor: pointer;
-    font-size: 0.84rem; color: #666; transition: background 0.15s;
-    display: flex; align-items: center; justify-content: space-between;
-    min-height: 40px;
-  }
+  .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.84rem; color: #666; transition: background 0.15s; display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
   .tree-item:hover { background: #eaf2fb; }
   .tree-item.active { background: #3498db; color: white; font-weight: 600; }
-  .tree-item .item-score {
-    font-size: 0.75rem; opacity: 0.8;
-    background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px;
-    flex-shrink: 0;
-  }
+  .tree-item .item-score { font-size: 0.75rem; opacity: 0.8; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
   .tree-item:not(.active) .item-score { background: #e0e7ef; color: #555; }
   .toggle-icon { font-size: 0.7rem; transition: transform 0.2s; flex-shrink: 0; }
   .collapsed .toggle-icon { transform: rotate(-90deg); }
 
-  /* ===== メインコンテンツ ===== */
   .main { min-height: calc(100vh - 104px); display: flex; flex-direction: column; }
-
   .tab-content { display: none; flex: 1; flex-direction: column; }
   .tab-content.active { display: flex; }
 
-  /* ===== 管理タブ ===== */
   #tab-manage { padding: 14px; gap: 14px; overflow-y: auto; }
-  .manage-section {
-    background: white; border-radius: 12px; padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
+  .manage-section { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   .manage-section h3 { margin-bottom: 12px; color: #2c3e50; font-size: 0.95rem; }
-
   .form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
   .form-group { display: flex; flex-direction: column; gap: 4px; }
   .form-group label { font-size: 0.78rem; color: #666; font-weight: 600; }
-  .form-group input, .form-group select, .form-group textarea {
-    border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 12px;
-    font-size: 0.9rem; outline: none; transition: border 0.2s;
-    font-family: inherit; -webkit-appearance: none;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: #3498db;
-  }
+  .form-group input, .form-group select, .form-group textarea { border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 12px; font-size: 0.9rem; outline: none; transition: border 0.2s; font-family: inherit; -webkit-appearance: none; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3498db; }
   .form-group textarea { resize: vertical; min-height: 120px; width: 100%; }
-
-  /* 管理フォームのグリッド */
-  .edit-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
+  .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .edit-grid .full { grid-column: 1 / -1; }
 
   .keyword-editor { margin-top: 12px; }
   .keyword-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-  .keyword-tag {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 10px; border-radius: 20px; font-size: 0.82rem;
-    font-weight: 600; cursor: pointer; border: 2px solid transparent;
-  }
+  .keyword-tag { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: 2px solid transparent; }
   .keyword-tag .kw-del { cursor: pointer; opacity: 0.7; font-size: 0.75rem; }
-  .keyword-tag .kw-del:hover { opacity: 1; }
   .color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .color-swatch {
-    width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-    border: 2px solid transparent; transition: transform 0.15s; flex-shrink: 0;
-  }
+  .color-swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s; flex-shrink: 0; }
   .color-swatch:hover, .color-swatch.selected { transform: scale(1.2); border-color: #333; }
-
-  .text-preview {
-    background: #f7f9fc; border: 1px solid #dde3ea; border-radius: 8px;
-    padding: 12px; font-size: 0.88rem; line-height: 1.8; white-space: pre-wrap;
-    max-height: 180px; overflow-y: auto; margin-top: 8px;
-  }
-
+  .text-preview { background: #f7f9fc; border: 1px solid #dde3ea; border-radius: 8px; padding: 12px; font-size: 0.88rem; line-height: 1.8; white-space: pre-wrap; max-height: 180px; overflow-y: auto; margin-top: 8px; }
   .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ===== 学習タブ ===== */
   #tab-study { overflow-y: auto; }
   .study-area { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-
-  .study-header {
-    background: white; border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
+  .study-header { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   .study-title { font-size: 0.95rem; font-weight: 700; color: #2c3e50; margin-bottom: 10px; }
   .mode-toggle { display: flex; gap: 8px; }
-  .mode-btn {
-    flex: 1; padding: 9px 12px; border-radius: 20px; border: 2px solid #3498db;
-    background: white; color: #3498db; cursor: pointer; font-size: 0.85rem;
-    transition: all 0.2s; text-align: center;
-  }
+  .mode-btn { flex: 1; padding: 9px 12px; border-radius: 20px; border: 2px solid #3498db; background: white; color: #3498db; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; text-align: center; }
   .mode-btn.active { background: #3498db; color: white; }
-
-  .view-panel {
-    background: white; border-radius: 12px; padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    font-size: 0.92rem; line-height: 2; white-space: pre-wrap;
-  }
-
+  .view-panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.92rem; line-height: 2; white-space: pre-wrap; }
   .typing-panel { display: flex; flex-direction: column; gap: 10px; }
-  .original-text {
-    background: white; border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    font-size: 0.88rem; line-height: 1.9; white-space: pre-wrap;
-    max-height: 200px; overflow-y: auto;
-  }
-  .typing-input-wrap {
-    background: white; border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 10px;
-  }
-  .typing-input-wrap textarea {
-    border: 1px solid #dde3ea; border-radius: 8px;
-    padding: 12px; font-size: 0.9rem; line-height: 1.8; resize: none;
-    outline: none; font-family: inherit; min-height: 160px; width: 100%;
-  }
+  .original-text { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.88rem; line-height: 1.9; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+  .typing-input-wrap { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 10px; }
+  .typing-input-wrap textarea { border: 1px solid #dde3ea; border-radius: 8px; padding: 12px; font-size: 0.9rem; line-height: 1.8; resize: none; outline: none; font-family: inherit; min-height: 160px; width: 100%; }
   .typing-input-wrap textarea:focus { border-color: #3498db; }
-
-  .score-bar-wrap {
-    display: none; align-items: center; gap: 10px;
-  }
+  .score-bar-wrap { display: none; align-items: center; gap: 10px; }
   .score-bar-wrap.visible { display: flex; }
-  .score-bar-bg {
-    flex: 1; height: 14px; background: #e0e7ef; border-radius: 7px; overflow: hidden;
-  }
-  .score-bar-fill {
-    height: 100%; border-radius: 7px; transition: width 0.4s, background 0.4s;
-    background: #e74c3c;
-  }
+  .score-bar-bg { flex: 1; height: 14px; background: #e0e7ef; border-radius: 7px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 7px; transition: width 0.4s, background 0.4s; background: #e74c3c; }
   .score-label { font-size: 1.1rem; font-weight: 700; min-width: 52px; text-align: right; }
-
-  .diff-panel {
-    background: white; border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    font-size: 0.88rem; line-height: 1.9;
-    max-height: 220px; overflow-y: auto; display: none;
-  }
+  .diff-panel { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.88rem; line-height: 1.9; max-height: 220px; overflow-y: auto; display: none; }
   .diff-ok { color: #27ae60; }
   .diff-ng { color: #e74c3c; text-decoration: underline; background: #fdecea; }
 
-  /* ===== 記録タブ ===== */
   #tab-history { padding: 14px; gap: 12px; overflow-y: auto; }
-  .history-filter {
-    background: white; border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  }
+  .history-filter { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .history-filter .full { grid-column: 1 / -1; }
   .history-list { display: flex; flex-direction: column; gap: 10px; }
-  .history-card {
-    background: white; border-radius: 12px; padding: 12px 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    display: flex; align-items: center; gap: 12px;
-  }
+  .history-card { background: white; border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; }
   .history-info { flex: 1; min-width: 0; }
   .history-path { font-size: 0.75rem; color: #888; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .history-title { font-size: 0.88rem; font-weight: 600; color: #2c3e50; }
   .history-date { font-size: 0.75rem; color: #999; }
-  .history-score-badge {
-    font-size: 1rem; font-weight: 700; padding: 5px 12px;
-    border-radius: 20px; color: white; flex-shrink: 0;
-  }
+  .history-score-badge { font-size: 1rem; font-weight: 700; padding: 5px 12px; border-radius: 20px; color: white; flex-shrink: 0; }
 
-  /* ===== カレンダータブ ===== */
   #tab-calendar { padding: 14px; gap: 12px; overflow-y: auto; }
-  .calendar-nav {
-    background: white; border-radius: 12px; padding: 12px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    display: flex; align-items: center; gap: 12px;
-  }
+  .calendar-nav { background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; }
   .cal-title { font-size: 1rem; font-weight: 700; flex: 1; text-align: center; }
-  .cal-nav-btn {
-    background: #eaf2fb; border: none; padding: 8px 14px; border-radius: 8px;
-    cursor: pointer; font-size: 1rem; transition: background 0.2s; flex-shrink: 0;
-  }
+  .cal-nav-btn { background: #eaf2fb; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: background 0.2s; flex-shrink: 0; }
   .cal-nav-btn:hover { background: #d6eaf8; }
-  .calendar-grid {
-    background: white; border-radius: 12px; padding: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
-  .cal-weekdays {
-    display: grid; grid-template-columns: repeat(7, 1fr);
-    text-align: center; font-size: 0.72rem; font-weight: 700;
-    color: #888; margin-bottom: 6px;
-  }
+  .calendar-grid { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 700; color: #888; margin-bottom: 6px; }
   .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day {
-    min-height: 52px; border-radius: 6px; padding: 4px;
-    background: #f7f9fc; position: relative; cursor: pointer;
-    transition: background 0.15s;
-  }
+  .cal-day { min-height: 52px; border-radius: 6px; padding: 4px; background: #f7f9fc; position: relative; cursor: pointer; transition: background 0.15s; }
   .cal-day:hover { background: #eaf2fb; }
   .cal-day.today { background: #eaf2fb; border: 2px solid #3498db; }
   .cal-day.other-month { opacity: 0.35; }
   .cal-day-num { font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 2px; }
   .cal-day.today .cal-day-num { color: #3498db; }
   .cal-events { display: flex; flex-direction: column; gap: 1px; }
-  .cal-event {
-    font-size: 0.6rem; padding: 1px 3px; border-radius: 3px;
-    color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .cal-detail {
-    background: white; border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: none;
-  }
+  .cal-event { font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-detail { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: none; }
   .cal-detail h3 { margin-bottom: 10px; color: #2c3e50; font-size: 0.95rem; }
   .cal-detail-list { display: flex; flex-direction: column; gap: 8px; }
-  .cal-detail-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; background: #f7f9fc; border-radius: 8px;
-  }
+  .cal-detail-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f7f9fc; border-radius: 8px; }
 
-  /* ===== モーダル ===== */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4); z-index: 400;
-    align-items: flex-end; justify-content: center;
-  }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 400; align-items: flex-end; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal {
-    background: white; border-radius: 20px 20px 0 0; padding: 24px 20px;
-    width: 100%; max-width: 560px;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
-    max-height: 90vh; overflow-y: auto;
-  }
+  .modal { background: white; border-radius: 20px 20px 0 0; padding: 24px 20px; width: 100%; max-width: 560px; box-shadow: 0 -4px 24px rgba(0,0,0,0.18); max-height: 90vh; overflow-y: auto; }
   .modal-drag { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 18px; }
   .modal h3 { margin-bottom: 16px; color: #2c3e50; font-size: 1rem; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
-  .btn-cancel {
-    background: #ecf0f1; color: #555; border: none;
-    padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
-  }
+  .btn-cancel { background: #ecf0f1; color: #555; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
 
-  /* ===== スコア色 ===== */
   .score-high { background: #27ae60; }
   .score-mid  { background: #f39c12; }
   .score-low  { background: #e74c3c; }
-
-  .empty-state {
-    text-align: center; padding: 40px 20px; color: #aaa; font-size: 0.9rem;
-  }
+  .empty-state { text-align: center; padding: 40px 20px; color: #aaa; font-size: 0.9rem; }
   .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
-
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
 
-  /* ===== PC向け調整（600px以上） ===== */
   @media (min-width: 600px) {
     header { padding: 14px 24px; }
     header h1 { font-size: 1.3rem; }
@@ -376,32 +347,51 @@
     .cal-day { min-height: 68px; }
     .cal-event { font-size: 0.65rem; }
   }
+
+  /* 同期インジケーター */
+  .sync-indicator {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #27ae60; color: white;
+    padding: 8px 16px; border-radius: 20px;
+    font-size: 0.82rem; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    opacity: 0; transition: opacity 0.3s;
+    z-index: 600; pointer-events: none;
+  }
+  .sync-indicator.show { opacity: 1; }
 </style>
 </head>
 <body>
 
+<!-- ログインオーバーレイ -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div style="font-size:3rem;margin-bottom:12px;">📖</div>
+    <h2>長文暗記ツール</h2>
+    <p>Googleアカウントでログインすると<br>PC・スマホでデータを共有できます</p>
+    <button class="google-btn" onclick="window.doSignIn()">
+      <img src="https://www.google.com/favicon.ico" style="width:20px;height:20px;">
+      Googleでログイン
+    </button>
+  </div>
+</div>
+
+<!-- 同期インジケーター -->
+<div class="sync-indicator" id="sync-indicator">✅ 同期完了</div>
+
 <header>
   <button class="hamburger" onclick="toggleSidebar()" aria-label="メニュー">☰</button>
   <h1>📖 長文暗記ツール</h1>
+  <div id="auth-bar"></div>
 </header>
 
-<!-- タブナビ -->
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('manage',this)">
-    <span class="tab-icon">📝</span>管理
-  </button>
-  <button class="tab-btn" onclick="switchTab('study',this)">
-    <span class="tab-icon">🎯</span>学習
-  </button>
-  <button class="tab-btn" onclick="switchTab('history',this)">
-    <span class="tab-icon">📊</span>記録
-  </button>
-  <button class="tab-btn" onclick="switchTab('calendar',this)">
-    <span class="tab-icon">📅</span>カレンダー
-  </button>
+  <button class="tab-btn active" onclick="switchTab('manage',this)"><span class="tab-icon">📝</span>管理</button>
+  <button class="tab-btn" onclick="switchTab('study',this)"><span class="tab-icon">🎯</span>学習</button>
+  <button class="tab-btn" onclick="switchTab('history',this)"><span class="tab-icon">📊</span>記録</button>
+  <button class="tab-btn" onclick="switchTab('calendar',this)"><span class="tab-icon">📅</span>カレンダー</button>
 </nav>
 
-<!-- サイドバーオーバーレイ -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -414,12 +404,11 @@
   <div class="tree" id="tree"></div>
 </div>
 
-<!-- メインコンテンツ -->
 <div class="main">
 
   <!-- 管理タブ -->
   <div class="tab-content active" id="tab-manage">
-    <div style="padding:14px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; flex:1;">
+    <div style="padding:14px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
       <div class="manage-section">
         <h3>📌 コンテンツを選択して編集</h3>
         <div id="manage-empty" class="empty-state">
@@ -427,23 +416,11 @@
           ☰ メニューからコンテンツを選択するか、<br>「＋ 新規追加」で作成してください
         </div>
         <div id="manage-editor" style="display:none;">
-          <div class="edit-grid" style="margin-bottom:12px;">
-            <div class="form-group">
-              <label>大分類（科目）</label>
-              <input type="text" id="edit-subject" placeholder="例：英語">
-            </div>
-            <div class="form-group">
-              <label>中分類（章）</label>
-              <input type="text" id="edit-chapter" placeholder="例：第1章">
-            </div>
-            <div class="form-group">
-              <label>No（小分類）</label>
-              <input type="text" id="edit-no" placeholder="例：001">
-            </div>
-            <div class="form-group">
-              <label>タイトル</label>
-              <input type="text" id="edit-title" placeholder="例：重要フレーズ">
-            </div>
+          <div class="edit-grid">
+            <div class="form-group"><label>大分類（科目）</label><input type="text" id="edit-subject" placeholder="例：英語"></div>
+            <div class="form-group"><label>中分類（章）</label><input type="text" id="edit-chapter" placeholder="例：第1章"></div>
+            <div class="form-group"><label>No（小分類）</label><input type="text" id="edit-no" placeholder="例：001"></div>
+            <div class="form-group"><label>タイトル</label><input type="text" id="edit-title" placeholder="例：重要フレーズ"></div>
           </div>
           <div class="form-group" style="margin-bottom:12px;">
             <label>本文テキスト</label>
@@ -452,9 +429,7 @@
           <div class="keyword-editor">
             <label style="font-size:0.78rem;color:#666;font-weight:600;">🎨 重要キーワード色付け</label>
             <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
-              <div class="form-group" style="flex:1;min-width:120px;">
-                <input type="text" id="kw-input" placeholder="キーワードを入力">
-              </div>
+              <div class="form-group" style="flex:1;min-width:120px;"><input type="text" id="kw-input" placeholder="キーワードを入力"></div>
               <button class="btn-small btn-success" onclick="addKeyword()">追加</button>
             </div>
             <div class="color-picker-row" id="color-picker-row" style="margin-top:8px;"></div>
@@ -483,17 +458,11 @@
           <button class="mode-btn" onclick="setMode('typing')" id="mode-typing-btn">⌨️ タイピング</button>
         </div>
       </div>
-
       <div id="view-mode">
-        <div class="view-panel" id="view-text">
-          <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
-        </div>
+        <div class="view-panel" id="view-text"><div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div></div>
       </div>
-
       <div id="typing-mode" style="display:none;" class="typing-panel">
-        <div class="original-text" id="original-text-display">
-          <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
-        </div>
+        <div class="original-text" id="original-text-display"><div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div></div>
         <div class="typing-input-wrap">
           <label style="font-size:0.8rem;color:#666;font-weight:600;">✍️ ここに入力（句読点・改行は採点対象外）</label>
           <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
@@ -517,23 +486,10 @@
   <div class="tab-content" id="tab-history">
     <div style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
       <div class="history-filter">
-        <div class="form-group full">
-          <label>科目</label>
-          <select id="hist-subject-filter" onchange="renderHistory()">
-            <option value="">すべて</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>開始日</label>
-          <input type="date" id="hist-date-from" onchange="renderHistory()">
-        </div>
-        <div class="form-group">
-          <label>終了日</label>
-          <input type="date" id="hist-date-to" onchange="renderHistory()">
-        </div>
-        <div class="full" style="display:flex;justify-content:flex-end;">
-          <button class="btn-small" onclick="clearHistoryFilter()">リセット</button>
-        </div>
+        <div class="form-group full"><label>科目</label><select id="hist-subject-filter" onchange="renderHistory()"><option value="">すべて</option></select></div>
+        <div class="form-group"><label>開始日</label><input type="date" id="hist-date-from" onchange="renderHistory()"></div>
+        <div class="form-group"><label>終了日</label><input type="date" id="hist-date-to" onchange="renderHistory()"></div>
+        <div class="full" style="display:flex;justify-content:flex-end;"><button class="btn-small" onclick="clearHistoryFilter()">リセット</button></div>
       </div>
       <div class="history-list" id="history-list"></div>
     </div>
@@ -563,28 +519,16 @@
 
 </div>
 
-<!-- 追加モーダル（ボトムシート） -->
+<!-- 追加モーダル -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal">
     <div class="modal-drag"></div>
     <h3>📝 新規コンテンツ追加</h3>
     <div class="edit-grid" style="margin-bottom:12px;">
-      <div class="form-group">
-        <label>大分類（科目）</label>
-        <input type="text" id="new-subject" placeholder="例：英語">
-      </div>
-      <div class="form-group">
-        <label>中分類（章）</label>
-        <input type="text" id="new-chapter" placeholder="例：第1章">
-      </div>
-      <div class="form-group">
-        <label>No（小分類）</label>
-        <input type="text" id="new-no" placeholder="例：001">
-      </div>
-      <div class="form-group">
-        <label>タイトル</label>
-        <input type="text" id="new-title" placeholder="例：重要フレーズ">
-      </div>
+      <div class="form-group"><label>大分類（科目）</label><input type="text" id="new-subject" placeholder="例：英語"></div>
+      <div class="form-group"><label>中分類（章）</label><input type="text" id="new-chapter" placeholder="例：第1章"></div>
+      <div class="form-group"><label>No（小分類）</label><input type="text" id="new-no" placeholder="例：001"></div>
+      <div class="form-group"><label>タイトル</label><input type="text" id="new-title" placeholder="例：重要フレーズ"></div>
     </div>
     <div class="form-group" style="margin-bottom:12px;">
       <label>本文テキスト</label>
@@ -598,11 +542,16 @@
 </div>
 
 <script>
-// ===== データ =====
-let data    = JSON.parse(localStorage.getItem('memorize_data')    || '[]');
-let records = JSON.parse(localStorage.getItem('memorize_records') || '[]');
-let selectedId   = null;
-let currentMode  = 'view';
+// ===== グローバル変数（Firebaseモジュールから参照される） =====
+window.data    = [];
+window.records = [];
+window.selectedId   = null;
+window.renderTree   = renderTree;
+window.renderHistory  = renderHistory;
+window.renderCalendar = renderCalendar;
+window.updateHistoryFilter = updateHistoryFilter;
+
+let currentMode     = 'view';
 let calYear, calMonth;
 let selectedKwColor = '#e74c3c';
 let showOriginal    = true;
@@ -613,7 +562,13 @@ const COLORS = [
   '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
 ];
 
-// ===== 初期化 =====
+// 同期インジケーター表示
+function showSync() {
+  const el = document.getElementById('sync-indicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
 function init() {
   const now = new Date();
   calYear  = now.getFullYear();
@@ -622,13 +577,12 @@ function init() {
   renderTree();
   renderCalendar();
   renderHistory();
-  updateHistoryFilter();
 }
 
 // ===== サイドバー =====
 function toggleSidebar() {
-  const sb  = document.getElementById('sidebar');
-  const ov  = document.getElementById('sidebar-overlay');
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
   const open = sb.classList.toggle('open');
   ov.classList.toggle('open', open);
   document.body.style.overflow = open ? 'hidden' : '';
@@ -653,7 +607,7 @@ function switchTab(tab, btn) {
 function renderTree() {
   const tree = document.getElementById('tree');
   const subjects = {};
-  data.forEach(item => {
+  window.data.forEach(item => {
     if (!subjects[item.subject]) subjects[item.subject] = {};
     if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
     subjects[item.subject][item.chapter].push(item);
@@ -695,15 +649,12 @@ function renderTree() {
       items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
         const bestScore = getBestScore(item.id);
         const itemEl = document.createElement('div');
-        itemEl.className = 'tree-item' + (item.id === selectedId ? ' active' : '');
+        itemEl.className = 'tree-item' + (item.id === window.selectedId ? ' active' : '');
         itemEl.innerHTML = `
           <span>${item.no}. ${item.title}</span>
           ${bestScore !== null ? `<span class="item-score">${bestScore}%</span>` : ''}
         `;
-        itemEl.onclick = () => {
-          selectItem(item.id);
-          closeSidebar(); // 選択後にサイドバーを閉じる
-        };
+        itemEl.onclick = () => { selectItem(item.id); closeSidebar(); };
         itemWrap.appendChild(itemEl);
       });
       chapEl.appendChild(itemWrap);
@@ -715,15 +666,15 @@ function renderTree() {
 }
 
 function getBestScore(id) {
-  const recs = records.filter(r => r.itemId === id);
+  const recs = window.records.filter(r => r.itemId === id);
   if (recs.length === 0) return null;
   return Math.max(...recs.map(r => r.score));
 }
 
 // ===== アイテム選択 =====
 function selectItem(id) {
-  selectedId = id;
-  const item = data.find(d => d.id === id);
+  window.selectedId = id;
+  const item = window.data.find(d => d.id === id);
   if (!item) return;
 
   document.getElementById('manage-empty').style.display = 'none';
@@ -761,14 +712,14 @@ function renderColorPicker() {
 
 function addKeyword() {
   const kw = document.getElementById('kw-input').value.trim();
-  if (!kw || !selectedId) return;
-  const item = data.find(d => d.id === selectedId);
+  if (!kw || !window.selectedId) return;
+  const item = window.data.find(d => d.id === window.selectedId);
   if (!item) return;
   if (!item.keywords) item.keywords = [];
   if (item.keywords.find(k => k.word === kw)) return;
   item.keywords.push({ word: kw, color: selectedKwColor });
   document.getElementById('kw-input').value = '';
-  saveData();
+  window.saveData().then(showSync);
   renderKeywordList(item);
   updatePreview(item);
 }
@@ -788,10 +739,10 @@ function renderKeywordList(item) {
 }
 
 function removeKeyword(i) {
-  const item = data.find(d => d.id === selectedId);
+  const item = window.data.find(d => d.id === window.selectedId);
   if (!item) return;
   item.keywords.splice(i, 1);
-  saveData();
+  window.saveData().then(showSync);
   renderKeywordList(item);
   updatePreview(item);
 }
@@ -815,7 +766,7 @@ function escapeHtml(str) {
 }
 
 function livePreview() {
-  const item = data.find(d => d.id === selectedId);
+  const item = window.data.find(d => d.id === window.selectedId);
   if (!item) return;
   updatePreview(item);
 }
@@ -844,46 +795,54 @@ function addItem() {
     alert('すべての項目を入力してください'); return;
   }
   const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
-  data.push(item);
-  saveData();
+  window.data.push(item);
+  window.saveData().then(() => { showSync(); selectItem(item.id); });
   closeModal();
   ['new-subject','new-chapter','new-no','new-title','new-text']
     .forEach(id => { document.getElementById(id).value = ''; });
   renderTree();
-  selectItem(item.id);
 }
 
 function saveItem() {
-  if (!selectedId) return;
-  const item = data.find(d => d.id === selectedId);
+  if (!window.selectedId) return;
+  const item = window.data.find(d => d.id === window.selectedId);
   if (!item) return;
   item.subject = document.getElementById('edit-subject').value.trim();
   item.chapter = document.getElementById('edit-chapter').value.trim();
   item.no      = document.getElementById('edit-no').value.trim();
   item.title   = document.getElementById('edit-title').value.trim();
   item.text    = document.getElementById('edit-text').value.trim();
-  saveData();
-  renderTree();
-  updatePreview(item);
-  document.getElementById('study-title').textContent =
-    `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
-  document.getElementById('view-text').innerHTML =
-    applyKeywords(item.text, item.keywords || []);
-  document.getElementById('original-text-display').innerHTML =
-    applyKeywords(item.text, item.keywords || []);
-  alert('保存しました！');
+  window.saveData().then(() => {
+    showSync();
+    renderTree();
+    updatePreview(item);
+    document.getElementById('study-title').textContent =
+      `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+    document.getElementById('view-text').innerHTML =
+      applyKeywords(item.text, item.keywords || []);
+    document.getElementById('original-text-display').innerHTML =
+      applyKeywords(item.text, item.keywords || []);
+    alert('保存しました！');
+  });
 }
 
 function deleteItem() {
-  if (!selectedId) return;
+  if (!window.selectedId) return;
   if (!confirm('このコンテンツを削除しますか？')) return;
-  data    = data.filter(d => d.id !== selectedId);
-  records = records.filter(r => r.itemId !== selectedId);
-  selectedId = null;
-  saveData(); saveRecords();
+  const id = window.selectedId;
+  // Firestoreから削除
+  window.deleteItemFromDB(id);
+  // recordsも削除
+  const recIds = window.records.filter(r => r.itemId === id).map(r => r.id);
+  recIds.forEach(rid => window.deleteRecordFromDB(rid));
+  // ローカル配列から除去（Firestoreリスナーが自動更新するが念のため）
+  window.data    = window.data.filter(d => d.id !== id);
+  window.records = window.records.filter(r => r.itemId !== id);
+  window.selectedId = null;
   document.getElementById('manage-empty').style.display = 'block';
   document.getElementById('manage-editor').style.display = 'none';
   renderTree();
+  showSync();
 }
 
 // ===== 学習モード =====
@@ -900,7 +859,7 @@ function toggleOriginal() {
   document.getElementById('original-text-display').style.display = showOriginal ? 'block' : 'none';
 }
 
-// ===== スコア計算（LCS） =====
+// ===== スコア計算 =====
 function normalize(str) {
   return str.replace(/[、。，．・\n\r\s　]/g, '');
 }
@@ -911,11 +870,7 @@ function lcsLength(a, b) {
   for (let i = 1; i <= m; i++) {
     const curr = new Array(n + 1).fill(0);
     for (let j = 1; j <= n; j++) {
-      if (a[i-1] === b[j-1]) {
-        curr[j] = prev[j-1] + 1;
-      } else {
-        curr[j] = Math.max(prev[j], curr[j-1]);
-      }
+      curr[j] = a[i-1] === b[j-1] ? prev[j-1] + 1 : Math.max(prev[j], curr[j-1]);
     }
     prev = curr;
   }
@@ -923,69 +878,46 @@ function lcsLength(a, b) {
 }
 
 function calcScore() {
-  if (!selectedId) return 0;
-  const item = data.find(d => d.id === selectedId);
+  if (!window.selectedId) return 0;
+  const item = window.data.find(d => d.id === window.selectedId);
   if (!item) return 0;
   const original = normalize(item.text);
   const input    = normalize(document.getElementById('typing-input').value);
   if (original.length === 0) return 0;
-
-  const lcs = lcsLength(original, input);
-  const pct = Math.round((lcs / original.length) * 100);
-
+  const pct = Math.round((lcsLength(original, input) / original.length) * 100);
   const bar = document.getElementById('score-bar');
   bar.style.width      = pct + '%';
   bar.style.background = pct >= 80 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
   document.getElementById('score-label').textContent = pct + '%';
   document.getElementById('score-bar-wrap').classList.add('visible');
-
   lastScore = pct;
   return pct;
 }
 
 function showDiff() {
-  if (!selectedId) return;
-  const item = data.find(d => d.id === selectedId);
+  if (!window.selectedId) return;
+  const item = window.data.find(d => d.id === window.selectedId);
   if (!item) return;
-
   const original = normalize(item.text);
   const input    = normalize(document.getElementById('typing-input').value);
-
   calcScore();
-
   const m = original.length, n = input.length;
   const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (original[i-1] === input[j-1]) {
-        dp[i][j] = dp[i-1][j-1] + 1;
-      } else {
-        dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
-      }
-    }
-  }
-
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = original[i-1] === input[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
   const matched = new Array(m).fill(false);
   let i = m, j = n;
   while (i > 0 && j > 0) {
-    if (original[i-1] === input[j-1]) {
-      matched[i-1] = true;
-      i--; j--;
-    } else if (dp[i-1][j] >= dp[i][j-1]) {
-      i--;
-    } else {
-      j--;
-    }
+    if (original[i-1] === input[j-1]) { matched[i-1] = true; i--; j--; }
+    else if (dp[i-1][j] >= dp[i][j-1]) i--;
+    else j--;
   }
-
   let html = '';
   for (let k = 0; k < original.length; k++) {
     const ch = escapeHtml(original[k]);
-    html += matched[k]
-      ? `<span class="diff-ok">${ch}</span>`
-      : `<span class="diff-ng">${ch}</span>`;
+    html += matched[k] ? `<span class="diff-ok">${ch}</span>` : `<span class="diff-ng">${ch}</span>`;
   }
-
   const panel = document.getElementById('diff-panel');
   panel.style.display = 'block';
   panel.innerHTML = '<strong>差分（赤：未入力/誤り、緑：正解）</strong><br><br>' + html;
@@ -1001,12 +933,12 @@ function clearTyping() {
 }
 
 function saveRecord() {
-  if (!selectedId) { alert('コンテンツを選択してください'); return; }
+  if (!window.selectedId) { alert('コンテンツを選択してください'); return; }
   const score = calcScore();
-  const item  = data.find(d => d.id === selectedId);
+  const item  = window.data.find(d => d.id === window.selectedId);
   const record = {
     id:      Date.now().toString(),
-    itemId:  selectedId,
+    itemId:  window.selectedId,
     subject: item.subject,
     chapter: item.chapter,
     no:      item.no,
@@ -1014,11 +946,13 @@ function saveRecord() {
     score:   score,
     date:    new Date().toISOString()
   };
-  records.push(record);
-  saveRecords();
-  renderTree();
-  updateHistoryFilter();
-  alert(`記録を保存しました！ スコア: ${score}%`);
+  window.records.push(record);
+  window.saveRecords().then(() => {
+    showSync();
+    renderTree();
+    updateHistoryFilter();
+    alert(`記録を保存しました！ スコア: ${score}%`);
+  });
 }
 
 // ===== 記録 =====
@@ -1026,13 +960,11 @@ function renderHistory() {
   const subjectFilter = document.getElementById('hist-subject-filter').value;
   const dateFrom      = document.getElementById('hist-date-from').value;
   const dateTo        = document.getElementById('hist-date-to').value;
-
-  let filtered = [...records];
+  let filtered = [...window.records];
   if (subjectFilter) filtered = filtered.filter(r => r.subject === subjectFilter);
   if (dateFrom)      filtered = filtered.filter(r => r.date >= dateFrom);
   if (dateTo)        filtered = filtered.filter(r => r.date <= dateTo + 'T23:59:59');
   filtered.sort((a,b) => b.date.localeCompare(a.date));
-
   const list = document.getElementById('history-list');
   if (filtered.length === 0) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
@@ -1051,24 +983,25 @@ function renderHistory() {
         </div>
         <div class="history-score-badge ${cls}">${r.score}%</div>
         <button class="btn-small btn-danger" onclick="deleteRecord('${r.id}')">削除</button>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
 function deleteRecord(id) {
   if (!confirm('この記録を削除しますか？')) return;
-  records = records.filter(r => r.id !== id);
-  saveRecords();
-  renderHistory();
-  renderTree();
-  renderCalendar();
+  window.records = window.records.filter(r => r.id !== id);
+  window.deleteRecordFromDB(id).then(() => {
+    showSync();
+    renderHistory();
+    renderTree();
+    renderCalendar();
+  });
 }
 
 function updateHistoryFilter() {
   const sel     = document.getElementById('hist-subject-filter');
   const current = sel.value;
-  const subjects = [...new Set(data.map(d => d.subject))];
+  const subjects = [...new Set(window.data.map(d => d.subject))];
   sel.innerHTML = '<option value="">すべて</option>' +
     subjects.map(s => `<option value="${s}" ${s===current?'selected':''}>${s}</option>`).join('');
 }
@@ -1090,14 +1023,12 @@ function changeMonth(delta) {
 
 function renderCalendar() {
   document.getElementById('cal-title').textContent = `${calYear}年 ${calMonth+1}月`;
-
   const firstDay = new Date(calYear, calMonth, 1).getDay();
   const lastDate = new Date(calYear, calMonth+1, 0).getDate();
   const prevLast = new Date(calYear, calMonth, 0).getDate();
   const today    = new Date();
-
-  const dayMap = {};
-  records.forEach(r => {
+  const dayMap   = {};
+  window.records.forEach(r => {
     const d = new Date(r.date);
     if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
       const key = d.getDate();
@@ -1105,38 +1036,30 @@ function renderCalendar() {
       dayMap[key].push(r);
     }
   });
-
   const grid = document.getElementById('cal-days');
   grid.innerHTML = '';
-
   for (let i = firstDay - 1; i >= 0; i--)
     grid.appendChild(createDayCell(prevLast - i, true, [], null));
-
   for (let d = 1; d <= lastDate; d++) {
     const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
     const cell = createDayCell(d, false, dayMap[d]||[], isToday ? 'today' : null);
     cell.onclick = () => showCalDetail(d, dayMap[d]||[]);
     grid.appendChild(cell);
   }
-
   const total  = firstDay + lastDate;
   const remain = total % 7 === 0 ? 0 : 7 - (total % 7);
   for (let d = 1; d <= remain; d++)
     grid.appendChild(createDayCell(d, true, [], null));
-
   document.getElementById('cal-detail').style.display = 'none';
 }
 
 function createDayCell(day, otherMonth, recs, extra) {
   const cell = document.createElement('div');
-  cell.className = 'cal-day' +
-    (otherMonth ? ' other-month' : '') +
-    (extra === 'today' ? ' today' : '');
+  cell.className = 'cal-day' + (otherMonth ? ' other-month' : '') + (extra === 'today' ? ' today' : '');
   const numDiv = document.createElement('div');
   numDiv.className = 'cal-day-num';
   numDiv.textContent = day;
   cell.appendChild(numDiv);
-
   if (recs.length > 0) {
     const evDiv = document.createElement('div');
     evDiv.className = 'cal-events';
@@ -1160,8 +1083,7 @@ function createDayCell(day, otherMonth, recs, extra) {
 
 function showCalDetail(day, recs) {
   const detail = document.getElementById('cal-detail');
-  document.getElementById('cal-detail-title').textContent =
-    `${calYear}年${calMonth+1}月${day}日 の記録`;
+  document.getElementById('cal-detail-title').textContent = `${calYear}年${calMonth+1}月${day}日 の記録`;
   const list = document.getElementById('cal-detail-list');
   if (recs.length === 0) {
     list.innerHTML = '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>';
@@ -1183,10 +1105,6 @@ function showCalDetail(day, recs) {
   }
   detail.style.display = 'block';
 }
-
-// ===== 保存 =====
-function saveData()    { localStorage.setItem('memorize_data',    JSON.stringify(data));    }
-function saveRecords() { localStorage.setItem('memorize_records', JSON.stringify(records)); }
 
 init();
 </script>
