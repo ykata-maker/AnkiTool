@@ -4,128 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>長文暗記ツール</title>
-
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCDcg0WWetaHspC3lKziN6kBwZiPILZ10w",
-    authDomain: "ankitool-3e1d7.firebaseapp.com",
-    projectId: "ankitool-3e1d7",
-    storageBucket: "ankitool-3e1d7.firebasestorage.app",
-    messagingSenderId: "959520253501",
-    appId: "1:959520253501:web:db39b346f8df1d5d542c54",
-    measurementId: "G-0QQYCL1831"
-  };
-
-  const app      = initializeApp(firebaseConfig);
-  const auth     = getAuth(app);
-  const db       = getFirestore(app);
-  const provider = new GoogleAuthProvider();
-  let currentUser  = null;
-  let unsubData    = null;
-  let unsubRecords = null;
-  let unsubTasks   = null;
-
-  onAuthStateChanged(auth, user => {
-    currentUser = user;
-    if (user) {
-      document.getElementById('auth-bar').innerHTML = `
-        <img src="${user.photoURL}" style="width:32px;height:32px;border-radius:50%;border:2px solid white;">
-        <span style="font-size:0.85rem;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.displayName}</span>
-        <button onclick="window.doSignOut()" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:6px 12px;border-radius:16px;cursor:pointer;font-size:0.8rem;">ログアウト</button>
-      `;
-      document.getElementById('login-overlay').style.display = 'none';
-      startFirestoreSync(user.uid);
-    } else {
-      document.getElementById('auth-bar').innerHTML = `
-        <button onclick="window.doSignIn()" style="background:white;color:#2c3e50;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;">
-          <img src="https://www.google.com/favicon.ico" style="width:16px;height:16px;">ログイン
-        </button>
-      `;
-      document.getElementById('login-overlay').style.display = 'flex';
-      if (unsubData)    { unsubData();    unsubData    = null; }
-      if (unsubRecords) { unsubRecords(); unsubRecords = null; }
-      if (unsubTasks)   { unsubTasks();   unsubTasks   = null; }
-      window.data    = [];
-      window.records = [];
-      window.tasks   = [];
-      window.renderTree();
-      window.renderHistory();
-      window.renderCalendar();
-      window.renderContentSelect();
-      window.renderTasks();
-    }
-  });
-
-  function startFirestoreSync(uid) {
-    const dataRef = collection(db, 'users', uid, 'data');
-    unsubData = onSnapshot(query(dataRef), snap => {
-      window.data = snap.docs.map(d => d.data());
-      window.renderTree();
-      window.updateHistoryFilter();
-      window.renderContentSelect();
-      window.renderManageList();
-      if (window.selectedId && !window.data.find(d => d.id === window.selectedId)) {
-        window.selectedId = null;
-        document.getElementById('manage-empty').style.display = 'block';
-        document.getElementById('manage-editor').style.display = 'none';
-      }
-    });
-    const recRef = collection(db, 'users', uid, 'records');
-    unsubRecords = onSnapshot(query(recRef), snap => {
-      window.records = snap.docs.map(d => d.data());
-      window.renderTree();
-      window.renderHistory();
-      window.renderCalendar();
-      window.updateHistoryFilter();
-      window.renderManageList();
-    });
-    const taskRef = collection(db, 'users', uid, 'tasks');
-    unsubTasks = onSnapshot(query(taskRef), snap => {
-      window.tasks = snap.docs.map(d => d.data());
-      window.renderTasks();
-    });
-  }
-
-  window.saveOneItem = async (item) => {
-    if (!currentUser) return;
-    await setDoc(doc(db, 'users', currentUser.uid, 'data', item.id), item);
-    window.showSync();
-  };
-  window.saveOneRecord = async (record) => {
-    if (!currentUser) return;
-    await setDoc(doc(db, 'users', currentUser.uid, 'records', record.id), record);
-    window.showSync();
-  };
-  window.deleteItemFromDB = async (itemId) => {
-    if (!currentUser) return;
-    await deleteDoc(doc(db, 'users', currentUser.uid, 'data', itemId));
-    window.showSync();
-  };
-  window.deleteRecordFromDB = async (recId) => {
-    if (!currentUser) return;
-    await deleteDoc(doc(db, 'users', currentUser.uid, 'records', recId));
-    window.showSync();
-  };
-  window.saveOneTask = async (task) => {
-    if (!currentUser) return;
-    await setDoc(doc(db, 'users', currentUser.uid, 'tasks', task.id), task);
-    window.showSync();
-  };
-  window.deleteTaskFromDB = async (taskId) => {
-    if (!currentUser) return;
-    await deleteDoc(doc(db, 'users', currentUser.uid, 'tasks', taskId));
-    window.showSync();
-  };
-  window.doSignIn  = () => signInWithPopup(auth, provider).catch(console.error);
-  window.doSignOut = () => signOut(auth);
-</script>
-
 <style>
 /* ===== リセット・基本 ===== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -153,6 +31,7 @@ header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; t
   background: rgba(0,0,0,0.6); z-index: 500;
   align-items: center; justify-content: center;
 }
+#login-overlay.show { display: flex; }
 .login-card {
   background: white; border-radius: 20px; padding: 40px 32px;
   text-align: center; max-width: 340px; width: 90%;
@@ -252,14 +131,13 @@ header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; t
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   display: flex; flex-direction: column; gap: 10px;
 }
-.content-select-panel label { font-size: 0.8rem; color: #666; font-weight: 600; }
+.content-select-panel > label { font-size: 0.8rem; color: #666; font-weight: 600; }
 .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .select-row select, .item-select-wrap select {
   width: 100%; border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 10px;
   font-size: 0.88rem; outline: none; background: #f7f9fc;
   -webkit-appearance: none; cursor: pointer; font-family: inherit;
 }
-.select-row select:focus, .item-select-wrap select:focus { border-color: #3498db; background: white; }
 .select-confirm-btn {
   background: #3498db; color: white; border: none;
   padding: 11px; border-radius: 8px; cursor: pointer;
@@ -373,21 +251,18 @@ header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; t
 .task-item.done { border-left-color: #27ae60; opacity: 0.65; }
 .task-item.done .task-title { text-decoration: line-through; color: #aaa; }
 .task-item.overdue { border-left-color: #e74c3c; }
-.task-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #3498db; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; background: white; }
+.task-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #3498db; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; background: white; font-size: 0.8rem; }
 .task-check.checked { background: #27ae60; border-color: #27ae60; color: white; }
 .task-body { flex: 1; min-width: 0; }
 .task-title { font-size: 0.9rem; font-weight: 600; color: #2c3e50; margin-bottom: 3px; }
-.task-meta { font-size: 0.75rem; color: #888; display: flex; gap: 8px; flex-wrap: wrap; }
-.task-due { font-size: 0.75rem; }
+.task-meta { font-size: 0.75rem; color: #888; display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 .task-due.overdue { color: #e74c3c; font-weight: 700; }
 .task-due.today-due { color: #f39c12; font-weight: 700; }
 .task-priority { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
 .priority-high { background: #fdecea; color: #e74c3c; }
 .priority-mid  { background: #fef9e7; color: #f39c12; }
 .priority-low  { background: #eafaf1; color: #27ae60; }
-.plan-filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
-.plan-filter-row select { border: 1px solid #dde3ea; border-radius: 8px; padding: 7px 10px; font-size: 0.82rem; outline: none; background: #f7f9fc; -webkit-appearance: none; font-family: inherit; }
-.plan-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.plan-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
 .stat-card { background: #f7f9fc; border-radius: 10px; padding: 10px; text-align: center; }
 .stat-num { font-size: 1.4rem; font-weight: 700; color: #2c3e50; }
 .stat-label { font-size: 0.72rem; color: #888; margin-top: 2px; }
@@ -397,7 +272,6 @@ header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; t
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,0.4); z-index: 400;
   align-items: flex-end; justify-content: center;
-  overflow-y: auto;
 }
 .modal-overlay.open { display: flex; }
 .modal {
@@ -405,18 +279,13 @@ header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; t
   width: 100%; max-width: 560px;
   box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
   max-height: 92vh; overflow-y: auto; overflow-x: hidden;
-  /* 横スクロール防止 */
   word-break: break-word;
 }
 .modal-drag { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 18px; }
 .modal h3 { margin-bottom: 16px; color: #2c3e50; font-size: 1rem; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
-/* モーダル内グリッドは縦積みで横スクロール防止 */
 .modal .edit-grid { grid-template-columns: 1fr; }
-/* モーダル内のcombo-wrap */
-.combo-wrap { position: relative; }
-.combo-wrap select { width: 100%; }
-.combo-input { margin-top: 6px; }
+.combo-wrap { display: flex; flex-direction: column; gap: 6px; }
 
 /* ===== 設定パネル ===== */
 .settings-panel {
@@ -430,18 +299,13 @@ header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; t
 .settings-header { padding: 14px 16px; background: #f7f9fc; border-bottom: 1px solid #dde3ea; font-weight: 700; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 .settings-body { padding: 16px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
 .settings-item { display: flex; flex-direction: column; gap: 8px; }
-.settings-item label { font-size: 0.82rem; color: #666; font-weight: 600; }
+.settings-item > label { font-size: 0.82rem; color: #666; font-weight: 600; }
 .layout-toggle { display: flex; gap: 8px; }
 .layout-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #dde3ea; background: white; cursor: pointer; font-size: 0.82rem; text-align: center; transition: all 0.2s; }
 .layout-btn.active { border-color: #3498db; background: #eaf2fb; color: #3498db; font-weight: 700; }
 
 /* ===== 横画面レイアウト ===== */
-body.landscape-mode .main { flex-direction: row; }
-body.landscape-mode .tab-content.active { flex-direction: row; overflow: hidden; }
-body.landscape-mode #tab-manage .manage-inner { flex-direction: row; overflow: hidden; }
-body.landscape-mode #tab-manage .manage-section:first-child { width: 260px; flex-shrink: 0; overflow-y: auto; }
-body.landscape-mode #tab-manage .manage-section:last-child { flex: 1; overflow-y: auto; }
-body.landscape-mode .study-area { flex-direction: row; flex-wrap: wrap; overflow-y: auto; }
+body.landscape-mode .study-area { flex-direction: row; flex-wrap: wrap; }
 body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
 
 /* ===== 空状態 ===== */
@@ -457,30 +321,24 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
 }
 .sync-indicator.show { opacity: 1; }
 
-/* ===== スクロールバー ===== */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
 
-/* ===== レスポンシブ（600px以上） ===== */
 @media (min-width: 600px) {
   header { padding: 14px 24px; }
   header h1 { font-size: 1.3rem; }
   .tab-btn { font-size: 0.82rem; padding: 10px 8px; }
   .tab-btn .tab-icon { font-size: 1.2rem; }
   .modal-overlay { align-items: center; }
-  .modal { border-radius: 16px; padding: 28px; max-width: 520px; border-radius: 16px 16px 16px 16px; }
+  .modal { border-radius: 16px; padding: 28px; }
   .modal-drag { display: none; }
-  /* 600px以上ではモーダル内も2列に */
   .modal .edit-grid { grid-template-columns: 1fr 1fr; }
   .edit-grid { grid-template-columns: 1fr 1fr; }
-  .select-row { grid-template-columns: 1fr 1fr 1fr; }
   .cal-day { min-height: 68px; }
   .cal-event { font-size: 0.65rem; }
-  .plan-stats { grid-template-columns: repeat(3, 1fr); }
 }
 @media (min-width: 900px) {
-  .modal .edit-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
   .edit-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
 }
 </style>
@@ -493,7 +351,7 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
     <div style="font-size:3rem;margin-bottom:12px;">📖</div>
     <h2>長文暗記ツール</h2>
     <p>Googleアカウントでログインすると<br>PC・スマホでデータを共有できます</p>
-    <button class="google-btn" onclick="window.doSignIn()">
+    <button class="google-btn" id="login-btn">
       <img src="https://www.google.com/favicon.ico" style="width:20px;height:20px;">
       Googleでログイン
     </button>
@@ -502,34 +360,29 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
 
 <div class="sync-indicator" id="sync-indicator">✅ 同期完了</div>
 
-<!-- ヘッダー -->
 <header>
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <button class="hamburger" id="hamburger-btn">☰</button>
   <h1>📖 長文暗記ツール</h1>
   <div id="auth-bar"></div>
-  <button class="hamburger" onclick="toggleSettings()" title="設定">⚙️</button>
+  <button class="hamburger" id="settings-btn" title="設定">⚙️</button>
 </header>
 
-<!-- タブナビ -->
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('manage',this)"><span class="tab-icon">📝</span>管理</button>
-  <button class="tab-btn" onclick="switchTab('study',this)"><span class="tab-icon">🎯</span>学習</button>
-  <button class="tab-btn" onclick="switchTab('history',this)"><span class="tab-icon">📊</span>記録</button>
-  <button class="tab-btn" onclick="switchTab('calendar',this)"><span class="tab-icon">📅</span>カレンダー</button>
-  <button class="tab-btn" onclick="switchTab('plan',this)"><span class="tab-icon">✅</span>計画</button>
+  <button class="tab-btn active" data-tab="manage"><span class="tab-icon">📝</span>管理</button>
+  <button class="tab-btn" data-tab="study"><span class="tab-icon">🎯</span>学習</button>
+  <button class="tab-btn" data-tab="history"><span class="tab-icon">📊</span>記録</button>
+  <button class="tab-btn" data-tab="calendar"><span class="tab-icon">📅</span>カレンダー</button>
+  <button class="tab-btn" data-tab="plan"><span class="tab-icon">✅</span>計画</button>
 </nav>
 
-<!-- サイドバーオーバーレイ -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-
-<!-- サイドバー -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <span>📚 コンテンツ</span>
-    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+    <button class="sidebar-close" id="sidebar-close-btn">✕</button>
   </div>
   <div class="sidebar-actions">
-    <button class="btn-small btn-success" onclick="openAddModal()" style="flex:1;">＋ 新規追加</button>
+    <button class="btn-small btn-success" id="sidebar-add-btn" style="flex:1;">＋ 新規追加</button>
   </div>
   <div class="tree" id="tree"></div>
 </div>
@@ -538,18 +391,14 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
 <div class="settings-panel" id="settings-panel">
   <div class="settings-header">
     <span>⚙️ 設定</span>
-    <button class="sidebar-close" onclick="closeSettings()">✕</button>
+    <button class="sidebar-close" id="settings-close-btn">✕</button>
   </div>
   <div class="settings-body">
     <div class="settings-item">
       <label>🖥️ 画面レイアウト</label>
       <div class="layout-toggle">
-        <button class="layout-btn active" id="layout-portrait" onclick="setLayout('portrait')">
-          📱 縦画面
-        </button>
-        <button class="layout-btn" id="layout-landscape" onclick="setLayout('landscape')">
-          🖥️ 横画面
-        </button>
+        <button class="layout-btn active" id="layout-portrait">📱 縦画面</button>
+        <button class="layout-btn" id="layout-landscape">🖥️ 横画面</button>
       </div>
       <div style="font-size:0.75rem;color:#aaa;">設定はデバイスに保存されます</div>
     </div>
@@ -562,22 +411,19 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
 
 <div class="main">
 
-  <!-- ===== 管理タブ ===== -->
+  <!-- 管理タブ -->
   <div class="tab-content active" id="tab-manage">
     <div class="manage-inner">
-
-      <!-- コンテンツ一覧 -->
       <div class="manage-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
           <h3 style="margin:0;">📋 コンテンツ一覧</h3>
-          <button class="btn-small btn-success" onclick="openAddModal()">＋ 新規追加</button>
+          <button class="btn-small btn-success" id="manage-add-btn">＋ 新規追加</button>
         </div>
-        <!-- フィルター -->
         <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-          <select id="list-subject-filter" onchange="renderManageList()" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
+          <select id="list-subject-filter" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
             <option value="">すべての科目</option>
           </select>
-          <select id="list-sort" onchange="renderManageList()" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
+          <select id="list-sort" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
             <option value="default">並び順：デフォルト</option>
             <option value="score-desc">スコア高い順</option>
             <option value="score-asc">スコア低い順</option>
@@ -590,7 +436,6 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
         </div>
       </div>
 
-      <!-- 編集エリア -->
       <div class="manage-section">
         <h3>✏️ 編集</h3>
         <div id="manage-empty" class="empty-state">
@@ -606,13 +451,13 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
           </div>
           <div class="form-group" style="margin-bottom:12px;">
             <label>本文テキスト</label>
-            <textarea id="edit-text" placeholder="暗記したい長文を入力してください..." oninput="livePreview()"></textarea>
+            <textarea id="edit-text" placeholder="暗記したい長文を入力してください..."></textarea>
           </div>
           <div class="keyword-editor">
             <label style="font-size:0.78rem;color:#666;font-weight:600;">🎨 重要キーワード色付け</label>
             <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
               <div class="form-group" style="flex:1;min-width:120px;"><input type="text" id="kw-input" placeholder="キーワードを入力"></div>
-              <button class="btn-small btn-success" onclick="addKeyword()">追加</button>
+              <button class="btn-small btn-success" id="kw-add-btn">追加</button>
             </div>
             <div class="color-picker-row" id="color-picker-row" style="margin-top:8px;"></div>
             <div class="keyword-list" id="keyword-list"></div>
@@ -622,52 +467,40 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
             <div class="text-preview" id="text-preview"></div>
           </div>
           <div class="action-row" style="margin-top:14px;">
-            <button class="btn-primary" onclick="saveItem()">💾 保存</button>
-            <button class="btn-small btn-danger" onclick="deleteItem()">🗑 削除</button>
+            <button class="btn-primary" id="save-item-btn">💾 保存</button>
+            <button class="btn-small btn-danger" id="delete-item-btn">🗑 削除</button>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- ===== 学習タブ ===== -->
+  <!-- 学習タブ -->
   <div class="tab-content" id="tab-study">
     <div class="study-area">
       <div class="content-select-panel">
         <label>📚 コンテンツを選択</label>
         <div class="select-row">
-          <select id="sel-subject" onchange="onSubjectChange()">
-            <option value="">科目を選択</option>
-          </select>
-          <select id="sel-chapter" onchange="onChapterChange()">
-            <option value="">章を選択</option>
-          </select>
+          <select id="sel-subject"><option value="">科目を選択</option></select>
+          <select id="sel-chapter"><option value="">章を選択</option></select>
         </div>
         <div class="item-select-wrap">
-          <select id="sel-item">
-            <option value="">コンテンツを選択</option>
-          </select>
+          <select id="sel-item"><option value="">コンテンツを選択</option></select>
         </div>
-        <button class="select-confirm-btn" onclick="confirmContentSelect()">
-          このコンテンツで学習する ▶
-        </button>
+        <button class="select-confirm-btn" id="confirm-select-btn">このコンテンツで学習する ▶</button>
       </div>
-
       <div class="study-header">
         <div class="study-title" id="study-title">↑ 上のメニューからコンテンツを選択してください</div>
         <div class="mode-toggle">
-          <button class="mode-btn active" onclick="setMode('view')" id="mode-view-btn">👁 閲覧</button>
-          <button class="mode-btn" onclick="setMode('typing')" id="mode-typing-btn">⌨️ タイピング</button>
+          <button class="mode-btn active" id="mode-view-btn">👁 閲覧</button>
+          <button class="mode-btn" id="mode-typing-btn">⌨️ タイピング</button>
         </div>
       </div>
-
       <div id="view-mode">
         <div class="view-panel" id="view-text">
           <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
         </div>
       </div>
-
       <div id="typing-mode" style="display:none;" class="typing-panel">
         <div class="original-text" id="original-text-display">
           <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
@@ -680,10 +513,10 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
             <div class="score-label" id="score-label">0%</div>
           </div>
           <div class="action-row">
-            <button class="btn-primary" onclick="saveRecord()">💾 保存</button>
-            <button class="btn-small btn-warning" onclick="showDiff()">🔍 差分</button>
-            <button class="btn-small" onclick="clearTyping()">🗑 クリア</button>
-            <button class="btn-small" onclick="toggleOriginal()">📄 原文</button>
+            <button class="btn-primary" id="save-record-btn">💾 保存</button>
+            <button class="btn-small btn-warning" id="show-diff-btn">🔍 差分</button>
+            <button class="btn-small" id="clear-typing-btn">🗑 クリア</button>
+            <button class="btn-small" id="toggle-original-btn">📄 原文</button>
           </div>
         </div>
         <div class="diff-panel" id="diff-panel"></div>
@@ -691,26 +524,26 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
     </div>
   </div>
 
-  <!-- ===== 記録タブ ===== -->
+  <!-- 記録タブ -->
   <div class="tab-content" id="tab-history">
     <div style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
       <div class="history-filter">
-        <div class="form-group full"><label>科目</label><select id="hist-subject-filter" onchange="renderHistory()"><option value="">すべて</option></select></div>
-        <div class="form-group"><label>開始日</label><input type="date" id="hist-date-from" onchange="renderHistory()"></div>
-        <div class="form-group"><label>終了日</label><input type="date" id="hist-date-to" onchange="renderHistory()"></div>
-        <div class="full" style="display:flex;justify-content:flex-end;"><button class="btn-small" onclick="clearHistoryFilter()">リセット</button></div>
+        <div class="form-group full"><label>科目</label><select id="hist-subject-filter"><option value="">すべて</option></select></div>
+        <div class="form-group"><label>開始日</label><input type="date" id="hist-date-from"></div>
+        <div class="form-group"><label>終了日</label><input type="date" id="hist-date-to"></div>
+        <div class="full" style="display:flex;justify-content:flex-end;"><button class="btn-small" id="history-reset-btn">リセット</button></div>
       </div>
       <div class="history-list" id="history-list"></div>
     </div>
   </div>
 
-  <!-- ===== カレンダータブ ===== -->
+  <!-- カレンダータブ -->
   <div class="tab-content" id="tab-calendar">
     <div style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
       <div class="calendar-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">◀</button>
+        <button class="cal-nav-btn" id="cal-prev-btn">◀</button>
         <div class="cal-title" id="cal-title"></div>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">▶</button>
+        <button class="cal-nav-btn" id="cal-next-btn">▶</button>
       </div>
       <div class="calendar-grid">
         <div class="cal-weekdays">
@@ -726,21 +559,17 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
     </div>
   </div>
 
-  <!-- ===== 学習計画タブ ===== -->
+  <!-- 学習計画タブ -->
   <div class="tab-content" id="tab-plan">
     <div class="plan-inner">
-
-      <!-- 統計 -->
       <div class="plan-section">
         <h3>📊 進捗サマリー</h3>
-        <div class="plan-stats" id="plan-stats">
+        <div class="plan-stats">
           <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">総タスク</div></div>
           <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">完了</div></div>
           <div class="stat-card"><div class="stat-num" id="stat-overdue">0</div><div class="stat-label">期限超過</div></div>
         </div>
       </div>
-
-      <!-- タスク追加 -->
       <div class="plan-section">
         <h3>➕ 学習計画を追加</h3>
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -749,7 +578,7 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
             <div class="form-group"><label>期限日</label><input type="date" id="task-due-input"></div>
             <div class="form-group">
               <label>優先度</label>
-              <select id="task-priority-input" style="-webkit-appearance:none;">
+              <select id="task-priority-input">
                 <option value="high">🔴 高</option>
                 <option value="mid" selected>🟡 中</option>
                 <option value="low">🟢 低</option>
@@ -757,22 +586,20 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
             </div>
           </div>
           <div class="form-group"><label>メモ（任意）</label><input type="text" id="task-memo-input" placeholder="補足メモ..."></div>
-          <button class="btn-primary" onclick="addTask()" style="width:100%;">＋ 追加</button>
+          <button class="btn-primary" id="add-task-btn" style="width:100%;">＋ 追加</button>
         </div>
       </div>
-
-      <!-- タスク一覧 -->
       <div class="plan-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
           <h3 style="margin:0;">📋 タスク一覧</h3>
-          <div class="plan-filter-row" style="margin:0;">
-            <select id="task-filter" onchange="renderTasks()">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="task-filter" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
               <option value="all">すべて</option>
               <option value="todo">未完了</option>
               <option value="done">完了済み</option>
               <option value="overdue">期限超過</option>
             </select>
-            <select id="task-sort" onchange="renderTasks()">
+            <select id="task-sort" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
               <option value="due-asc">期限 近い順</option>
               <option value="due-desc">期限 遠い順</option>
               <option value="priority">優先度順</option>
@@ -784,86 +611,196 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
           <div class="empty-state"><div class="icon">✅</div>タスクがありません</div>
         </div>
       </div>
-
     </div>
   </div>
 
 </div><!-- /.main -->
 
-<!-- ===== 新規追加モーダル ===== -->
+<!-- 新規追加モーダル -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal">
     <div class="modal-drag"></div>
     <h3>📝 新規コンテンツ追加</h3>
     <div class="edit-grid" style="margin-bottom:12px;">
-      <!-- 大分類：既存選択 or 新規入力 -->
       <div class="form-group">
         <label>大分類（科目）</label>
         <div class="combo-wrap">
-          <select id="new-subject-sel" onchange="onNewSubjectSelChange()">
-            <option value="">-- 新規入力 --</option>
-          </select>
-          <input type="text" id="new-subject" class="combo-input" placeholder="例：英語（新規入力）">
+          <select id="new-subject-sel"><option value="">-- 新規入力 --</option></select>
+          <input type="text" id="new-subject" placeholder="新規の場合はここに入力">
         </div>
       </div>
-      <!-- 中分類：既存選択 or 新規入力 -->
       <div class="form-group">
         <label>中分類（章）</label>
         <div class="combo-wrap">
-          <select id="new-chapter-sel" onchange="onNewChapterSelChange()">
-            <option value="">-- 新規入力 --</option>
-          </select>
-          <input type="text" id="new-chapter" class="combo-input" placeholder="例：第1章（新規入力）">
+          <select id="new-chapter-sel"><option value="">-- 新規入力 --</option></select>
+          <input type="text" id="new-chapter" placeholder="新規の場合はここに入力">
         </div>
       </div>
-      <div class="form-group">
-        <label>No（小分類）</label>
-        <input type="text" id="new-no" placeholder="例：001">
-      </div>
-      <div class="form-group">
-        <label>タイトル</label>
-        <input type="text" id="new-title" placeholder="例：重要フレーズ">
-      </div>
+      <div class="form-group"><label>No（小分類）</label><input type="text" id="new-no" placeholder="例：001"></div>
+      <div class="form-group"><label>タイトル</label><input type="text" id="new-title" placeholder="例：重要フレーズ"></div>
     </div>
     <div class="form-group" style="margin-bottom:12px;">
       <label>本文テキスト</label>
       <textarea id="new-text" placeholder="暗記したい長文を入力..." style="min-height:100px;width:100%;border:1px solid #dde3ea;border-radius:8px;padding:10px;font-family:inherit;font-size:0.9rem;outline:none;resize:vertical;"></textarea>
     </div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
-      <button class="btn-primary" onclick="addItem()">追加</button>
+      <button class="btn-cancel" id="modal-cancel-btn">キャンセル</button>
+      <button class="btn-primary" id="modal-add-btn">追加</button>
     </div>
   </div>
 </div>
 
+<!-- ===== Firebase (module) ===== -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCDcg0WWetaHspC3lKziN6kBwZiPILZ10w",
+    authDomain: "ankitool-3e1d7.firebaseapp.com",
+    projectId: "ankitool-3e1d7",
+    storageBucket: "ankitool-3e1d7.firebasestorage.app",
+    messagingSenderId: "959520253501",
+    appId: "1:959520253501:web:db39b346f8df1d5d542c54",
+    measurementId: "G-0QQYCL1831"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const auth     = getAuth(app);
+  const db       = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+  let unsubData = null, unsubRecords = null, unsubTasks = null;
+
+  // Firebase API を window 経由で通常スクリプトに公開
+  window._firebaseReady = true;
+
+  window.doSignIn  = () => signInWithPopup(auth, provider).catch(console.error);
+  window.doSignOut = () => signOut(auth);
+
+  window.saveOneItem = async (item) => {
+    const u = auth.currentUser; if (!u) return;
+    await setDoc(doc(db, 'users', u.uid, 'data', item.id), item);
+    window.showSync();
+  };
+  window.saveOneRecord = async (record) => {
+    const u = auth.currentUser; if (!u) return;
+    await setDoc(doc(db, 'users', u.uid, 'records', record.id), record);
+    window.showSync();
+  };
+  window.deleteItemFromDB = async (id) => {
+    const u = auth.currentUser; if (!u) return;
+    await deleteDoc(doc(db, 'users', u.uid, 'data', id));
+    window.showSync();
+  };
+  window.deleteRecordFromDB = async (id) => {
+    const u = auth.currentUser; if (!u) return;
+    await deleteDoc(doc(db, 'users', u.uid, 'records', id));
+    window.showSync();
+  };
+  window.saveOneTask = async (task) => {
+    const u = auth.currentUser; if (!u) return;
+    await setDoc(doc(db, 'users', u.uid, 'tasks', task.id), task);
+    window.showSync();
+  };
+  window.deleteTaskFromDB = async (id) => {
+    const u = auth.currentUser; if (!u) return;
+    await deleteDoc(doc(db, 'users', u.uid, 'tasks', id));
+    window.showSync();
+  };
+
+  onAuthStateChanged(auth, user => {
+    const authBar = document.getElementById('auth-bar');
+    const overlay = document.getElementById('login-overlay');
+    if (user) {
+      authBar.innerHTML = `
+        <img src="${user.photoURL}" style="width:32px;height:32px;border-radius:50%;border:2px solid white;">
+        <span style="font-size:0.85rem;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.displayName}</span>
+        <button id="signout-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:6px 12px;border-radius:16px;cursor:pointer;font-size:0.8rem;">ログアウト</button>
+      `;
+      document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+      overlay.classList.remove('show');
+      startSync(user.uid);
+    } else {
+      authBar.innerHTML = '';
+      overlay.classList.add('show');
+      if (unsubData)    { unsubData();    unsubData    = null; }
+      if (unsubRecords) { unsubRecords(); unsubRecords = null; }
+      if (unsubTasks)   { unsubTasks();   unsubTasks   = null; }
+      window.appData.data    = [];
+      window.appData.records = [];
+      window.appData.tasks   = [];
+      window.renderAll();
+    }
+  });
+
+  function startSync(uid) {
+    unsubData = onSnapshot(query(collection(db, 'users', uid, 'data')), snap => {
+      window.appData.data = snap.docs.map(d => d.data());
+      window.renderTree();
+      window.updateHistoryFilter();
+      window.renderContentSelect();
+      window.renderManageList();
+      if (window.appData.selectedId && !window.appData.data.find(d => d.id === window.appData.selectedId)) {
+        window.appData.selectedId = null;
+        document.getElementById('manage-empty').style.display = 'block';
+        document.getElementById('manage-editor').style.display = 'none';
+      }
+    });
+    unsubRecords = onSnapshot(query(collection(db, 'users', uid, 'records')), snap => {
+      window.appData.records = snap.docs.map(d => d.data());
+      window.renderTree();
+      window.renderHistory();
+      window.renderCalendar();
+      window.updateHistoryFilter();
+      window.renderManageList();
+    });
+    unsubTasks = onSnapshot(query(collection(db, 'users', uid, 'tasks')), snap => {
+      window.appData.tasks = snap.docs.map(d => d.data());
+      window.renderTasks();
+    });
+  }
+</script>
+
+<!-- ===== アプリ本体（通常スクリプト） ===== -->
 <script>
-// ===== グローバル =====
-window.data    = [];
-window.records = [];
-window.tasks   = [];
-window.selectedId = null;
-window.renderTree          = renderTree;
-window.renderHistory       = renderHistory;
-window.renderCalendar      = renderCalendar;
-window.updateHistoryFilter = updateHistoryFilter;
-window.renderContentSelect = renderContentSelect;
-window.renderManageList    = renderManageList;
-window.renderTasks         = renderTasks;
+// ===== 共有状態 =====
+window.appData = { data: [], records: [], tasks: [], selectedId: null };
+
+// ===== 定数 =====
+const COLORS = [
+  '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+  '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
+];
+let selectedKwColor = '#e74c3c';
+let currentMode     = 'view';
+let showOriginal    = true;
+let calYear, calMonth;
+
+// ===== ユーティリティ =====
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function formatDate(isoStr) {
+  const d = new Date(isoStr);
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDateTime(isoStr) {
+  const d = new Date(isoStr);
+  return `${formatDate(isoStr)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
 window.showSync = function() {
   const el = document.getElementById('sync-indicator');
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2000);
 };
-
-let currentMode     = 'view';
-let calYear, calMonth;
-let selectedKwColor = '#e74c3c';
-let showOriginal    = true;
-
-const COLORS = [
-  '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
-  '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
-];
+window.renderAll = function() {
+  renderTree(); renderHistory(); renderCalendar();
+  renderContentSelect(); renderManageList(); renderTasks();
+};
 
 // ===== 初期化 =====
 function init() {
@@ -878,12 +815,82 @@ function init() {
   renderManageList();
   renderTasks();
   loadLayoutSetting();
+  bindEvents();
 }
 
-// ===== レイアウト設定 =====
+// ===== イベントバインド（onclick属性を使わない） =====
+function bindEvents() {
+  // ログイン
+  document.getElementById('login-btn').addEventListener('click', () => window.doSignIn && window.doSignIn());
+
+  // ハンバーガー・設定
+  document.getElementById('hamburger-btn').addEventListener('click', toggleSidebar);
+  document.getElementById('settings-btn').addEventListener('click', toggleSettings);
+  document.getElementById('sidebar-close-btn').addEventListener('click', closeSidebar);
+  document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+  document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+  document.getElementById('settings-panel').addEventListener('click', e => {
+    if (e.target === document.getElementById('settings-panel')) closeSettings();
+  });
+
+  // レイアウト
+  document.getElementById('layout-portrait').addEventListener('click', () => setLayout('portrait'));
+  document.getElementById('layout-landscape').addEventListener('click', () => setLayout('landscape'));
+
+  // タブ
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
+  });
+
+  // 管理タブ
+  document.getElementById('manage-add-btn').addEventListener('click', openAddModal);
+  document.getElementById('sidebar-add-btn').addEventListener('click', openAddModal);
+  document.getElementById('save-item-btn').addEventListener('click', saveItem);
+  document.getElementById('delete-item-btn').addEventListener('click', deleteItem);
+  document.getElementById('kw-add-btn').addEventListener('click', addKeyword);
+  document.getElementById('edit-text').addEventListener('input', livePreview);
+  document.getElementById('list-subject-filter').addEventListener('change', renderManageList);
+  document.getElementById('list-sort').addEventListener('change', renderManageList);
+
+  // モーダル
+  document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('modal-add-btn').addEventListener('click', addItem);
+  document.getElementById('add-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('add-modal')) closeModal();
+  });
+  document.getElementById('new-subject-sel').addEventListener('change', onNewSubjectSelChange);
+  document.getElementById('new-chapter-sel').addEventListener('change', onNewChapterSelChange);
+
+  // 学習タブ
+  document.getElementById('sel-subject').addEventListener('change', onSubjectChange);
+  document.getElementById('sel-chapter').addEventListener('change', onChapterChange);
+  document.getElementById('confirm-select-btn').addEventListener('click', confirmContentSelect);
+  document.getElementById('mode-view-btn').addEventListener('click', () => setMode('view'));
+  document.getElementById('mode-typing-btn').addEventListener('click', () => setMode('typing'));
+  document.getElementById('save-record-btn').addEventListener('click', saveRecord);
+  document.getElementById('show-diff-btn').addEventListener('click', showDiff);
+  document.getElementById('clear-typing-btn').addEventListener('click', clearTyping);
+  document.getElementById('toggle-original-btn').addEventListener('click', toggleOriginal);
+
+  // 記録タブ
+  document.getElementById('hist-subject-filter').addEventListener('change', renderHistory);
+  document.getElementById('hist-date-from').addEventListener('change', renderHistory);
+  document.getElementById('hist-date-to').addEventListener('change', renderHistory);
+  document.getElementById('history-reset-btn').addEventListener('click', clearHistoryFilter);
+
+  // カレンダー
+  document.getElementById('cal-prev-btn').addEventListener('click', () => changeMonth(-1));
+  document.getElementById('cal-next-btn').addEventListener('click', () => changeMonth(1));
+
+  // 計画タブ
+  document.getElementById('add-task-btn').addEventListener('click', addTask);
+  document.getElementById('task-filter').addEventListener('change', renderTasks);
+  document.getElementById('task-sort').addEventListener('change', renderTasks);
+}
+
+// ===== レイアウト =====
 function loadLayoutSetting() {
-  const saved = localStorage.getItem('ankitool-layout') || 'portrait';
-  applyLayout(saved);
+  applyLayout(localStorage.getItem('ankitool-layout') || 'portrait');
 }
 function setLayout(mode) {
   localStorage.setItem('ankitool-layout', mode);
@@ -895,26 +902,24 @@ function applyLayout(mode) {
   document.getElementById('layout-landscape').classList.toggle('active', mode === 'landscape');
 }
 
-// ===== 設定パネル =====
-function toggleSettings() {
-  document.getElementById('settings-panel').classList.toggle('open');
-}
-function closeSettings() {
-  document.getElementById('settings-panel').classList.remove('open');
-}
-
 // ===== サイドバー =====
 function toggleSidebar() {
-  const sb   = document.getElementById('sidebar');
-  const ov   = document.getElementById('sidebar-overlay');
-  const open = sb.classList.toggle('open');
-  ov.classList.toggle('open', open);
+  const open = document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open', open);
   document.body.style.overflow = open ? 'hidden' : '';
 }
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+// ===== 設定パネル =====
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('open');
+}
+function closeSettings() {
+  document.getElementById('settings-panel').classList.remove('open');
 }
 
 // ===== タブ切替 =====
@@ -929,55 +934,56 @@ function switchTab(tab, btn) {
   if (tab === 'manage')   renderManageList();
 }
 
-// ===== コンテンツ選択ドロップダウン（学習タブ） =====
+// ===== コンテンツ選択（学習タブ） =====
 function renderContentSelect() {
-  const subjects = [...new Set(window.data.map(d => d.subject))].sort();
+  const subjects = [...new Set(window.appData.data.map(d => d.subject))].sort();
   const selSubj  = document.getElementById('sel-subject');
   const prev     = selSubj.value;
   selSubj.innerHTML = '<option value="">科目を選択</option>' +
-    subjects.map(s => `<option value="${s}" ${s===prev?'selected':''}>${s}</option>`).join('');
+    subjects.map(s => `<option value="${escapeHtml(s)}"${s===prev?' selected':''}>${escapeHtml(s)}</option>`).join('');
   onSubjectChange();
-  // 管理一覧フィルターも更新
-  const listFilter = document.getElementById('list-subject-filter');
-  const prevList   = listFilter.value;
-  listFilter.innerHTML = '<option value="">すべての科目</option>' +
-    subjects.map(s => `<option value="${s}" ${s===prevList?'selected':''}>${s}</option>`).join('');
+
+  const lf = document.getElementById('list-subject-filter');
+  const prevLf = lf.value;
+  lf.innerHTML = '<option value="">すべての科目</option>' +
+    subjects.map(s => `<option value="${escapeHtml(s)}"${s===prevLf?' selected':''}>${escapeHtml(s)}</option>`).join('');
 }
+window.renderContentSelect = renderContentSelect;
 
 function onSubjectChange() {
-  const subj     = document.getElementById('sel-subject').value;
+  const subj = document.getElementById('sel-subject').value;
   const chapters = [...new Set(
-    window.data.filter(d => d.subject === subj).map(d => d.chapter)
+    window.appData.data.filter(d => d.subject === subj).map(d => d.chapter)
   )].sort();
-  const selChap  = document.getElementById('sel-chapter');
+  const selChap = document.getElementById('sel-chapter');
   selChap.innerHTML = '<option value="">章を選択</option>' +
-    chapters.map(c => `<option value="${c}">${c}</option>`).join('');
+    chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
   document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>';
 }
 
 function onChapterChange() {
   const subj  = document.getElementById('sel-subject').value;
   const chap  = document.getElementById('sel-chapter').value;
-  const items = window.data
+  const items = window.appData.data
     .filter(d => d.subject === subj && d.chapter === chap)
     .sort((a,b) => a.no.localeCompare(b.no));
-  const selItem = document.getElementById('sel-item');
-  selItem.innerHTML = '<option value="">コンテンツを選択</option>' +
-    items.map(d => `<option value="${d.id}">${d.no}. ${d.title}</option>`).join('');
+  document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>' +
+    items.map(d => `<option value="${d.id}">${escapeHtml(d.no)}. ${escapeHtml(d.title)}</option>`).join('');
 }
 
 function confirmContentSelect() {
   const id = document.getElementById('sel-item').value;
   if (!id) { alert('コンテンツを選択してください'); return; }
   selectItem(id);
+  switchTab('study', document.querySelector('[data-tab="study"]'));
 }
 
-// ===== モーダル内コンボボックス =====
+// ===== モーダルコンボ =====
 function refreshModalSubjects() {
-  const subjects = [...new Set(window.data.map(d => d.subject))].sort();
+  const subjects = [...new Set(window.appData.data.map(d => d.subject))].sort();
   const sel = document.getElementById('new-subject-sel');
   sel.innerHTML = '<option value="">-- 新規入力 --</option>' +
-    subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+    subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
   document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>';
   document.getElementById('new-subject').value = '';
   document.getElementById('new-chapter').value = '';
@@ -986,26 +992,33 @@ function refreshModalSubjects() {
 function onNewSubjectSelChange() {
   const val = document.getElementById('new-subject-sel').value;
   document.getElementById('new-subject').value = val;
-  // 章を更新
   const chapters = [...new Set(
-    window.data.filter(d => d.subject === val).map(d => d.chapter)
+    window.appData.data.filter(d => d.subject === val).map(d => d.chapter)
   )].sort();
-  const chapSel = document.getElementById('new-chapter-sel');
-  chapSel.innerHTML = '<option value="">-- 新規入力 --</option>' +
-    chapters.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>' +
+    chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
   document.getElementById('new-chapter').value = '';
 }
 
 function onNewChapterSelChange() {
-  const val = document.getElementById('new-chapter-sel').value;
-  document.getElementById('new-chapter').value = val;
+  document.getElementById('new-chapter').value = document.getElementById('new-chapter-sel').value;
 }
 
 // ===== ツリー =====
+function getBestScore(id) {
+  const recs = window.appData.records.filter(r => r.itemId === id);
+  return recs.length === 0 ? null : Math.max(...recs.map(r => r.score));
+}
+function getLastStudyDate(id) {
+  const recs = window.appData.records.filter(r => r.itemId === id);
+  if (recs.length === 0) return null;
+  return recs.sort((a,b) => b.date.localeCompare(a.date))[0].date;
+}
+
 function renderTree() {
-  const tree     = document.getElementById('tree');
+  const tree = document.getElementById('tree');
   const subjects = {};
-  window.data.forEach(item => {
+  window.appData.data.forEach(item => {
     if (!subjects[item.subject]) subjects[item.subject] = {};
     if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
     subjects[item.subject][item.chapter].push(item);
@@ -1016,39 +1029,36 @@ function renderTree() {
     return;
   }
   Object.entries(subjects).forEach(([subj, chapters]) => {
-    const subjEl = document.createElement('div');
+    const subjEl    = document.createElement('div');
     subjEl.className = 'tree-subject';
-    const subjLabel = document.createElement('div');
+    const subjLabel  = document.createElement('div');
     subjLabel.className = 'tree-subject-label';
-    subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${subj}`;
+    subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${escapeHtml(subj)}`;
     const chapterWrap = document.createElement('div');
-    subjLabel.onclick = () => {
+    subjLabel.addEventListener('click', () => {
       subjEl.classList.toggle('collapsed');
       chapterWrap.style.display = subjEl.classList.contains('collapsed') ? 'none' : '';
-    };
+    });
     subjEl.appendChild(subjLabel);
     Object.entries(chapters).forEach(([chap, items]) => {
-      const chapEl = document.createElement('div');
+      const chapEl    = document.createElement('div');
       chapEl.className = 'tree-chapter';
-      const chapLabel = document.createElement('div');
+      const chapLabel  = document.createElement('div');
       chapLabel.className = 'tree-chapter-label';
-      chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${chap}`;
+      chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${escapeHtml(chap)}`;
       const itemWrap = document.createElement('div');
       itemWrap.className = 'tree-items';
-      chapLabel.onclick = () => {
+      chapLabel.addEventListener('click', () => {
         chapEl.classList.toggle('collapsed');
         itemWrap.style.display = chapEl.classList.contains('collapsed') ? 'none' : '';
-      };
+      });
       chapEl.appendChild(chapLabel);
       items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
         const best   = getBestScore(item.id);
         const itemEl = document.createElement('div');
-        itemEl.className = 'tree-item' + (item.id === window.selectedId ? ' active' : '');
-        itemEl.innerHTML = `
-          <span>${item.no}. ${item.title}</span>
-          ${best !== null ? `<span class="item-score">${best}%</span>` : ''}
-        `;
-        itemEl.onclick = () => { selectItem(item.id); closeSidebar(); };
+        itemEl.className = 'tree-item' + (item.id === window.appData.selectedId ? ' active' : '');
+        itemEl.innerHTML = `<span>${escapeHtml(item.no)}. ${escapeHtml(item.title)}</span>${best !== null ? `<span class="item-score">${best}%</span>` : ''}`;
+        itemEl.addEventListener('click', () => { selectItem(item.id); closeSidebar(); });
         itemWrap.appendChild(itemEl);
       });
       chapEl.appendChild(itemWrap);
@@ -1058,114 +1068,70 @@ function renderTree() {
     tree.appendChild(subjEl);
   });
 }
-
-function getBestScore(id) {
-  const recs = window.records.filter(r => r.itemId === id);
-  if (recs.length === 0) return null;
-  return Math.max(...recs.map(r => r.score));
-}
-
-function getLastStudyDate(id) {
-  const recs = window.records.filter(r => r.itemId === id);
-  if (recs.length === 0) return null;
-  return recs.sort((a,b) => b.date.localeCompare(a.date))[0].date;
-}
+window.renderTree = renderTree;
 
 // ===== 管理一覧テーブル =====
 function renderManageList() {
-  const wrap         = document.getElementById('manage-list-wrap');
-  const subjectFilter = document.getElementById('list-subject-filter').value;
-  const sortMode     = document.getElementById('list-sort').value;
-
-  let items = [...window.data];
-  if (subjectFilter) items = items.filter(d => d.subject === subjectFilter);
-
-  // スコア・日付を付与
-  items = items.map(item => ({
+  const wrap    = document.getElementById('manage-list-wrap');
+  const subjF   = document.getElementById('list-subject-filter').value;
+  const sortMode = document.getElementById('list-sort').value;
+  let items = window.appData.data.map(item => ({
     ...item,
-    _bestScore: getBestScore(item.id),
-    _lastDate:  getLastStudyDate(item.id)
+    _best: getBestScore(item.id),
+    _last: getLastStudyDate(item.id)
   }));
-
-  // ソート
-  if (sortMode === 'score-desc') {
-    items.sort((a,b) => (b._bestScore ?? -1) - (a._bestScore ?? -1));
-  } else if (sortMode === 'score-asc') {
-    items.sort((a,b) => (a._bestScore ?? 101) - (b._bestScore ?? 101));
-  } else if (sortMode === 'date-desc') {
-    items.sort((a,b) => (b._lastDate || '').localeCompare(a._lastDate || ''));
-  } else if (sortMode === 'date-asc') {
-    items.sort((a,b) => (a._lastDate || 'Z').localeCompare(b._lastDate || 'Z'));
-  } else {
-    items.sort((a,b) => {
-      const sc = a.subject.localeCompare(b.subject);
-      if (sc !== 0) return sc;
-      const cc = a.chapter.localeCompare(b.chapter);
-      if (cc !== 0) return cc;
-      return a.no.localeCompare(b.no);
-    });
-  }
-
+  if (subjF) items = items.filter(d => d.subject === subjF);
+  if (sortMode === 'score-desc') items.sort((a,b) => (b._best ?? -1) - (a._best ?? -1));
+  else if (sortMode === 'score-asc') items.sort((a,b) => (a._best ?? 101) - (b._best ?? 101));
+  else if (sortMode === 'date-desc') items.sort((a,b) => (b._last||'').localeCompare(a._last||''));
+  else if (sortMode === 'date-asc')  items.sort((a,b) => (a._last||'Z').localeCompare(b._last||'Z'));
+  else items.sort((a,b) => {
+    const sc = a.subject.localeCompare(b.subject);
+    if (sc) return sc;
+    const cc = a.chapter.localeCompare(b.chapter);
+    if (cc) return cc;
+    return a.no.localeCompare(b.no);
+  });
   if (items.length === 0) {
     wrap.innerHTML = '<div class="empty-state"><div class="icon">📂</div>コンテンツがありません</div>';
     return;
   }
-
-  let html = `
-    <div class="content-table-wrap">
-      <table class="content-table">
-        <thead>
-          <tr>
-            <th>科目</th>
-            <th>章</th>
-            <th>No</th>
-            <th>タイトル</th>
-            <th>最高スコア</th>
-            <th>最終学習日</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
+  let html = `<div class="content-table-wrap"><table class="content-table"><thead><tr>
+    <th>科目</th><th>章</th><th>No</th><th>タイトル</th><th>最高スコア</th><th>最終学習日</th>
+  </tr></thead><tbody>`;
   items.forEach(item => {
-    const score = item._bestScore;
-    const date  = item._lastDate;
-    const scoreCls = score === null ? 'score-none' : score >= 80 ? 'score-high' : score >= 50 ? 'score-mid' : 'score-low';
-    const scoreStr = score === null ? '未学習' : score + '%';
-    const dateStr  = date ? formatDate(date) : '—';
-    const is isSelected = item.id === window.selectedId;
-    html += `
-      <tr class="${isSelected ? 'selected-row' : ''}" onclick="selectItemFromList('${item.id}')">
-        <td>${escapeHtml(item.subject)}</td>
-        <td>${escapeHtml(item.chapter)}</td>
-        <td>${escapeHtml(item.no)}</td>
-        <td>${escapeHtml(item.title)}</td>
-        <td><span class="score-badge ${scoreCls}">${scoreStr}</span></td>
-        <td style="font-size:0.78rem;color:#888;">${dateStr}</td>
-      </tr>
-    `;
+    const sc  = item._best;
+    const cls = sc === null ? 'score-none' : sc >= 80 ? 'score-high' : sc >= 50 ? 'score-mid' : 'score-low';
+    const scStr = sc === null ? '未学習' : sc + '%';
+    const dtStr = item._last ? formatDate(item._last) : '—';
+    const sel   = item.id === window.appData.selectedId ? 'selected-row' : '';
+    html += `<tr class="${sel}" data-id="${item.id}">
+      <td>${escapeHtml(item.subject)}</td>
+      <td>${escapeHtml(item.chapter)}</td>
+      <td>${escapeHtml(item.no)}</td>
+      <td>${escapeHtml(item.title)}</td>
+      <td><span class="score-badge ${cls}">${scStr}</span></td>
+      <td style="font-size:0.78rem;color:#888;">${dtStr}</td>
+    </tr>`;
   });
   html += '</tbody></table></div>';
   wrap.innerHTML = html;
+  // 行クリックイベント
+  wrap.querySelectorAll('tr[data-id]').forEach(tr => {
+    tr.addEventListener('click', () => {
+      selectItem(tr.dataset.id);
+      setTimeout(() => {
+        document.getElementById('manage-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    });
+  });
 }
-
-function selectItemFromList(id) {
-  selectItem(id);
-  // 編集エリアまでスクロール
-  setTimeout(() => {
-    const editor = document.getElementById('manage-editor');
-    if (editor) editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
-}
-
-function formatDate(isoStr) {
-  const d = new Date(isoStr);
-  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-}
+window.renderManageList = renderManageList;
 
 // ===== アイテム選択 =====
 function selectItem(id) {
-  window.selectedId = id;
-  const item = window.data.find(d => d.id === id);
+  window.appData.selectedId = id;
+  const item = window.appData.data.find(d => d.id === id);
   if (!item) return;
   document.getElementById('manage-empty').style.display = 'none';
   document.getElementById('manage-editor').style.display = 'block';
@@ -1195,21 +1161,21 @@ function renderColorPicker() {
     const sw = document.createElement('div');
     sw.className = 'color-swatch' + (c === selectedKwColor ? ' selected' : '');
     sw.style.background = c;
-    sw.onclick = () => { selectedKwColor = c; renderColorPicker(); };
+    sw.addEventListener('click', () => { selectedKwColor = c; renderColorPicker(); });
     row.appendChild(sw);
   });
 }
 
 function addKeyword() {
   const kw = document.getElementById('kw-input').value.trim();
-  if (!kw || !window.selectedId) return;
-  const item = window.data.find(d => d.id === window.selectedId);
+  if (!kw || !window.appData.selectedId) return;
+  const item = window.appData.data.find(d => d.id === window.appData.selectedId);
   if (!item) return;
   if (!item.keywords) item.keywords = [];
   if (item.keywords.find(k => k.word === kw)) return;
   item.keywords.push({ word: kw, color: selectedKwColor });
   document.getElementById('kw-input').value = '';
-  window.saveOneItem(item);
+  window.saveOneItem && window.saveOneItem(item);
   renderKeywordList(item);
   updatePreview(item);
 }
@@ -1220,19 +1186,18 @@ function renderKeywordList(item) {
   (item.keywords || []).forEach((kw, i) => {
     const tag = document.createElement('div');
     tag.className = 'keyword-tag';
-    tag.style.background  = kw.color + '22';
-    tag.style.color       = kw.color;
-    tag.style.borderColor = kw.color;
-    tag.innerHTML = `${kw.word} <span class="kw-del" onclick="removeKeyword(${i})">✕</span>`;
+    tag.style.cssText = `background:${kw.color}22;color:${kw.color};border-color:${kw.color};`;
+    tag.innerHTML = `${escapeHtml(kw.word)} <span class="kw-del">✕</span>`;
+    tag.querySelector('.kw-del').addEventListener('click', () => removeKeyword(i));
     list.appendChild(tag);
   });
 }
 
 function removeKeyword(i) {
-  const item = window.data.find(d => d.id === window.selectedId);
+  const item = window.appData.data.find(d => d.id === window.appData.selectedId);
   if (!item) return;
   item.keywords.splice(i, 1);
-  window.saveOneItem(item);
+  window.saveOneItem && window.saveOneItem(item);
   renderKeywordList(item);
   updatePreview(item);
 }
@@ -1241,33 +1206,26 @@ function applyKeywords(text, keywords) {
   if (!keywords || keywords.length === 0)
     return escapeHtml(text).replace(/\n/g, '<br>');
   let result = escapeHtml(text);
-  const sorted = [...keywords].sort((a,b) => b.word.length - a.word.length);
-  sorted.forEach(kw => {
-    const escaped = escapeHtml(kw.word);
-    const re = new RegExp(escaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+  [...keywords].sort((a,b) => b.word.length - a.word.length).forEach(kw => {
+    const esc = escapeHtml(kw.word);
+    const re  = new RegExp(esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
     result = result.replace(re,
-      `<mark style="background:${kw.color}22;color:${kw.color};font-weight:700;border-radius:3px;padding:0 2px;">${escaped}</mark>`);
+      `<mark style="background:${kw.color}22;color:${kw.color};font-weight:700;border-radius:3px;padding:0 2px;">${esc}</mark>`);
   });
   return result.replace(/\n/g, '<br>');
 }
 
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
 function livePreview() {
-  const item = window.data.find(d => d.id === window.selectedId);
-  if (!item) return;
-  updatePreview(item);
+  const item = window.appData.data.find(d => d.id === window.appData.selectedId);
+  if (item) updatePreview(item);
 }
 
 function updatePreview(item) {
-  const text = document.getElementById('edit-text').value;
   document.getElementById('text-preview').innerHTML =
-    applyKeywords(text, item.keywords || []);
+    applyKeywords(document.getElementById('edit-text').value, item.keywords || []);
 }
 
-// ===== 管理 =====
+// ===== 管理操作 =====
 function openAddModal() {
   refreshModalSubjects();
   document.getElementById('add-modal').classList.add('open');
@@ -1277,7 +1235,6 @@ function closeModal() {
 }
 
 function addItem() {
-  // 選択 or 入力のどちらかを使う
   const subject = document.getElementById('new-subject').value.trim();
   const chapter = document.getElementById('new-chapter').value.trim();
   const no      = document.getElementById('new-no').value.trim();
@@ -1286,60 +1243,47 @@ function addItem() {
   if (!subject || !chapter || !no || !title || !text) {
     alert('すべての項目を入力してください'); return;
   }
-  if (!window.saveOneItem) {
-    alert('ログインしてから追加してください'); return;
-  }
   const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
-  window.data.push(item);
-  renderTree();
-  renderContentSelect();
-  renderManageList();
+  window.appData.data.push(item);
+  renderTree(); renderContentSelect(); renderManageList();
   selectItem(item.id);
   closeModal();
   ['new-no','new-title','new-text'].forEach(id => { document.getElementById(id).value = ''; });
-  window.saveOneItem(item).catch(err => {
-    alert('保存に失敗しました: ' + err.message);
-  });
+  window.saveOneItem && window.saveOneItem(item).catch(err => alert('保存失敗: ' + err.message));
 }
 
 function saveItem() {
-  if (!window.selectedId) return;
-  const item = window.data.find(d => d.id === window.selectedId);
+  const id = window.appData.selectedId;
+  if (!id) return;
+  const item = window.appData.data.find(d => d.id === id);
   if (!item) return;
   item.subject = document.getElementById('edit-subject').value.trim();
   item.chapter = document.getElementById('edit-chapter').value.trim();
   item.no      = document.getElementById('edit-no').value.trim();
   item.title   = document.getElementById('edit-title').value.trim();
   item.text    = document.getElementById('edit-text').value.trim();
-  window.saveOneItem(item).then(() => {
-    renderTree();
-    renderContentSelect();
-    renderManageList();
-    updatePreview(item);
+  window.saveOneItem && window.saveOneItem(item).then(() => {
+    renderTree(); renderContentSelect(); renderManageList(); updatePreview(item);
     document.getElementById('study-title').textContent =
       `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
-    document.getElementById('view-text').innerHTML =
-      applyKeywords(item.text, item.keywords || []);
-    document.getElementById('original-text-display').innerHTML =
-      applyKeywords(item.text, item.keywords || []);
+    document.getElementById('view-text').innerHTML = applyKeywords(item.text, item.keywords || []);
+    document.getElementById('original-text-display').innerHTML = applyKeywords(item.text, item.keywords || []);
     alert('保存しました！');
   });
 }
 
 function deleteItem() {
-  if (!window.selectedId) return;
-  if (!confirm('このコンテンツを削除しますか？')) return;
-  const id = window.selectedId;
-  window.deleteItemFromDB(id);
-  window.records.filter(r => r.itemId === id).forEach(r => window.deleteRecordFromDB(r.id));
-  window.data    = window.data.filter(d => d.id !== id);
-  window.records = window.records.filter(r => r.itemId !== id);
-  window.selectedId = null;
+  const id = window.appData.selectedId;
+  if (!id || !confirm('このコンテンツを削除しますか？')) return;
+  window.deleteItemFromDB && window.deleteItemFromDB(id);
+  window.appData.records.filter(r => r.itemId === id)
+    .forEach(r => window.deleteRecordFromDB && window.deleteRecordFromDB(r.id));
+  window.appData.data    = window.appData.data.filter(d => d.id !== id);
+  window.appData.records = window.appData.records.filter(r => r.itemId !== id);
+  window.appData.selectedId = null;
   document.getElementById('manage-empty').style.display = 'block';
   document.getElementById('manage-editor').style.display = 'none';
-  renderTree();
-  renderContentSelect();
-  renderManageList();
+  renderTree(); renderContentSelect(); renderManageList();
 }
 
 // ===== 学習モード =====
@@ -1357,30 +1301,29 @@ function toggleOriginal() {
 }
 
 // ===== スコア計算 =====
-function normalize(str) {
-  return str.replace(/[、。，．・\n\r\s　]/g, '');
-}
+function normalize(str) { return str.replace(/[、。，．・\n\r\s　]/g, ''); }
 
 function lcsLength(a, b) {
   const m = a.length, n = b.length;
-  let prev = new Array(n + 1).fill(0);
+  let prev = new Array(n+1).fill(0);
   for (let i = 1; i <= m; i++) {
-    const curr = new Array(n + 1).fill(0);
+    const curr = new Array(n+1).fill(0);
     for (let j = 1; j <= n; j++)
-      curr[j] = a[i-1] === b[j-1] ? prev[j-1] + 1 : Math.max(prev[j], curr[j-1]);
+      curr[j] = a[i-1]===b[j-1] ? prev[j-1]+1 : Math.max(prev[j], curr[j-1]);
     prev = curr;
   }
   return prev[n];
 }
 
 function calcScore() {
-  if (!window.selectedId) return 0;
-  const item = window.data.find(d => d.id === window.selectedId);
+  const id = window.appData.selectedId;
+  if (!id) return 0;
+  const item = window.appData.data.find(d => d.id === id);
   if (!item) return 0;
-  const original = normalize(item.text);
-  const input    = normalize(document.getElementById('typing-input').value);
-  if (original.length === 0) return 0;
-  const pct = Math.round((lcsLength(original, input) / original.length) * 100);
+  const orig  = normalize(item.text);
+  const input = normalize(document.getElementById('typing-input').value);
+  if (!orig.length) return 0;
+  const pct = Math.round(lcsLength(orig, input) / orig.length * 100);
   const bar = document.getElementById('score-bar');
   bar.style.width      = pct + '%';
   bar.style.background = pct >= 80 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
@@ -1390,31 +1333,27 @@ function calcScore() {
 }
 
 function showDiff() {
-  if (!window.selectedId) return;
-  const item = window.data.find(d => d.id === window.selectedId);
+  const id = window.appData.selectedId;
+  if (!id) return;
+  const item  = window.appData.data.find(d => d.id === id);
   if (!item) return;
-  const original = normalize(item.text);
-  const input    = normalize(document.getElementById('typing-input').value);
+  const orig  = normalize(item.text);
+  const input = normalize(document.getElementById('typing-input').value);
   calcScore();
-  const m = original.length, n = input.length;
-  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
-  for (let i = 1; i <= m; i++)
-    for (let j = 1; j <= n; j++)
-      dp[i][j] = original[i-1] === input[j-1]
-        ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+  const m = orig.length, n = input.length;
+  const dp = Array.from({length:m+1}, () => new Array(n+1).fill(0));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = orig[i-1]===input[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j],dp[i][j-1]);
   const matched = new Array(m).fill(false);
-  let i = m, j = n;
-  while (i > 0 && j > 0) {
-    if (original[i-1] === input[j-1]) { matched[i-1] = true; i--; j--; }
-    else if (dp[i-1][j] >= dp[i][j-1]) i--;
-    else j--;
+  let i=m, j=n;
+  while (i>0&&j>0) {
+    if (orig[i-1]===input[j-1]) { matched[i-1]=true; i--; j--; }
+    else if (dp[i-1][j]>=dp[i][j-1]) i--; else j--;
   }
-  let html = '';
-  for (let k = 0; k < original.length; k++) {
-    const ch = escapeHtml(original[k]);
-    html += matched[k]
-      ? `<span class="diff-ok">${ch}</span>`
-      : `<span class="diff-ng">${ch}</span>`;
+  let html='';
+  for (let k=0;k<orig.length;k++) {
+    const ch=escapeHtml(orig[k]);
+    html += matched[k] ? `<span class="diff-ok">${ch}</span>` : `<span class="diff-ng">${ch}</span>`;
   }
   const panel = document.getElementById('diff-panel');
   panel.style.display = 'block';
@@ -1430,75 +1369,72 @@ function clearTyping() {
 }
 
 function saveRecord() {
-  if (!window.selectedId) { alert('コンテンツを選択してください'); return; }
+  const id = window.appData.selectedId;
+  if (!id) { alert('コンテンツを選択してください'); return; }
   const score  = calcScore();
-  const item   = window.data.find(d => d.id === window.selectedId);
+  const item   = window.appData.data.find(d => d.id === id);
   const record = {
-    id:      Date.now().toString(),
-    itemId:  window.selectedId,
-    subject: item.subject,
-    chapter: item.chapter,
-    no:      item.no,
-    title:   item.title,
-    score:   score,
-    date:    new Date().toISOString()
+    id: Date.now().toString(), itemId: id,
+    subject: item.subject, chapter: item.chapter,
+    no: item.no, title: item.title,
+    score, date: new Date().toISOString()
   };
-  window.records.push(record);
-  window.saveOneRecord(record).then(() => {
-    renderTree();
-    updateHistoryFilter();
-    renderManageList();
+  window.appData.records.push(record);
+  window.saveOneRecord && window.saveOneRecord(record).then(() => {
+    renderTree(); updateHistoryFilter(); renderManageList();
     alert(`記録を保存しました！ スコア: ${score}%`);
   });
 }
 
 // ===== 記録 =====
 function renderHistory() {
-  const subjectFilter = document.getElementById('hist-subject-filter').value;
-  const dateFrom      = document.getElementById('hist-date-from').value;
-  const dateTo        = document.getElementById('hist-date-to').value;
-  let filtered = [...window.records];
-  if (subjectFilter) filtered = filtered.filter(r => r.subject === subjectFilter);
-  if (dateFrom)      filtered = filtered.filter(r => r.date >= dateFrom);
-  if (dateTo)        filtered = filtered.filter(r => r.date <= dateTo + 'T23:59:59');
+  const subj  = document.getElementById('hist-subject-filter').value;
+  const from  = document.getElementById('hist-date-from').value;
+  const to    = document.getElementById('hist-date-to').value;
+  let filtered = [...window.appData.records];
+  if (subj) filtered = filtered.filter(r => r.subject === subj);
+  if (from) filtered = filtered.filter(r => r.date >= from);
+  if (to)   filtered = filtered.filter(r => r.date <= to + 'T23:59:59');
   filtered.sort((a,b) => b.date.localeCompare(a.date));
   const list = document.getElementById('history-list');
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
     return;
   }
   list.innerHTML = filtered.map(r => {
-    const d = new Date(r.date);
-    const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     const cls = r.score >= 80 ? 'score-high' : r.score >= 50 ? 'score-mid' : 'score-low';
-    return `
-      <div class="history-card">
-        <div class="history-info">
-          <div class="history-path">${r.subject} > ${r.chapter}</div>
-          <div class="history-title">${r.no}. ${r.title}</div>
-          <div class="history-date">📅 ${dateStr}</div>
-        </div>
-        <div class="history-score-badge ${cls}">${r.score}%</div>
-        <button class="btn-small btn-danger" onclick="deleteRecord('${r.id}')">削除</button>
-      </div>`;
+    return `<div class="history-card">
+      <div class="history-info">
+        <div class="history-path">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
+        <div class="history-title">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
+        <div class="history-date">📅 ${formatDateTime(r.date)}</div>
+      </div>
+      <div class="history-score-badge ${cls}">${r.score}%</div>
+      <button class="btn-small btn-danger" data-recid="${r.id}">削除</button>
+    </div>`;
   }).join('');
+  list.querySelectorAll('[data-recid]').forEach(btn => {
+    btn.addEventListener('click', () => deleteRecord(btn.dataset.recid));
+  });
 }
+window.renderHistory = renderHistory;
 
 function deleteRecord(id) {
   if (!confirm('この記録を削除しますか？')) return;
-  window.records = window.records.filter(r => r.id !== id);
-  window.deleteRecordFromDB(id).then(() => {
+  window.appData.records = window.appData.records.filter(r => r.id !== id);
+  window.deleteRecordFromDB && window.deleteRecordFromDB(id).then(() => {
     renderHistory(); renderTree(); renderCalendar(); renderManageList();
   });
 }
 
 function updateHistoryFilter() {
-  const sel      = document.getElementById('hist-subject-filter');
-  const current  = sel.value;
-  const subjects = [...new Set(window.data.map(d => d.subject))];
-  sel.innerHTML  = '<option value="">すべて</option>' +
-    subjects.map(s => `<option value="${s}" ${s===current?'selected':''}>${s}</option>`).join('');
+  const sel     = document.getElementById('hist-subject-filter');
+  const current = sel.value;
+  const subjects = [...new Set(window.appData.data.map(d => d.subject))];
+  sel.innerHTML = '<option value="">すべて</option>' +
+    subjects.map(s => `<option value="${escapeHtml(s)}"${s===current?' selected':''}>${escapeHtml(s)}</option>`).join('');
 }
+window.updateHistoryFilter = updateHistoryFilter;
 
 function clearHistoryFilter() {
   document.getElementById('hist-subject-filter').value = '';
@@ -1522,46 +1458,45 @@ function renderCalendar() {
   const prevLast = new Date(calYear, calMonth, 0).getDate();
   const today    = new Date();
   const dayMap   = {};
-  window.records.forEach(r => {
+  window.appData.records.forEach(r => {
     const d = new Date(r.date);
-    if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
-      const key = d.getDate();
-      if (!dayMap[key]) dayMap[key] = [];
-      dayMap[key].push(r);
+    if (d.getFullYear()===calYear && d.getMonth()===calMonth) {
+      const k = d.getDate();
+      if (!dayMap[k]) dayMap[k] = [];
+      dayMap[k].push(r);
     }
   });
   const grid = document.getElementById('cal-days');
   grid.innerHTML = '';
-  for (let i = firstDay - 1; i >= 0; i--)
-    grid.appendChild(createDayCell(prevLast - i, true, [], null));
-  for (let d = 1; d <= lastDate; d++) {
+  for (let i=firstDay-1; i>=0; i--) grid.appendChild(createDayCell(prevLast-i, true, []));
+  for (let d=1; d<=lastDate; d++) {
     const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
-    const cell = createDayCell(d, false, dayMap[d]||[], isToday ? 'today' : null);
-    cell.onclick = () => showCalDetail(d, dayMap[d]||[]);
+    const cell = createDayCell(d, false, dayMap[d]||[], isToday);
+    const day  = d, recs = dayMap[d]||[];
+    cell.addEventListener('click', () => showCalDetail(day, recs));
     grid.appendChild(cell);
   }
-  const total  = firstDay + lastDate;
-  const remain = total % 7 === 0 ? 0 : 7 - (total % 7);
-  for (let d = 1; d <= remain; d++)
-    grid.appendChild(createDayCell(d, true, [], null));
+  const remain = (firstDay + lastDate) % 7;
+  if (remain) for (let d=1; d<=7-remain; d++) grid.appendChild(createDayCell(d, true, []));
   document.getElementById('cal-detail').style.display = 'none';
 }
+window.renderCalendar = renderCalendar;
 
-function createDayCell(day, otherMonth, recs, extra) {
+function createDayCell(day, otherMonth, recs, isToday) {
   const cell = document.createElement('div');
-  cell.className = 'cal-day' + (otherMonth ? ' other-month' : '') + (extra === 'today' ? ' today' : '');
-  const numDiv = document.createElement('div');
-  numDiv.className = 'cal-day-num';
-  numDiv.textContent = day;
-  cell.appendChild(numDiv);
+  cell.className = 'cal-day' + (otherMonth?' other-month':'') + (isToday?' today':'');
+  const num = document.createElement('div');
+  num.className = 'cal-day-num';
+  num.textContent = day;
+  cell.appendChild(num);
   if (recs.length > 0) {
     const evDiv = document.createElement('div');
     evDiv.className = 'cal-events';
-    recs.slice(0, 2).forEach(r => {
+    recs.slice(0,2).forEach(r => {
       const ev = document.createElement('div');
       ev.className = 'cal-event';
-      ev.style.background = r.score >= 80 ? '#27ae60' : r.score >= 50 ? '#f39c12' : '#e74c3c';
-      ev.textContent = `${r.score}%`;
+      ev.style.background = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
+      ev.textContent = r.score + '%';
       evDiv.appendChild(ev);
     });
     if (recs.length > 2) {
@@ -1576,32 +1511,27 @@ function createDayCell(day, otherMonth, recs, extra) {
 }
 
 function showCalDetail(day, recs) {
-  const detail = document.getElementById('cal-detail');
-  document.getElementById('cal-detail-title').textContent =
-    `${calYear}年${calMonth+1}月${day}日 の記録`;
+  document.getElementById('cal-detail-title').textContent = `${calYear}年${calMonth+1}月${day}日 の記録`;
   const list = document.getElementById('cal-detail-list');
-  if (recs.length === 0) {
-    list.innerHTML = '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>';
-  } else {
-    list.innerHTML = recs.map(r => {
-      const d = new Date(r.date);
-      const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      const col = r.score >= 80 ? '#27ae60' : r.score >= 50 ? '#f39c12' : '#e74c3c';
-      return `
-        <div class="cal-detail-item">
+  list.innerHTML = recs.length === 0
+    ? '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>'
+    : recs.map(r => {
+        const d   = new Date(r.date);
+        const t   = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const col = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
+        return `<div class="cal-detail-item">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:0.75rem;color:#888;">${r.subject} > ${r.chapter}</div>
-            <div style="font-size:0.88rem;font-weight:600;">${r.no}. ${r.title}</div>
-            <div style="font-size:0.75rem;color:#aaa;">${timeStr}</div>
+            <div style="font-size:0.75rem;color:#888;">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
+            <div style="font-size:0.88rem;font-weight:600;">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
+            <div style="font-size:0.75rem;color:#aaa;">${t}</div>
           </div>
           <div style="font-size:1.1rem;font-weight:700;color:${col};flex-shrink:0;">${r.score}%</div>
         </div>`;
-    }).join('');
-  }
-  detail.style.display = 'block';
+      }).join('');
+  document.getElementById('cal-detail').style.display = 'block';
 }
 
-// ===== 学習計画（タスク） =====
+// ===== 学習計画 =====
 function addTask() {
   const title    = document.getElementById('task-title-input').value.trim();
   const due      = document.getElementById('task-due-input').value;
@@ -1609,17 +1539,12 @@ function addTask() {
   const memo     = document.getElementById('task-memo-input').value.trim();
   if (!title) { alert('タイトルを入力してください'); return; }
   const task = {
-    id:        Date.now().toString(),
-    title,
-    due:       due || null,
-    priority,
-    memo,
-    done:      false,
-    createdAt: new Date().toISOString(),
-    doneAt:    null
+    id: Date.now().toString(), title,
+    due: due || null, priority, memo,
+    done: false, createdAt: new Date().toISOString(), doneAt: null
   };
-  window.tasks.push(task);
-  window.saveOneTask(task).then(() => {
+  window.appData.tasks.push(task);
+  window.saveOneTask && window.saveOneTask(task).then(() => {
     renderTasks();
     document.getElementById('task-title-input').value = '';
     document.getElementById('task-due-input').value   = '';
@@ -1629,87 +1554,77 @@ function addTask() {
 }
 
 function toggleTask(id) {
-  const task = window.tasks.find(t => t.id === id);
+  const task = window.appData.tasks.find(t => t.id === id);
   if (!task) return;
   task.done   = !task.done;
   task.doneAt = task.done ? new Date().toISOString() : null;
-  window.saveOneTask(task).then(() => renderTasks());
+  window.saveOneTask && window.saveOneTask(task).then(() => renderTasks());
 }
 
 function deleteTask(id) {
   if (!confirm('このタスクを削除しますか？')) return;
-  window.tasks = window.tasks.filter(t => t.id !== id);
-  window.deleteTaskFromDB(id).then(() => renderTasks());
+  window.appData.tasks = window.appData.tasks.filter(t => t.id !== id);
+  window.deleteTaskFromDB && window.deleteTaskFromDB(id).then(() => renderTasks());
 }
 
 function renderTasks() {
   const filter   = document.getElementById('task-filter').value;
   const sortMode = document.getElementById('task-sort').value;
-  const today    = new Date().toISOString().slice(0, 10);
-
-  // 統計
-  const total   = window.tasks.length;
-  const done    = window.tasks.filter(t => t.done).length;
-  const overdue = window.tasks.filter(t => !t.done && t.due && t.due < today).length;
+  const today    = new Date().toISOString().slice(0,10);
+  const total    = window.appData.tasks.length;
+  const done     = window.appData.tasks.filter(t => t.done).length;
+  const overdue  = window.appData.tasks.filter(t => !t.done && t.due && t.due < today).length;
   document.getElementById('stat-total').textContent   = total;
   document.getElementById('stat-done').textContent    = done;
   document.getElementById('stat-overdue').textContent = overdue;
-
-  let items = [...window.tasks];
-
-  // フィルター
+  let items = [...window.appData.tasks];
   if (filter === 'todo')    items = items.filter(t => !t.done);
   if (filter === 'done')    items = items.filter(t => t.done);
   if (filter === 'overdue') items = items.filter(t => !t.done && t.due && t.due < today);
-
-  // ソート
-  const priorityOrder = { high: 0, mid: 1, low: 2 };
-  if (sortMode === 'due-asc') {
-    items.sort((a,b) => (a.due || 'Z').localeCompare(b.due || 'Z'));
-  } else if (sortMode === 'due-desc') {
-    items.sort((a,b) => (b.due || '').localeCompare(a.due || ''));
-  } else if (sortMode === 'priority') {
-    items.sort((a,b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-  } else {
-    items.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
-  }
-
+  const po = { high:0, mid:1, low:2 };
+  if (sortMode === 'due-asc')  items.sort((a,b) => (a.due||'Z').localeCompare(b.due||'Z'));
+  else if (sortMode === 'due-desc') items.sort((a,b) => (b.due||'').localeCompare(a.due||''));
+  else if (sortMode === 'priority') items.sort((a,b) => po[a.priority]-po[b.priority]);
+  else items.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
   const list = document.getElementById('task-list');
-  if (items.length === 0) {
+  if (!items.length) {
     list.innerHTML = '<div class="empty-state"><div class="icon">✅</div>タスクがありません</div>';
     return;
   }
-
   list.innerHTML = items.map(task => {
-    const isOverdue = !task.done && task.due && task.due < today;
-    const isToday   = !task.done && task.due && task.due === today;
-    const dueCls    = isOverdue ? 'overdue' : isToday ? 'today-due' : '';
-    const dueLabel  = isOverdue ? '⚠️ 期限超過' : isToday ? '📌 今日が期限' : '';
-    const dueStr    = task.due ? `${task.due} ${dueLabel}` : '期限なし';
-    const priLabel  = task.priority === 'high' ? '🔴 高' : task.priority === 'mid' ? '🟡 中' : '🟢 低';
-    const priCls    = task.priority === 'high' ? 'priority-high' : task.priority === 'mid' ? 'priority-mid' : 'priority-low';
-    const itemCls   = task.done ? 'done' : isOverdue ? 'overdue' : '';
-    return `
-      <div class="task-item ${itemCls}">
-        <div class="task-check ${task.done ? 'checked' : ''}" onclick="toggleTask('${task.id}')">
-          ${task.done ? '✓' : ''}
+    const isOver  = !task.done && task.due && task.due < today;
+    const isToday = !task.done && task.due && task.due === today;
+    const dueCls  = isOver ? 'overdue' : isToday ? 'today-due' : '';
+    const dueNote = isOver ? ' ⚠️期限超過' : isToday ? ' 📌今日が期限' : '';
+    const dueStr  = task.due ? task.due + dueNote : '期限なし';
+    const priLabel = task.priority==='high'?'🔴 高':task.priority==='mid'?'🟡 中':'🟢 低';
+    const priCls   = task.priority==='high'?'priority-high':task.priority==='mid'?'priority-mid':'priority-low';
+    const itemCls  = task.done ? 'done' : isOver ? 'overdue' : '';
+    return `<div class="task-item ${itemCls}">
+      <div class="task-check ${task.done?'checked':''}" data-taskid="${task.id}">${task.done?'✓':''}</div>
+      <div class="task-body">
+        <div class="task-title">${escapeHtml(task.title)}</div>
+        <div class="task-meta">
+          <span class="task-priority ${priCls}">${priLabel}</span>
+          <span class="task-due ${dueCls}">📅 ${dueStr}</span>
+          ${task.memo ? `<span>📝 ${escapeHtml(task.memo)}</span>` : ''}
+          ${task.done && task.doneAt ? `<span>✅ ${formatDate(task.doneAt)}完了</span>` : ''}
         </div>
-        <div class="task-body">
-          <div class="task-title">${escapeHtml(task.title)}</div>
-          <div class="task-meta">
-            <span class="task-priority ${priCls}">${priLabel}</span>
-            <span class="task-due ${dueCls}">📅 ${dueStr}</span>
-            ${task.memo ? `<span>📝 ${escapeHtml(task.memo)}</span>` : ''}
-            ${task.done && task.doneAt ? `<span>✅ ${formatDate(task.doneAt)}完了</span>` : ''}
-          </div>
-        </div>
-        <button class="btn-small btn-danger" onclick="deleteTask('${task.id}')" style="flex-shrink:0;">🗑</button>
       </div>
-    `;
+      <button class="btn-small btn-danger" data-deltaskid="${task.id}" style="flex-shrink:0;">🗑</button>
+    </div>`;
   }).join('');
+  list.querySelectorAll('[data-taskid]').forEach(el => {
+    el.addEventListener('click', () => toggleTask(el.dataset.taskid));
+  });
+  list.querySelectorAll('[data-deltaskid]').forEach(btn => {
+    btn.addEventListener('click', () => deleteTask(btn.dataset.deltaskid));
+  });
 }
+window.renderTasks = renderTasks;
 
-init();
+// DOMContentLoaded後に初期化
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
