@@ -650,8 +650,9 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
   </div>
 </div>
 
-<!-- ===== Firebase (module) ===== -->
+<!-- ===== すべてのJSをtype="module"に統一（実行順序を保証） ===== -->
 <script type="module">
+  // ========== Firebase ==========
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
@@ -664,8 +665,7 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
     projectId: "ankitool-3e1d7",
     storageBucket: "ankitool-3e1d7.firebasestorage.app",
     messagingSenderId: "959520253501",
-    appId: "1:959520253501:web:db39b346f8df1d5d542c54",
-    measurementId: "G-0QQYCL1831"
+    appId: "1:959520253501:web:db39b346f8df1d5d542c54"
   };
 
   const app      = initializeApp(firebaseConfig);
@@ -674,43 +674,77 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
   const provider = new GoogleAuthProvider();
   let unsubData = null, unsubRecords = null, unsubTasks = null;
 
-  // Firebase API を window 経由で通常スクリプトに公開
-  window._firebaseReady = true;
+  // ========== 共有状態 ==========
+  const appData = { data: [], records: [], tasks: [], selectedId: null };
 
-  window.doSignIn  = () => signInWithPopup(auth, provider).catch(console.error);
-  window.doSignOut = () => signOut(auth);
+  // ========== 定数 ==========
+  const COLORS = [
+    '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+    '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
+  ];
+  let selectedKwColor = '#e74c3c';
+  let currentMode  = 'view';
+  let showOriginal = true;
+  let calYear, calMonth;
 
-  window.saveOneItem = async (item) => {
-    const u = auth.currentUser; if (!u) return;
+  // ========== ユーティリティ ==========
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function formatDate(isoStr) {
+    const d = new Date(isoStr);
+    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function formatDateTime(isoStr) {
+    const d = new Date(isoStr);
+    return `${formatDate(isoStr)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function showSync() {
+    const el = document.getElementById('sync-indicator');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2000);
+  }
+
+  // ========== Firebase操作 ==========
+  async function saveOneItem(item) {
+    const u = auth.currentUser;
+    if (!u) return;
     await setDoc(doc(db, 'users', u.uid, 'data', item.id), item);
-    window.showSync();
-  };
-  window.saveOneRecord = async (record) => {
-    const u = auth.currentUser; if (!u) return;
+    showSync();
+  }
+  async function saveOneRecord(record) {
+    const u = auth.currentUser;
+    if (!u) return;
     await setDoc(doc(db, 'users', u.uid, 'records', record.id), record);
-    window.showSync();
-  };
-  window.deleteItemFromDB = async (id) => {
-    const u = auth.currentUser; if (!u) return;
+    showSync();
+  }
+  async function deleteItemFromDB(id) {
+    const u = auth.currentUser;
+    if (!u) return;
     await deleteDoc(doc(db, 'users', u.uid, 'data', id));
-    window.showSync();
-  };
-  window.deleteRecordFromDB = async (id) => {
-    const u = auth.currentUser; if (!u) return;
+    showSync();
+  }
+  async function deleteRecordFromDB(id) {
+    const u = auth.currentUser;
+    if (!u) return;
     await deleteDoc(doc(db, 'users', u.uid, 'records', id));
-    window.showSync();
-  };
-  window.saveOneTask = async (task) => {
-    const u = auth.currentUser; if (!u) return;
+    showSync();
+  }
+  async function saveOneTask(task) {
+    const u = auth.currentUser;
+    if (!u) return;
     await setDoc(doc(db, 'users', u.uid, 'tasks', task.id), task);
-    window.showSync();
-  };
-  window.deleteTaskFromDB = async (id) => {
-    const u = auth.currentUser; if (!u) return;
+    showSync();
+  }
+  async function deleteTaskFromDB(id) {
+    const u = auth.currentUser;
+    if (!u) return;
     await deleteDoc(doc(db, 'users', u.uid, 'tasks', id));
-    window.showSync();
-  };
+    showSync();
+  }
 
+  // ========== 認証 ==========
   onAuthStateChanged(auth, user => {
     const authBar = document.getElementById('auth-bar');
     const overlay = document.getElementById('login-overlay');
@@ -729,902 +763,861 @@ body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
       if (unsubData)    { unsubData();    unsubData    = null; }
       if (unsubRecords) { unsubRecords(); unsubRecords = null; }
       if (unsubTasks)   { unsubTasks();   unsubTasks   = null; }
-      window.appData.data    = [];
-      window.appData.records = [];
-      window.appData.tasks   = [];
-      window.renderAll();
+      appData.data    = [];
+      appData.records = [];
+      appData.tasks   = [];
+      renderAll();
     }
   });
 
   function startSync(uid) {
     unsubData = onSnapshot(query(collection(db, 'users', uid, 'data')), snap => {
-      window.appData.data = snap.docs.map(d => d.data());
-      window.renderTree();
-      window.updateHistoryFilter();
-      window.renderContentSelect();
-      window.renderManageList();
-      if (window.appData.selectedId && !window.appData.data.find(d => d.id === window.appData.selectedId)) {
-        window.appData.selectedId = null;
+      appData.data = snap.docs.map(d => d.data());
+      renderTree();
+      updateHistoryFilter();
+      renderContentSelect();
+      renderManageList();
+      if (appData.selectedId && !appData.data.find(d => d.id === appData.selectedId)) {
+        appData.selectedId = null;
         document.getElementById('manage-empty').style.display = 'block';
         document.getElementById('manage-editor').style.display = 'none';
       }
     });
     unsubRecords = onSnapshot(query(collection(db, 'users', uid, 'records')), snap => {
-      window.appData.records = snap.docs.map(d => d.data());
-      window.renderTree();
-      window.renderHistory();
-      window.renderCalendar();
-      window.updateHistoryFilter();
-      window.renderManageList();
+      appData.records = snap.docs.map(d => d.data());
+      renderTree();
+      renderHistory();
+      renderCalendar();
+      updateHistoryFilter();
+      renderManageList();
     });
     unsubTasks = onSnapshot(query(collection(db, 'users', uid, 'tasks')), snap => {
-      window.appData.tasks = snap.docs.map(d => d.data());
-      window.renderTasks();
+      appData.tasks = snap.docs.map(d => d.data());
+      renderTasks();
     });
   }
-</script>
 
-<!-- ===== アプリ本体（通常スクリプト） ===== -->
-<script>
-// ===== 共有状態 =====
-window.appData = { data: [], records: [], tasks: [], selectedId: null };
-
-// ===== 定数 =====
-const COLORS = [
-  '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
-  '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
-];
-let selectedKwColor = '#e74c3c';
-let currentMode     = 'view';
-let showOriginal    = true;
-let calYear, calMonth;
-
-// ===== ユーティリティ =====
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function formatDate(isoStr) {
-  const d = new Date(isoStr);
-  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-}
-function formatDateTime(isoStr) {
-  const d = new Date(isoStr);
-  return `${formatDate(isoStr)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-window.showSync = function() {
-  const el = document.getElementById('sync-indicator');
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-};
-window.renderAll = function() {
-  renderTree(); renderHistory(); renderCalendar();
-  renderContentSelect(); renderManageList(); renderTasks();
-};
-
-// ===== 初期化 =====
-function init() {
-  const now = new Date();
-  calYear  = now.getFullYear();
-  calMonth = now.getMonth();
-  renderColorPicker();
-  renderTree();
-  renderCalendar();
-  renderHistory();
-  renderContentSelect();
-  renderManageList();
-  renderTasks();
-  loadLayoutSetting();
-  bindEvents();
-}
-
-// ===== イベントバインド（onclick属性を使わない） =====
-function bindEvents() {
-  // ログイン
-  document.getElementById('login-btn').addEventListener('click', () => window.doSignIn && window.doSignIn());
-
-  // ハンバーガー・設定
-  document.getElementById('hamburger-btn').addEventListener('click', toggleSidebar);
-  document.getElementById('settings-btn').addEventListener('click', toggleSettings);
-  document.getElementById('sidebar-close-btn').addEventListener('click', closeSidebar);
-  document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
-  document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
-  document.getElementById('settings-panel').addEventListener('click', e => {
-    if (e.target === document.getElementById('settings-panel')) closeSettings();
-  });
-
-  // レイアウト
-  document.getElementById('layout-portrait').addEventListener('click', () => setLayout('portrait'));
-  document.getElementById('layout-landscape').addEventListener('click', () => setLayout('landscape'));
-
-  // タブ
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
-  });
-
-  // 管理タブ
-  document.getElementById('manage-add-btn').addEventListener('click', openAddModal);
-  document.getElementById('sidebar-add-btn').addEventListener('click', openAddModal);
-  document.getElementById('save-item-btn').addEventListener('click', saveItem);
-  document.getElementById('delete-item-btn').addEventListener('click', deleteItem);
-  document.getElementById('kw-add-btn').addEventListener('click', addKeyword);
-  document.getElementById('edit-text').addEventListener('input', livePreview);
-  document.getElementById('list-subject-filter').addEventListener('change', renderManageList);
-  document.getElementById('list-sort').addEventListener('change', renderManageList);
-
-  // モーダル
-  document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
-  document.getElementById('modal-add-btn').addEventListener('click', addItem);
-  document.getElementById('add-modal').addEventListener('click', e => {
-    if (e.target === document.getElementById('add-modal')) closeModal();
-  });
-  document.getElementById('new-subject-sel').addEventListener('change', onNewSubjectSelChange);
-  document.getElementById('new-chapter-sel').addEventListener('change', onNewChapterSelChange);
-
-  // 学習タブ
-  document.getElementById('sel-subject').addEventListener('change', onSubjectChange);
-  document.getElementById('sel-chapter').addEventListener('change', onChapterChange);
-  document.getElementById('confirm-select-btn').addEventListener('click', confirmContentSelect);
-  document.getElementById('mode-view-btn').addEventListener('click', () => setMode('view'));
-  document.getElementById('mode-typing-btn').addEventListener('click', () => setMode('typing'));
-  document.getElementById('save-record-btn').addEventListener('click', saveRecord);
-  document.getElementById('show-diff-btn').addEventListener('click', showDiff);
-  document.getElementById('clear-typing-btn').addEventListener('click', clearTyping);
-  document.getElementById('toggle-original-btn').addEventListener('click', toggleOriginal);
-
-  // 記録タブ
-  document.getElementById('hist-subject-filter').addEventListener('change', renderHistory);
-  document.getElementById('hist-date-from').addEventListener('change', renderHistory);
-  document.getElementById('hist-date-to').addEventListener('change', renderHistory);
-  document.getElementById('history-reset-btn').addEventListener('click', clearHistoryFilter);
-
-  // カレンダー
-  document.getElementById('cal-prev-btn').addEventListener('click', () => changeMonth(-1));
-  document.getElementById('cal-next-btn').addEventListener('click', () => changeMonth(1));
-
-  // 計画タブ
-  document.getElementById('add-task-btn').addEventListener('click', addTask);
-  document.getElementById('task-filter').addEventListener('change', renderTasks);
-  document.getElementById('task-sort').addEventListener('change', renderTasks);
-}
-
-// ===== レイアウト =====
-function loadLayoutSetting() {
-  applyLayout(localStorage.getItem('ankitool-layout') || 'portrait');
-}
-function setLayout(mode) {
-  localStorage.setItem('ankitool-layout', mode);
-  applyLayout(mode);
-}
-function applyLayout(mode) {
-  document.body.classList.toggle('landscape-mode', mode === 'landscape');
-  document.getElementById('layout-portrait').classList.toggle('active', mode === 'portrait');
-  document.getElementById('layout-landscape').classList.toggle('active', mode === 'landscape');
-}
-
-// ===== サイドバー =====
-function toggleSidebar() {
-  const open = document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebar-overlay').classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// ===== 設定パネル =====
-function toggleSettings() {
-  document.getElementById('settings-panel').classList.toggle('open');
-}
-function closeSettings() {
-  document.getElementById('settings-panel').classList.remove('open');
-}
-
-// ===== タブ切替 =====
-function switchTab(tab, btn) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  btn.classList.add('active');
-  if (tab === 'history')  renderHistory();
-  if (tab === 'calendar') renderCalendar();
-  if (tab === 'plan')     renderTasks();
-  if (tab === 'manage')   renderManageList();
-}
-
-// ===== コンテンツ選択（学習タブ） =====
-function renderContentSelect() {
-  const subjects = [...new Set(window.appData.data.map(d => d.subject))].sort();
-  const selSubj  = document.getElementById('sel-subject');
-  const prev     = selSubj.value;
-  selSubj.innerHTML = '<option value="">科目を選択</option>' +
-    subjects.map(s => `<option value="${escapeHtml(s)}"${s===prev?' selected':''}>${escapeHtml(s)}</option>`).join('');
-  onSubjectChange();
-
-  const lf = document.getElementById('list-subject-filter');
-  const prevLf = lf.value;
-  lf.innerHTML = '<option value="">すべての科目</option>' +
-    subjects.map(s => `<option value="${escapeHtml(s)}"${s===prevLf?' selected':''}>${escapeHtml(s)}</option>`).join('');
-}
-window.renderContentSelect = renderContentSelect;
-
-function onSubjectChange() {
-  const subj = document.getElementById('sel-subject').value;
-  const chapters = [...new Set(
-    window.appData.data.filter(d => d.subject === subj).map(d => d.chapter)
-  )].sort();
-  const selChap = document.getElementById('sel-chapter');
-  selChap.innerHTML = '<option value="">章を選択</option>' +
-    chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-  document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>';
-}
-
-function onChapterChange() {
-  const subj  = document.getElementById('sel-subject').value;
-  const chap  = document.getElementById('sel-chapter').value;
-  const items = window.appData.data
-    .filter(d => d.subject === subj && d.chapter === chap)
-    .sort((a,b) => a.no.localeCompare(b.no));
-  document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>' +
-    items.map(d => `<option value="${d.id}">${escapeHtml(d.no)}. ${escapeHtml(d.title)}</option>`).join('');
-}
-
-function confirmContentSelect() {
-  const id = document.getElementById('sel-item').value;
-  if (!id) { alert('コンテンツを選択してください'); return; }
-  selectItem(id);
-  switchTab('study', document.querySelector('[data-tab="study"]'));
-}
-
-// ===== モーダルコンボ =====
-function refreshModalSubjects() {
-  const subjects = [...new Set(window.appData.data.map(d => d.subject))].sort();
-  const sel = document.getElementById('new-subject-sel');
-  sel.innerHTML = '<option value="">-- 新規入力 --</option>' +
-    subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-  document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>';
-  document.getElementById('new-subject').value = '';
-  document.getElementById('new-chapter').value = '';
-}
-
-function onNewSubjectSelChange() {
-  const val = document.getElementById('new-subject-sel').value;
-  document.getElementById('new-subject').value = val;
-  const chapters = [...new Set(
-    window.appData.data.filter(d => d.subject === val).map(d => d.chapter)
-  )].sort();
-  document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>' +
-    chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-  document.getElementById('new-chapter').value = '';
-}
-
-function onNewChapterSelChange() {
-  document.getElementById('new-chapter').value = document.getElementById('new-chapter-sel').value;
-}
-
-// ===== ツリー =====
-function getBestScore(id) {
-  const recs = window.appData.records.filter(r => r.itemId === id);
-  return recs.length === 0 ? null : Math.max(...recs.map(r => r.score));
-}
-function getLastStudyDate(id) {
-  const recs = window.appData.records.filter(r => r.itemId === id);
-  if (recs.length === 0) return null;
-  return recs.sort((a,b) => b.date.localeCompare(a.date))[0].date;
-}
-
-function renderTree() {
-  const tree = document.getElementById('tree');
-  const subjects = {};
-  window.appData.data.forEach(item => {
-    if (!subjects[item.subject]) subjects[item.subject] = {};
-    if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
-    subjects[item.subject][item.chapter].push(item);
-  });
-  tree.innerHTML = '';
-  if (Object.keys(subjects).length === 0) {
-    tree.innerHTML = '<div style="padding:16px;color:#aaa;font-size:0.82rem;text-align:center;">コンテンツがありません</div>';
-    return;
+  // ========== 初期化 ==========
+  function init() {
+    const now = new Date();
+    calYear  = now.getFullYear();
+    calMonth = now.getMonth();
+    renderColorPicker();
+    renderTree();
+    renderCalendar();
+    renderHistory();
+    renderContentSelect();
+    renderManageList();
+    renderTasks();
+    loadLayoutSetting();
+    bindEvents();
   }
-  Object.entries(subjects).forEach(([subj, chapters]) => {
-    const subjEl    = document.createElement('div');
-    subjEl.className = 'tree-subject';
-    const subjLabel  = document.createElement('div');
-    subjLabel.className = 'tree-subject-label';
-    subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${escapeHtml(subj)}`;
-    const chapterWrap = document.createElement('div');
-    subjLabel.addEventListener('click', () => {
-      subjEl.classList.toggle('collapsed');
-      chapterWrap.style.display = subjEl.classList.contains('collapsed') ? 'none' : '';
+
+  // ========== イベントバインド ==========
+  function bindEvents() {
+    // ログイン
+    document.getElementById('login-btn').addEventListener('click', () => signInWithPopup(auth, provider).catch(console.error));
+
+    // ハンバーガー・設定
+    document.getElementById('hamburger-btn').addEventListener('click', toggleSidebar);
+    document.getElementById('settings-btn').addEventListener('click', toggleSettings);
+    document.getElementById('sidebar-close-btn').addEventListener('click', closeSidebar);
+    document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+    document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+
+    // レイアウト
+    document.getElementById('layout-portrait').addEventListener('click', () => setLayout('portrait'));
+    document.getElementById('layout-landscape').addEventListener('click', () => setLayout('landscape'));
+
+    // タブ ← ここが正しく動く
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
     });
-    subjEl.appendChild(subjLabel);
-    Object.entries(chapters).forEach(([chap, items]) => {
-      const chapEl    = document.createElement('div');
-      chapEl.className = 'tree-chapter';
-      const chapLabel  = document.createElement('div');
-      chapLabel.className = 'tree-chapter-label';
-      chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${escapeHtml(chap)}`;
-      const itemWrap = document.createElement('div');
-      itemWrap.className = 'tree-items';
-      chapLabel.addEventListener('click', () => {
-        chapEl.classList.toggle('collapsed');
-        itemWrap.style.display = chapEl.classList.contains('collapsed') ? 'none' : '';
+
+    // 管理タブ
+    document.getElementById('manage-add-btn').addEventListener('click', openAddModal);
+    document.getElementById('sidebar-add-btn').addEventListener('click', openAddModal);
+    document.getElementById('save-item-btn').addEventListener('click', saveItem);
+    document.getElementById('delete-item-btn').addEventListener('click', deleteItem);
+    document.getElementById('kw-add-btn').addEventListener('click', addKeyword);
+    document.getElementById('edit-text').addEventListener('input', livePreview);
+    document.getElementById('list-subject-filter').addEventListener('change', renderManageList);
+    document.getElementById('list-sort').addEventListener('change', renderManageList);
+
+    // モーダル
+    document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+    document.getElementById('modal-add-btn').addEventListener('click', addItem);
+    document.getElementById('add-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('add-modal')) closeModal();
+    });
+    document.getElementById('new-subject-sel').addEventListener('change', onNewSubjectSelChange);
+    document.getElementById('new-chapter-sel').addEventListener('change', onNewChapterSelChange);
+
+    // 学習タブ ← sel-chapter を追加
+    document.getElementById('sel-subject').addEventListener('change', onSubjectChange);
+    document.getElementById('sel-chapter').addEventListener('change', onChapterChange);
+    document.getElementById('confirm-select-btn').addEventListener('click', confirmContentSelect);
+    document.getElementById('mode-view-btn').addEventListener('click', () => setMode('view'));
+    document.getElementById('mode-typing-btn').addEventListener('click', () => setMode('typing'));
+    document.getElementById('typing-input').addEventListener('input', () => {
+      if (appData.selectedId) calcScore();
+    });
+    document.getElementById('save-record-btn').addEventListener('click', saveRecord);
+    document.getElementById('show-diff-btn').addEventListener('click', showDiff);
+    document.getElementById('clear-typing-btn').addEventListener('click', clearTyping);
+    document.getElementById('toggle-original-btn').addEventListener('click', toggleOriginal);
+
+    // 記録タブ
+    document.getElementById('hist-subject-filter').addEventListener('change', renderHistory);
+    document.getElementById('hist-date-from').addEventListener('change', renderHistory);
+    document.getElementById('hist-date-to').addEventListener('change', renderHistory);
+    document.getElementById('history-reset-btn').addEventListener('click', clearHistoryFilter);
+
+    // カレンダー
+    document.getElementById('cal-prev-btn').addEventListener('click', () => changeMonth(-1));
+    document.getElementById('cal-next-btn').addEventListener('click', () => changeMonth(1));
+
+    // 計画タブ
+    document.getElementById('add-task-btn').addEventListener('click', addTask);
+    document.getElementById('task-filter').addEventListener('change', renderTasks);
+    document.getElementById('task-sort').addEventListener('change', renderTasks);
+  }
+
+  // ========== レイアウト ==========
+  function loadLayoutSetting() {
+    applyLayout(localStorage.getItem('ankitool-layout') || 'portrait');
+  }
+  function setLayout(mode) {
+    localStorage.setItem('ankitool-layout', mode);
+    applyLayout(mode);
+  }
+  function applyLayout(mode) {
+    document.body.classList.toggle('landscape-mode', mode === 'landscape');
+    document.getElementById('layout-portrait').classList.toggle('active', mode === 'portrait');
+    document.getElementById('layout-landscape').classList.toggle('active', mode === 'landscape');
+  }
+
+  // ========== サイドバー ==========
+  function toggleSidebar() {
+    const open = document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ========== 設定パネル ==========
+  function toggleSettings() {
+    document.getElementById('settings-panel').classList.toggle('open');
+  }
+  function closeSettings() {
+    document.getElementById('settings-panel').classList.remove('open');
+  }
+
+  // ========== タブ切替 ==========
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+    if (tab === 'history')  renderHistory();
+    if (tab === 'calendar') renderCalendar();
+    if (tab === 'plan')     renderTasks();
+    if (tab === 'manage')   renderManageList();
+  }
+
+  // ========== コンテンツ選択（学習タブ） ==========
+  function renderContentSelect() {
+    const subjects = [...new Set(appData.data.map(d => d.subject))].sort();
+    const selSubj  = document.getElementById('sel-subject');
+    const prev     = selSubj.value;
+    selSubj.innerHTML = '<option value="">科目を選択</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}"${s===prev?' selected':''}>${escapeHtml(s)}</option>`).join('');
+    onSubjectChange();
+
+    const lf = document.getElementById('list-subject-filter');
+    const prevLf = lf.value;
+    lf.innerHTML = '<option value="">すべての科目</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}"${s===prevLf?' selected':''}>${escapeHtml(s)}</option>`).join('');
+  }
+
+  function onSubjectChange() {
+    const subj = document.getElementById('sel-subject').value;
+    const chapters = [...new Set(
+      appData.data.filter(d => d.subject === subj).map(d => d.chapter)
+    )].sort();
+    const selChap = document.getElementById('sel-chapter');
+    selChap.innerHTML = '<option value="">章を選択</option>' +
+      chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>';
+  }
+
+  function onChapterChange() {
+    const subj  = document.getElementById('sel-subject').value;
+    const chap  = document.getElementById('sel-chapter').value;
+    const items = appData.data
+      .filter(d => d.subject === subj && d.chapter === chap)
+      .sort((a,b) => a.no.localeCompare(b.no));
+    document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>' +
+      items.map(d => `<option value="${d.id}">${escapeHtml(d.no)}. ${escapeHtml(d.title)}</option>`).join('');
+  }
+
+  function confirmContentSelect() {
+    const id = document.getElementById('sel-item').value;
+    if (!id) { alert('コンテンツを選択してください'); return; }
+    selectItem(id);
+    switchTab('study', document.querySelector('[data-tab="study"]'));
+  }
+
+  // ========== モーダルコンボ ==========
+  function refreshModalSubjects() {
+    const subjects = [...new Set(appData.data.map(d => d.subject))].sort();
+    const sel = document.getElementById('new-subject-sel');
+    sel.innerHTML = '<option value="">-- 新規入力 --</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+    document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>';
+    document.getElementById('new-subject').value = '';
+    document.getElementById('new-chapter').value = '';
+  }
+
+  function onNewSubjectSelChange() {
+    const val = document.getElementById('new-subject-sel').value;
+    document.getElementById('new-subject').value = val;
+    const chapters = [...new Set(
+      appData.data.filter(d => d.subject === val).map(d => d.chapter)
+    )].sort();
+    document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>' +
+      chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    document.getElementById('new-chapter').value = '';
+  }
+
+  function onNewChapterSelChange() {
+    document.getElementById('new-chapter').value = document.getElementById('new-chapter-sel').value;
+  }
+
+  // ========== ツリー ==========
+  function getBestScore(id) {
+    const recs = appData.records.filter(r => r.itemId === id);
+    return recs.length === 0 ? null : Math.max(...recs.map(r => r.score));
+  }
+  function getLastStudyDate(id) {
+    const recs = appData.records.filter(r => r.itemId === id);
+    if (recs.length === 0) return null;
+    return recs.sort((a,b) => b.date.localeCompare(a.date))[0].date;
+  }
+
+  function renderTree() {
+    const tree = document.getElementById('tree');
+    const subjects = {};
+    appData.data.forEach(item => {
+      if (!subjects[item.subject]) subjects[item.subject] = {};
+      if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
+      subjects[item.subject][item.chapter].push(item);
+    });
+    tree.innerHTML = '';
+    if (Object.keys(subjects).length === 0) {
+      tree.innerHTML = '<div style="padding:16px;color:#aaa;font-size:0.82rem;text-align:center;">コンテンツがありません</div>';
+      return;
+    }
+    Object.entries(subjects).forEach(([subj, chapters]) => {
+      const subjEl    = document.createElement('div');
+      subjEl.className = 'tree-subject';
+      const subjLabel  = document.createElement('div');
+      subjLabel.className = 'tree-subject-label';
+      subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${escapeHtml(subj)}`;
+      const chapterWrap = document.createElement('div');
+      subjLabel.addEventListener('click', () => {
+        subjEl.classList.toggle('collapsed');
+        chapterWrap.style.display = subjEl.classList.contains('collapsed') ? 'none' : '';
       });
-      chapEl.appendChild(chapLabel);
-      items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
-        const best   = getBestScore(item.id);
-        const itemEl = document.createElement('div');
-        itemEl.className = 'tree-item' + (item.id === window.appData.selectedId ? ' active' : '');
-        itemEl.innerHTML = `<span>${escapeHtml(item.no)}. ${escapeHtml(item.title)}</span>${best !== null ? `<span class="item-score">${best}%</span>` : ''}`;
-        itemEl.addEventListener('click', () => { selectItem(item.id); closeSidebar(); });
-        itemWrap.appendChild(itemEl);
+      subjEl.appendChild(subjLabel);
+      Object.entries(chapters).forEach(([chap, items]) => {
+        const chapEl    = document.createElement('div');
+        chapEl.className = 'tree-chapter';
+        const chapLabel  = document.createElement('div');
+        chapLabel.className = 'tree-chapter-label';
+        chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${escapeHtml(chap)}`;
+        const itemWrap = document.createElement('div');
+        itemWrap.className = 'tree-items';
+        chapLabel.addEventListener('click', () => {
+          chapEl.classList.toggle('collapsed');
+          itemWrap.style.display = chapEl.classList.contains('collapsed') ? 'none' : '';
+        });
+        chapEl.appendChild(chapLabel);
+        items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
+          const best   = getBestScore(item.id);
+          const itemEl = document.createElement('div');
+          itemEl.className = 'tree-item' + (item.id === appData.selectedId ? ' active' : '');
+          itemEl.innerHTML = `<span>${escapeHtml(item.no)}. ${escapeHtml(item.title)}</span>${best !== null ? `<span class="item-score">${best}%</span>` : ''}`;
+          itemEl.addEventListener('click', () => { selectItem(item.id); closeSidebar(); });
+          itemWrap.appendChild(itemEl);
+        });
+        chapEl.appendChild(itemWrap);
+        chapterWrap.appendChild(chapEl);
       });
-      chapEl.appendChild(itemWrap);
-      chapterWrap.appendChild(chapEl);
+      subjEl.appendChild(chapterWrap);
+      tree.appendChild(subjEl);
     });
-    subjEl.appendChild(chapterWrap);
-    tree.appendChild(subjEl);
-  });
-}
-window.renderTree = renderTree;
-
-// ===== 管理一覧テーブル =====
-function renderManageList() {
-  const wrap    = document.getElementById('manage-list-wrap');
-  const subjF   = document.getElementById('list-subject-filter').value;
-  const sortMode = document.getElementById('list-sort').value;
-  let items = window.appData.data.map(item => ({
-    ...item,
-    _best: getBestScore(item.id),
-    _last: getLastStudyDate(item.id)
-  }));
-  if (subjF) items = items.filter(d => d.subject === subjF);
-  if (sortMode === 'score-desc') items.sort((a,b) => (b._best ?? -1) - (a._best ?? -1));
-  else if (sortMode === 'score-asc') items.sort((a,b) => (a._best ?? 101) - (b._best ?? 101));
-  else if (sortMode === 'date-desc') items.sort((a,b) => (b._last||'').localeCompare(a._last||''));
-  else if (sortMode === 'date-asc')  items.sort((a,b) => (a._last||'Z').localeCompare(b._last||'Z'));
-  else items.sort((a,b) => {
-    const sc = a.subject.localeCompare(b.subject);
-    if (sc) return sc;
-    const cc = a.chapter.localeCompare(b.chapter);
-    if (cc) return cc;
-    return a.no.localeCompare(b.no);
-  });
-  if (items.length === 0) {
-    wrap.innerHTML = '<div class="empty-state"><div class="icon">📂</div>コンテンツがありません</div>';
-    return;
   }
-  let html = `<div class="content-table-wrap"><table class="content-table"><thead><tr>
-    <th>科目</th><th>章</th><th>No</th><th>タイトル</th><th>最高スコア</th><th>最終学習日</th>
-  </tr></thead><tbody>`;
-  items.forEach(item => {
-    const sc  = item._best;
-    const cls = sc === null ? 'score-none' : sc >= 80 ? 'score-high' : sc >= 50 ? 'score-mid' : 'score-low';
-    const scStr = sc === null ? '未学習' : sc + '%';
-    const dtStr = item._last ? formatDate(item._last) : '—';
-    const sel   = item.id === window.appData.selectedId ? 'selected-row' : '';
-    html += `<tr class="${sel}" data-id="${item.id}">
-      <td>${escapeHtml(item.subject)}</td>
-      <td>${escapeHtml(item.chapter)}</td>
-      <td>${escapeHtml(item.no)}</td>
-      <td>${escapeHtml(item.title)}</td>
-      <td><span class="score-badge ${cls}">${scStr}</span></td>
-      <td style="font-size:0.78rem;color:#888;">${dtStr}</td>
-    </tr>`;
-  });
-  html += '</tbody></table></div>';
-  wrap.innerHTML = html;
-  // 行クリックイベント
-  wrap.querySelectorAll('tr[data-id]').forEach(tr => {
-    tr.addEventListener('click', () => {
-      selectItem(tr.dataset.id);
-      setTimeout(() => {
-        document.getElementById('manage-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+
+  // ========== 管理一覧テーブル ==========
+  function renderManageList() {
+    const wrap     = document.getElementById('manage-list-wrap');
+    const subjF    = document.getElementById('list-subject-filter').value;
+    const sortMode = document.getElementById('list-sort').value;
+    let items = appData.data.map(item => ({
+      ...item,
+      _best: getBestScore(item.id),
+      _last: getLastStudyDate(item.id)
+    }));
+    if (subjF) items = items.filter(d => d.subject === subjF);
+    if (sortMode === 'score-desc') items.sort((a,b) => (b._best ?? -1) - (a._best ?? -1));
+    else if (sortMode === 'score-asc') items.sort((a,b) => (a._best ?? 101) - (b._best ?? 101));
+    else if (sortMode === 'date-desc') items.sort((a,b) => (b._last||'').localeCompare(a._last||''));
+    else if (sortMode === 'date-asc')  items.sort((a,b) => (a._last||'Z').localeCompare(b._last||'Z'));
+    else items.sort((a,b) => {
+      const sc = a.subject.localeCompare(b.subject);
+      if (sc) return sc;
+      const cc = a.chapter.localeCompare(b.chapter);
+      if (cc) return cc;
+      return a.no.localeCompare(b.no);
     });
-  });
-}
-window.renderManageList = renderManageList;
-
-// ===== アイテム選択 =====
-function selectItem(id) {
-  window.appData.selectedId = id;
-  const item = window.appData.data.find(d => d.id === id);
-  if (!item) return;
-  document.getElementById('manage-empty').style.display = 'none';
-  document.getElementById('manage-editor').style.display = 'block';
-  document.getElementById('edit-subject').value = item.subject;
-  document.getElementById('edit-chapter').value = item.chapter;
-  document.getElementById('edit-no').value       = item.no;
-  document.getElementById('edit-title').value    = item.title;
-  document.getElementById('edit-text').value     = item.text;
-  renderKeywordList(item);
-  updatePreview(item);
-  document.getElementById('study-title').textContent =
-    `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
-  document.getElementById('view-text').innerHTML =
-    applyKeywords(item.text, item.keywords || []);
-  document.getElementById('original-text-display').innerHTML =
-    applyKeywords(item.text, item.keywords || []);
-  clearTyping();
-  renderTree();
-  renderManageList();
-}
-
-// ===== キーワード =====
-function renderColorPicker() {
-  const row = document.getElementById('color-picker-row');
-  row.innerHTML = '';
-  COLORS.forEach(c => {
-    const sw = document.createElement('div');
-    sw.className = 'color-swatch' + (c === selectedKwColor ? ' selected' : '');
-    sw.style.background = c;
-    sw.addEventListener('click', () => { selectedKwColor = c; renderColorPicker(); });
-    row.appendChild(sw);
-  });
-}
-
-function addKeyword() {
-  const kw = document.getElementById('kw-input').value.trim();
-  if (!kw || !window.appData.selectedId) return;
-  const item = window.appData.data.find(d => d.id === window.appData.selectedId);
-  if (!item) return;
-  if (!item.keywords) item.keywords = [];
-  if (item.keywords.find(k => k.word === kw)) return;
-  item.keywords.push({ word: kw, color: selectedKwColor });
-  document.getElementById('kw-input').value = '';
-  window.saveOneItem && window.saveOneItem(item);
-  renderKeywordList(item);
-  updatePreview(item);
-}
-
-function renderKeywordList(item) {
-  const list = document.getElementById('keyword-list');
-  list.innerHTML = '';
-  (item.keywords || []).forEach((kw, i) => {
-    const tag = document.createElement('div');
-    tag.className = 'keyword-tag';
-    tag.style.cssText = `background:${kw.color}22;color:${kw.color};border-color:${kw.color};`;
-    tag.innerHTML = `${escapeHtml(kw.word)} <span class="kw-del">✕</span>`;
-    tag.querySelector('.kw-del').addEventListener('click', () => removeKeyword(i));
-    list.appendChild(tag);
-  });
-}
-
-function removeKeyword(i) {
-  const item = window.appData.data.find(d => d.id === window.appData.selectedId);
-  if (!item) return;
-  item.keywords.splice(i, 1);
-  window.saveOneItem && window.saveOneItem(item);
-  renderKeywordList(item);
-  updatePreview(item);
-}
-
-function applyKeywords(text, keywords) {
-  if (!keywords || keywords.length === 0)
-    return escapeHtml(text).replace(/\n/g, '<br>');
-  let result = escapeHtml(text);
-  [...keywords].sort((a,b) => b.word.length - a.word.length).forEach(kw => {
-    const esc = escapeHtml(kw.word);
-    const re  = new RegExp(esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-    result = result.replace(re,
-      `<mark style="background:${kw.color}22;color:${kw.color};font-weight:700;border-radius:3px;padding:0 2px;">${esc}</mark>`);
-  });
-  return result.replace(/\n/g, '<br>');
-}
-
-function livePreview() {
-  const item = window.appData.data.find(d => d.id === window.appData.selectedId);
-  if (item) updatePreview(item);
-}
-
-function updatePreview(item) {
-  document.getElementById('text-preview').innerHTML =
-    applyKeywords(document.getElementById('edit-text').value, item.keywords || []);
-}
-
-// ===== 管理操作 =====
-function openAddModal() {
-  refreshModalSubjects();
-  document.getElementById('add-modal').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('add-modal').classList.remove('open');
-}
-
-function addItem() {
-  const subject = document.getElementById('new-subject').value.trim();
-  const chapter = document.getElementById('new-chapter').value.trim();
-  const no      = document.getElementById('new-no').value.trim();
-  const title   = document.getElementById('new-title').value.trim();
-  const text    = document.getElementById('new-text').value.trim();
-  if (!subject || !chapter || !no || !title || !text) {
-    alert('すべての項目を入力してください'); return;
+    if (items.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="icon">📂</div>コンテンツがありません</div>';
+      return;
+    }
+    let html = `<div class="content-table-wrap"><table class="content-table"><thead><tr>
+      <th>科目</th><th>章</th><th>No</th><th>タイトル</th><th>最高スコア</th><th>最終学習日</th>
+    </tr></thead><tbody>`;
+    items.forEach(item => {
+      const sc  = item._best;
+      const cls = sc === null ? 'score-none' : sc >= 80 ? 'score-high' : sc >= 50 ? 'score-mid' : 'score-low';
+      const scStr = sc === null ? '未学習' : sc + '%';
+      const dtStr = item._last ? formatDate(item._last) : '—';
+      const sel   = item.id === appData.selectedId ? 'selected-row' : '';
+      html += `<tr class="${sel}" data-id="${item.id}">
+        <td>${escapeHtml(item.subject)}</td>
+        <td>${escapeHtml(item.chapter)}</td>
+        <td>${escapeHtml(item.no)}</td>
+        <td>${escapeHtml(item.title)}</td>
+        <td><span class="score-badge ${cls}">${scStr}</span></td>
+        <td style="font-size:0.78rem;color:#888;">${dtStr}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        selectItem(tr.dataset.id);
+        setTimeout(() => {
+          document.getElementById('manage-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      });
+    });
   }
-  const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
-  window.appData.data.push(item);
-  renderTree(); renderContentSelect(); renderManageList();
-  selectItem(item.id);
-  closeModal();
-  ['new-no','new-title','new-text'].forEach(id => { document.getElementById(id).value = ''; });
-  window.saveOneItem && window.saveOneItem(item).catch(err => alert('保存失敗: ' + err.message));
-}
 
-function saveItem() {
-  const id = window.appData.selectedId;
-  if (!id) return;
-  const item = window.appData.data.find(d => d.id === id);
-  if (!item) return;
-  item.subject = document.getElementById('edit-subject').value.trim();
-  item.chapter = document.getElementById('edit-chapter').value.trim();
-  item.no      = document.getElementById('edit-no').value.trim();
-  item.title   = document.getElementById('edit-title').value.trim();
-  item.text    = document.getElementById('edit-text').value.trim();
-  window.saveOneItem && window.saveOneItem(item).then(() => {
-    renderTree(); renderContentSelect(); renderManageList(); updatePreview(item);
+  // ========== アイテム選択 ==========
+  function selectItem(id) {
+    appData.selectedId = id;
+    const item = appData.data.find(d => d.id === id);
+    if (!item) return;
+    document.getElementById('manage-empty').style.display = 'none';
+    document.getElementById('manage-editor').style.display = 'block';
+    document.getElementById('edit-subject').value = item.subject;
+    document.getElementById('edit-chapter').value = item.chapter;
+    document.getElementById('edit-no').value       = item.no;
+    document.getElementById('edit-title').value    = item.title;
+    document.getElementById('edit-text').value     = item.text;
+    renderKeywordList(item);
+    updatePreview(item);
     document.getElementById('study-title').textContent =
       `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
-    document.getElementById('view-text').innerHTML = applyKeywords(item.text, item.keywords || []);
-    document.getElementById('original-text-display').innerHTML = applyKeywords(item.text, item.keywords || []);
-    alert('保存しました！');
-  });
-}
-
-function deleteItem() {
-  const id = window.appData.selectedId;
-  if (!id || !confirm('このコンテンツを削除しますか？')) return;
-  window.deleteItemFromDB && window.deleteItemFromDB(id);
-  window.appData.records.filter(r => r.itemId === id)
-    .forEach(r => window.deleteRecordFromDB && window.deleteRecordFromDB(r.id));
-  window.appData.data    = window.appData.data.filter(d => d.id !== id);
-  window.appData.records = window.appData.records.filter(r => r.itemId !== id);
-  window.appData.selectedId = null;
-  document.getElementById('manage-empty').style.display = 'block';
-  document.getElementById('manage-editor').style.display = 'none';
-  renderTree(); renderContentSelect(); renderManageList();
-}
-
-// ===== 学習モード =====
-function setMode(mode) {
-  currentMode = mode;
-  document.getElementById('view-mode').style.display   = mode === 'view'   ? 'block' : 'none';
-  document.getElementById('typing-mode').style.display = mode === 'typing' ? 'flex'  : 'none';
-  document.getElementById('mode-view-btn').classList.toggle('active',   mode === 'view');
-  document.getElementById('mode-typing-btn').classList.toggle('active', mode === 'typing');
-}
-
-function toggleOriginal() {
-  showOriginal = !showOriginal;
-  document.getElementById('original-text-display').style.display = showOriginal ? 'block' : 'none';
-}
-
-// ===== スコア計算 =====
-function normalize(str) { return str.replace(/[、。，．・\n\r\s　]/g, ''); }
-
-function lcsLength(a, b) {
-  const m = a.length, n = b.length;
-  let prev = new Array(n+1).fill(0);
-  for (let i = 1; i <= m; i++) {
-    const curr = new Array(n+1).fill(0);
-    for (let j = 1; j <= n; j++)
-      curr[j] = a[i-1]===b[j-1] ? prev[j-1]+1 : Math.max(prev[j], curr[j-1]);
-    prev = curr;
+    document.getElementById('view-text').innerHTML =
+      applyKeywords(item.text, item.keywords || []);
+    document.getElementById('original-text-display').innerHTML =
+      applyKeywords(item.text, item.keywords || []);
+    clearTyping();
+    renderTree();
+    renderManageList();
   }
-  return prev[n];
-}
 
-function calcScore() {
-  const id = window.appData.selectedId;
-  if (!id) return 0;
-  const item = window.appData.data.find(d => d.id === id);
-  if (!item) return 0;
-  const orig  = normalize(item.text);
-  const input = normalize(document.getElementById('typing-input').value);
-  if (!orig.length) return 0;
-  const pct = Math.round(lcsLength(orig, input) / orig.length * 100);
-  const bar = document.getElementById('score-bar');
-  bar.style.width      = pct + '%';
-  bar.style.background = pct >= 80 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
-  document.getElementById('score-label').textContent = pct + '%';
-  document.getElementById('score-bar-wrap').classList.add('visible');
-  return pct;
-}
-
-function showDiff() {
-  const id = window.appData.selectedId;
-  if (!id) return;
-  const item  = window.appData.data.find(d => d.id === id);
-  if (!item) return;
-  const orig  = normalize(item.text);
-  const input = normalize(document.getElementById('typing-input').value);
-  calcScore();
-  const m = orig.length, n = input.length;
-  const dp = Array.from({length:m+1}, () => new Array(n+1).fill(0));
-  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
-    dp[i][j] = orig[i-1]===input[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j],dp[i][j-1]);
-  const matched = new Array(m).fill(false);
-  let i=m, j=n;
-  while (i>0&&j>0) {
-    if (orig[i-1]===input[j-1]) { matched[i-1]=true; i--; j--; }
-    else if (dp[i-1][j]>=dp[i][j-1]) i--; else j--;
-  }
-  let html='';
-  for (let k=0;k<orig.length;k++) {
-    const ch=escapeHtml(orig[k]);
-    html += matched[k] ? `<span class="diff-ok">${ch}</span>` : `<span class="diff-ng">${ch}</span>`;
-  }
-  const panel = document.getElementById('diff-panel');
-  panel.style.display = 'block';
-  panel.innerHTML = '<strong>差分（赤：未入力/誤り、緑：正解）</strong><br><br>' + html;
-}
-
-function clearTyping() {
-  document.getElementById('typing-input').value = '';
-  document.getElementById('score-bar').style.width = '0%';
-  document.getElementById('score-label').textContent = '0%';
-  document.getElementById('score-bar-wrap').classList.remove('visible');
-  document.getElementById('diff-panel').style.display = 'none';
-}
-
-function saveRecord() {
-  const id = window.appData.selectedId;
-  if (!id) { alert('コンテンツを選択してください'); return; }
-  const score  = calcScore();
-  const item   = window.appData.data.find(d => d.id === id);
-  const record = {
-    id: Date.now().toString(), itemId: id,
-    subject: item.subject, chapter: item.chapter,
-    no: item.no, title: item.title,
-    score, date: new Date().toISOString()
-  };
-  window.appData.records.push(record);
-  window.saveOneRecord && window.saveOneRecord(record).then(() => {
-    renderTree(); updateHistoryFilter(); renderManageList();
-    alert(`記録を保存しました！ スコア: ${score}%`);
-  });
-}
-
-// ===== 記録 =====
-function renderHistory() {
-  const subj  = document.getElementById('hist-subject-filter').value;
-  const from  = document.getElementById('hist-date-from').value;
-  const to    = document.getElementById('hist-date-to').value;
-  let filtered = [...window.appData.records];
-  if (subj) filtered = filtered.filter(r => r.subject === subj);
-  if (from) filtered = filtered.filter(r => r.date >= from);
-  if (to)   filtered = filtered.filter(r => r.date <= to + 'T23:59:59');
-  filtered.sort((a,b) => b.date.localeCompare(a.date));
-  const list = document.getElementById('history-list');
-  if (!filtered.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
-    return;
-  }
-  list.innerHTML = filtered.map(r => {
-    const cls = r.score >= 80 ? 'score-high' : r.score >= 50 ? 'score-mid' : 'score-low';
-    return `<div class="history-card">
-      <div class="history-info">
-        <div class="history-path">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
-        <div class="history-title">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
-        <div class="history-date">📅 ${formatDateTime(r.date)}</div>
-      </div>
-      <div class="history-score-badge ${cls}">${r.score}%</div>
-      <button class="btn-small btn-danger" data-recid="${r.id}">削除</button>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('[data-recid]').forEach(btn => {
-    btn.addEventListener('click', () => deleteRecord(btn.dataset.recid));
-  });
-}
-window.renderHistory = renderHistory;
-
-function deleteRecord(id) {
-  if (!confirm('この記録を削除しますか？')) return;
-  window.appData.records = window.appData.records.filter(r => r.id !== id);
-  window.deleteRecordFromDB && window.deleteRecordFromDB(id).then(() => {
-    renderHistory(); renderTree(); renderCalendar(); renderManageList();
-  });
-}
-
-function updateHistoryFilter() {
-  const sel     = document.getElementById('hist-subject-filter');
-  const current = sel.value;
-  const subjects = [...new Set(window.appData.data.map(d => d.subject))];
-  sel.innerHTML = '<option value="">すべて</option>' +
-    subjects.map(s => `<option value="${escapeHtml(s)}"${s===current?' selected':''}>${escapeHtml(s)}</option>`).join('');
-}
-window.updateHistoryFilter = updateHistoryFilter;
-
-function clearHistoryFilter() {
-  document.getElementById('hist-subject-filter').value = '';
-  document.getElementById('hist-date-from').value = '';
-  document.getElementById('hist-date-to').value   = '';
-  renderHistory();
-}
-
-// ===== カレンダー =====
-function changeMonth(delta) {
-  calMonth += delta;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  if (calMonth < 0)  { calMonth = 11; calYear--; }
-  renderCalendar();
-}
-
-function renderCalendar() {
-  document.getElementById('cal-title').textContent = `${calYear}年 ${calMonth+1}月`;
-  const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const lastDate = new Date(calYear, calMonth+1, 0).getDate();
-  const prevLast = new Date(calYear, calMonth, 0).getDate();
-  const today    = new Date();
-  const dayMap   = {};
-  window.appData.records.forEach(r => {
-    const d = new Date(r.date);
-    if (d.getFullYear()===calYear && d.getMonth()===calMonth) {
-      const k = d.getDate();
-      if (!dayMap[k]) dayMap[k] = [];
-      dayMap[k].push(r);
-    }
-  });
-  const grid = document.getElementById('cal-days');
-  grid.innerHTML = '';
-  for (let i=firstDay-1; i>=0; i--) grid.appendChild(createDayCell(prevLast-i, true, []));
-  for (let d=1; d<=lastDate; d++) {
-    const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
-    const cell = createDayCell(d, false, dayMap[d]||[], isToday);
-    const day  = d, recs = dayMap[d]||[];
-    cell.addEventListener('click', () => showCalDetail(day, recs));
-    grid.appendChild(cell);
-  }
-  const remain = (firstDay + lastDate) % 7;
-  if (remain) for (let d=1; d<=7-remain; d++) grid.appendChild(createDayCell(d, true, []));
-  document.getElementById('cal-detail').style.display = 'none';
-}
-window.renderCalendar = renderCalendar;
-
-function createDayCell(day, otherMonth, recs, isToday) {
-  const cell = document.createElement('div');
-  cell.className = 'cal-day' + (otherMonth?' other-month':'') + (isToday?' today':'');
-  const num = document.createElement('div');
-  num.className = 'cal-day-num';
-  num.textContent = day;
-  cell.appendChild(num);
-  if (recs.length > 0) {
-    const evDiv = document.createElement('div');
-    evDiv.className = 'cal-events';
-    recs.slice(0,2).forEach(r => {
-      const ev = document.createElement('div');
-      ev.className = 'cal-event';
-      ev.style.background = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
-      ev.textContent = r.score + '%';
-      evDiv.appendChild(ev);
+  // ========== キーワード ==========
+  function renderColorPicker() {
+    const row = document.getElementById('color-picker-row');
+    row.innerHTML = '';
+    COLORS.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'color-swatch' + (c === selectedKwColor ? ' selected' : '');
+      sw.style.background = c;
+      sw.addEventListener('click', () => { selectedKwColor = c; renderColorPicker(); });
+      row.appendChild(sw);
     });
-    if (recs.length > 2) {
-      const more = document.createElement('div');
-      more.style.cssText = 'font-size:0.6rem;color:#888;';
-      more.textContent = `+${recs.length-2}`;
-      evDiv.appendChild(more);
+  }
+
+  function addKeyword() {
+    const kw = document.getElementById('kw-input').value.trim();
+    if (!kw || !appData.selectedId) return;
+    const item = appData.data.find(d => d.id === appData.selectedId);
+    if (!item) return;
+    if (!item.keywords) item.keywords = [];
+    if (item.keywords.find(k => k.word === kw)) return;
+    item.keywords.push({ word: kw, color: selectedKwColor });
+    document.getElementById('kw-input').value = '';
+    saveOneItem(item);
+    renderKeywordList(item);
+    updatePreview(item);
+  }
+
+  function renderKeywordList(item) {
+    const list = document.getElementById('keyword-list');
+    list.innerHTML = '';
+    (item.keywords || []).forEach((kw, i) => {
+      const tag = document.createElement('div');
+      tag.className = 'keyword-tag';
+      tag.style.cssText = `background:${kw.color}22;color:${kw.color};border-color:${kw.color};`;
+      tag.innerHTML = `${escapeHtml(kw.word)} <span class="kw-del">✕</span>`;
+      tag.querySelector('.kw-del').addEventListener('click', () => removeKeyword(i));
+      list.appendChild(tag);
+    });
+  }
+
+  function removeKeyword(i) {
+    const item = appData.data.find(d => d.id === appData.selectedId);
+    if (!item) return;
+    item.keywords.splice(i, 1);
+    saveOneItem(item);
+    renderKeywordList(item);
+    updatePreview(item);
+  }
+
+  function applyKeywords(text, keywords) {
+    if (!keywords || keywords.length === 0)
+      return escapeHtml(text).replace(/\n/g, '<br>');
+    let result = escapeHtml(text);
+    [...keywords].sort((a,b) => b.word.length - a.word.length).forEach(kw => {
+      const esc = escapeHtml(kw.word);
+      const re  = new RegExp(esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      result = result.replace(re,
+        `<mark style="background:${kw.color}22;color:${kw.color};font-weight:700;border-radius:3px;padding:0 2px;">${esc}</mark>`);
+    });
+    return result.replace(/\n/g, '<br>');
+  }
+
+  function livePreview() {
+    const item = appData.data.find(d => d.id === appData.selectedId);
+    if (item) updatePreview(item);
+  }
+
+  function updatePreview(item) {
+    document.getElementById('text-preview').innerHTML =
+      applyKeywords(document.getElementById('edit-text').value, item.keywords || []);
+  }
+
+  // ========== 管理操作 ==========
+  function openAddModal() {
+    refreshModalSubjects();
+    document.getElementById('add-modal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('add-modal').classList.remove('open');
+  }
+
+  function addItem() {
+    const subject = document.getElementById('new-subject').value.trim();
+    const chapter = document.getElementById('new-chapter').value.trim();
+    const no      = document.getElementById('new-no').value.trim();
+    const title   = document.getElementById('new-title').value.trim();
+    const text    = document.getElementById('new-text').value.trim();
+    if (!subject || !chapter || !no || !title || !text) {
+      alert('すべての項目を入力してください'); return;
     }
-    cell.appendChild(evDiv);
+    const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
+    appData.data.push(item);
+    renderTree(); renderContentSelect(); renderManageList();
+    selectItem(item.id);
+    closeModal();
+    ['new-no','new-title','new-text'].forEach(id => { document.getElementById(id).value = ''; });
+    saveOneItem(item).catch(err => alert('保存失敗: ' + err.message));
   }
-  return cell;
-}
 
-function showCalDetail(day, recs) {
-  document.getElementById('cal-detail-title').textContent = `${calYear}年${calMonth+1}月${day}日 の記録`;
-  const list = document.getElementById('cal-detail-list');
-  list.innerHTML = recs.length === 0
-    ? '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>'
-    : recs.map(r => {
-        const d   = new Date(r.date);
-        const t   = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        const col = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
-        return `<div class="cal-detail-item">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:0.75rem;color:#888;">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
-            <div style="font-size:0.88rem;font-weight:600;">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
-            <div style="font-size:0.75rem;color:#aaa;">${t}</div>
-          </div>
-          <div style="font-size:1.1rem;font-weight:700;color:${col};flex-shrink:0;">${r.score}%</div>
-        </div>`;
-      }).join('');
-  document.getElementById('cal-detail').style.display = 'block';
-}
-
-// ===== 学習計画 =====
-function addTask() {
-  const title    = document.getElementById('task-title-input').value.trim();
-  const due      = document.getElementById('task-due-input').value;
-  const priority = document.getElementById('task-priority-input').value;
-  const memo     = document.getElementById('task-memo-input').value.trim();
-  if (!title) { alert('タイトルを入力してください'); return; }
-  const task = {
-    id: Date.now().toString(), title,
-    due: due || null, priority, memo,
-    done: false, createdAt: new Date().toISOString(), doneAt: null
-  };
-  window.appData.tasks.push(task);
-  window.saveOneTask && window.saveOneTask(task).then(() => {
-    renderTasks();
-    document.getElementById('task-title-input').value = '';
-    document.getElementById('task-due-input').value   = '';
-    document.getElementById('task-memo-input').value  = '';
-    document.getElementById('task-priority-input').value = 'mid';
-  });
-}
-
-function toggleTask(id) {
-  const task = window.appData.tasks.find(t => t.id === id);
-  if (!task) return;
-  task.done   = !task.done;
-  task.doneAt = task.done ? new Date().toISOString() : null;
-  window.saveOneTask && window.saveOneTask(task).then(() => renderTasks());
-}
-
-function deleteTask(id) {
-  if (!confirm('このタスクを削除しますか？')) return;
-  window.appData.tasks = window.appData.tasks.filter(t => t.id !== id);
-  window.deleteTaskFromDB && window.deleteTaskFromDB(id).then(() => renderTasks());
-}
-
-function renderTasks() {
-  const filter   = document.getElementById('task-filter').value;
-  const sortMode = document.getElementById('task-sort').value;
-  const today    = new Date().toISOString().slice(0,10);
-  const total    = window.appData.tasks.length;
-  const done     = window.appData.tasks.filter(t => t.done).length;
-  const overdue  = window.appData.tasks.filter(t => !t.done && t.due && t.due < today).length;
-  document.getElementById('stat-total').textContent   = total;
-  document.getElementById('stat-done').textContent    = done;
-  document.getElementById('stat-overdue').textContent = overdue;
-  let items = [...window.appData.tasks];
-  if (filter === 'todo')    items = items.filter(t => !t.done);
-  if (filter === 'done')    items = items.filter(t => t.done);
-  if (filter === 'overdue') items = items.filter(t => !t.done && t.due && t.due < today);
-  const po = { high:0, mid:1, low:2 };
-  if (sortMode === 'due-asc')  items.sort((a,b) => (a.due||'Z').localeCompare(b.due||'Z'));
-  else if (sortMode === 'due-desc') items.sort((a,b) => (b.due||'').localeCompare(a.due||''));
-  else if (sortMode === 'priority') items.sort((a,b) => po[a.priority]-po[b.priority]);
-  else items.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
-  const list = document.getElementById('task-list');
-  if (!items.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">✅</div>タスクがありません</div>';
-    return;
+  function saveItem() {
+    const id = appData.selectedId;
+    if (!id) return;
+    const item = appData.data.find(d => d.id === id);
+    if (!item) return;
+    item.subject = document.getElementById('edit-subject').value.trim();
+    item.chapter = document.getElementById('edit-chapter').value.trim();
+    item.no      = document.getElementById('edit-no').value.trim();
+    item.title   = document.getElementById('edit-title').value.trim();
+    item.text    = document.getElementById('edit-text').value.trim();
+    saveOneItem(item).then(() => {
+      renderTree(); renderContentSelect(); renderManageList(); updatePreview(item);
+      document.getElementById('study-title').textContent =
+        `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+      document.getElementById('view-text').innerHTML = applyKeywords(item.text, item.keywords || []);
+      document.getElementById('original-text-display').innerHTML = applyKeywords(item.text, item.keywords || []);
+      alert('保存しました！');
+    });
   }
-  list.innerHTML = items.map(task => {
-    const isOver  = !task.done && task.due && task.due < today;
-    const isToday = !task.done && task.due && task.due === today;
-    const dueCls  = isOver ? 'overdue' : isToday ? 'today-due' : '';
-    const dueNote = isOver ? ' ⚠️期限超過' : isToday ? ' 📌今日が期限' : '';
-    const dueStr  = task.due ? task.due + dueNote : '期限なし';
-    const priLabel = task.priority==='high'?'🔴 高':task.priority==='mid'?'🟡 中':'🟢 低';
-    const priCls   = task.priority==='high'?'priority-high':task.priority==='mid'?'priority-mid':'priority-low';
-    const itemCls  = task.done ? 'done' : isOver ? 'overdue' : '';
-    return `<div class="task-item ${itemCls}">
-      <div class="task-check ${task.done?'checked':''}" data-taskid="${task.id}">${task.done?'✓':''}</div>
-      <div class="task-body">
-        <div class="task-title">${escapeHtml(task.title)}</div>
-        <div class="task-meta">
-          <span class="task-priority ${priCls}">${priLabel}</span>
-          <span class="task-due ${dueCls}">📅 ${dueStr}</span>
-          ${task.memo ? `<span>📝 ${escapeHtml(task.memo)}</span>` : ''}
-          ${task.done && task.doneAt ? `<span>✅ ${formatDate(task.doneAt)}完了</span>` : ''}
+
+  function deleteItem() {
+    const id = appData.selectedId;
+    if (!id || !confirm('このコンテンツを削除しますか？')) return;
+    deleteItemFromDB(id);
+    appData.records.filter(r => r.itemId === id)
+      .forEach(r => deleteRecordFromDB(r.id));
+    appData.data    = appData.data.filter(d => d.id !== id);
+    appData.records = appData.records.filter(r => r.itemId !== id);
+    appData.selectedId = null;
+    document.getElementById('manage-empty').style.display = 'block';
+    document.getElementById('manage-editor').style.display = 'none';
+    renderTree(); renderContentSelect(); renderManageList();
+  }
+
+  // ========== 学習モード ==========
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('view-mode').style.display   = mode === 'view'   ? 'block' : 'none';
+    document.getElementById('typing-mode').style.display = mode === 'typing' ? 'flex'  : 'none';
+    document.getElementById('mode-view-btn').classList.toggle('active',   mode === 'view');
+    document.getElementById('mode-typing-btn').classList.toggle('active', mode === 'typing');
+  }
+
+  function toggleOriginal() {
+    showOriginal = !showOriginal;
+    document.getElementById('original-text-display').style.display = showOriginal ? 'block' : 'none';
+  }
+
+  // ========== スコア計算 ==========
+  function normalize(str) { return str.replace(/[、。，．・\n\r\s　]/g, ''); }
+
+  function lcsLength(a, b) {
+    const m = a.length, n = b.length;
+    let prev = new Array(n+1).fill(0);
+    for (let i = 1; i <= m; i++) {
+      const curr = new Array(n+1).fill(0);
+      for (let j = 1; j <= n; j++)
+        curr[j] = a[i-1]===b[j-1] ? prev[j-1]+1 : Math.max(prev[j], curr[j-1]);
+      prev = curr;
+    }
+    return prev[n];
+  }
+
+  function calcScore() {
+    const id = appData.selectedId;
+    if (!id) return 0;
+    const item = appData.data.find(d => d.id === id);
+    if (!item) return 0;
+    const orig  = normalize(item.text);
+    const input = normalize(document.getElementById('typing-input').value);
+    if (!orig.length) return 0;
+    const pct = Math.round(lcsLength(orig, input) / orig.length * 100);
+    const bar = document.getElementById('score-bar');
+    bar.style.width      = pct + '%';
+    bar.style.background = pct >= 80 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
+    document.getElementById('score-label').textContent = pct + '%';
+    document.getElementById('score-bar-wrap').classList.add('visible');
+    return pct;
+  }
+
+  function showDiff() {
+    const id = appData.selectedId;
+    if (!id) return;
+    const item  = appData.data.find(d => d.id === id);
+    if (!item) return;
+    const orig  = normalize(item.text);
+    const input = normalize(document.getElementById('typing-input').value);
+    calcScore();
+    const m = orig.length, n = input.length;
+    const dp = Array.from({length:m+1}, () => new Array(n+1).fill(0));
+    for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+      dp[i][j] = orig[i-1]===input[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j],dp[i][j-1]);
+    const matched = new Array(m).fill(false);
+    let i=m, j=n;
+    while (i>0&&j>0) {
+      if (orig[i-1]===input[j-1]) { matched[i-1]=true; i--; j--; }
+      else if (dp[i-1][j]>=dp[i][j-1]) i--; else j--;
+    }
+    let html='';
+    for (let k=0;k<orig.length;k++) {
+      const ch=escapeHtml(orig[k]);
+      html += matched[k] ? `<span class="diff-ok">${ch}</span>` : `<span class="diff-ng">${ch}</span>`;
+    }
+    const panel = document.getElementById('diff-panel');
+    panel.style.display = 'block';
+    panel.innerHTML = '<strong>差分（赤：未入力/誤り、緑：正解）</strong><br><br>' + html;
+  }
+
+  function clearTyping() {
+    document.getElementById('typing-input').value = '';
+    document.getElementById('score-bar').style.width = '0%';
+    document.getElementById('score-label').textContent = '0%';
+    document.getElementById('score-bar-wrap').classList.remove('visible');
+    document.getElementById('diff-panel').style.display = 'none';
+  }
+
+  function saveRecord() {
+    const id = appData.selectedId;
+    if (!id) { alert('コンテンツを選択してください'); return; }
+    const score  = calcScore();
+    const item   = appData.data.find(d => d.id === id);
+    const record = {
+      id: Date.now().toString(), itemId: id,
+      subject: item.subject, chapter: item.chapter,
+      no: item.no, title: item.title,
+      score, date: new Date().toISOString()
+    };
+    appData.records.push(record);
+    saveOneRecord(record).then(() => {
+      renderTree(); updateHistoryFilter(); renderManageList();
+      alert(`記録を保存しました！ スコア: ${score}%`);
+    });
+  }
+
+  // ========== 記録 ==========
+  function renderHistory() {
+    const subj  = document.getElementById('hist-subject-filter').value;
+    const from  = document.getElementById('hist-date-from').value;
+    const to    = document.getElementById('hist-date-to').value;
+    let filtered = [...appData.records];
+    if (subj) filtered = filtered.filter(r => r.subject === subj);
+    if (from) filtered = filtered.filter(r => r.date >= from);
+    if (to)   filtered = filtered.filter(r => r.date <= to + 'T23:59:59');
+    filtered.sort((a,b) => b.date.localeCompare(a.date));
+    const list = document.getElementById('history-list');
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(r => {
+      const cls = r.score >= 80 ? 'score-high' : r.score >= 50 ? 'score-mid' : 'score-low';
+      return `<div class="history-card">
+        <div class="history-info">
+          <div class="history-path">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
+          <div class="history-title">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
+          <div class="history-date">📅 ${formatDateTime(r.date)}</div>
         </div>
-      </div>
-      <button class="btn-small btn-danger" data-deltaskid="${task.id}" style="flex-shrink:0;">🗑</button>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('[data-taskid]').forEach(el => {
-    el.addEventListener('click', () => toggleTask(el.dataset.taskid));
-  });
-  list.querySelectorAll('[data-deltaskid]').forEach(btn => {
-    btn.addEventListener('click', () => deleteTask(btn.dataset.deltaskid));
-  });
-}
-window.renderTasks = renderTasks;
+        <div class="history-score-badge ${cls}">${r.score}%</div>
+        <button class="btn-small btn-danger" data-recid="${r.id}">削除</button>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-recid]').forEach(btn => {
+      btn.addEventListener('click', () => deleteRecord(btn.dataset.recid));
+    });
+  }
 
-// DOMContentLoaded後に初期化
-document.addEventListener('DOMContentLoaded', init);
+  function deleteRecord(id) {
+    if (!confirm('この記録を削除しますか？')) return;
+    appData.records = appData.records.filter(r => r.id !== id);
+    deleteRecordFromDB(id).then(() => {
+      renderHistory(); renderTree(); renderCalendar(); renderManageList();
+    });
+  }
+
+  function updateHistoryFilter() {
+    const sel     = document.getElementById('hist-subject-filter');
+    const current = sel.value;
+    const subjects = [...new Set(appData.data.map(d => d.subject))];
+    sel.innerHTML = '<option value="">すべて</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}"${s===current?' selected':''}>${escapeHtml(s)}</option>`).join('');
+  }
+
+  function clearHistoryFilter() {
+    document.getElementById('hist-subject-filter').value = '';
+    document.getElementById('hist-date-from').value = '';
+    document.getElementById('hist-date-to').value   = '';
+    renderHistory();
+  }
+
+  // ========== カレンダー ==========
+  function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    document.getElementById('cal-title').textContent = `${calYear}年 ${calMonth+1}月`;
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const lastDate = new Date(calYear, calMonth+1, 0).getDate();
+    const prevLast = new Date(calYear, calMonth, 0).getDate();
+    const today    = new Date();
+    const dayMap   = {};
+    appData.records.forEach(r => {
+      const d = new Date(r.date);
+      if (d.getFullYear()===calYear && d.getMonth()===calMonth) {
+        const k = d.getDate();
+        if (!dayMap[k]) dayMap[k] = [];
+        dayMap[k].push(r);
+      }
+    });
+    const grid = document.getElementById('cal-days');
+    grid.innerHTML = '';
+    for (let i=firstDay-1; i>=0; i--) grid.appendChild(createDayCell(prevLast-i, true, []));
+    for (let d=1; d<=lastDate; d++) {
+      const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+      const cell = createDayCell(d, false, dayMap[d]||[], isToday);
+      const recs = dayMap[d]||[];
+      cell.addEventListener('click', () => showCalDetail(d, recs));
+      grid.appendChild(cell);
+    }
+    const remain = (firstDay + lastDate) % 7;
+    if (remain) for (let d=1; d<=7-remain; d++) grid.appendChild(createDayCell(d, true, []));
+    document.getElementById('cal-detail').style.display = 'none';
+  }
+
+  function createDayCell(day, otherMonth, recs, isToday) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (otherMonth?' other-month':'') + (isToday?' today':'');
+    const num = document.createElement('div');
+    num.className = 'cal-day-num';
+    num.textContent = day;
+    cell.appendChild(num);
+    if (recs.length > 0) {
+      const evDiv = document.createElement('div');
+      evDiv.className = 'cal-events';
+      recs.slice(0,2).forEach(r => {
+        const ev = document.createElement('div');
+        ev.className = 'cal-event';
+        ev.style.background = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
+        ev.textContent = r.score + '%';
+        evDiv.appendChild(ev);
+      });
+      if (recs.length > 2) {
+        const more = document.createElement('div');
+        more.style.cssText = 'font-size:0.6rem;color:#888;';
+        more.textContent = `+${recs.length-2}`;
+        evDiv.appendChild(more);
+      }
+      cell.appendChild(evDiv);
+    }
+    return cell;
+  }
+
+  function showCalDetail(day, recs) {
+    document.getElementById('cal-detail-title').textContent = `${calYear}年${calMonth+1}月${day}日 の記録`;
+    const list = document.getElementById('cal-detail-list');
+    list.innerHTML = recs.length === 0
+      ? '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>'
+      : recs.map(r => {
+          const d   = new Date(r.date);
+          const t   = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+          const col = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
+          return `<div class="cal-detail-item">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.75rem;color:#888;">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
+              <div style="font-size:0.88rem;font-weight:600;">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
+              <div style="font-size:0.75rem;color:#aaa;">${t}</div>
+            </div>
+            <div style="font-size:1.1rem;font-weight:700;color:${col};flex-shrink:0;">${r.score}%</div>
+          </div>`;
+        }).join('');
+    document.getElementById('cal-detail').style.display = 'block';
+  }
+
+  // ========== 学習計画 ==========
+  function addTask() {
+    const title    = document.getElementById('task-title-input').value.trim();
+    const due      = document.getElementById('task-due-input').value;
+    const priority = document.getElementById('task-priority-input').value;
+    const memo     = document.getElementById('task-memo-input').value.trim();
+    if (!title) { alert('タイトルを入力してください'); return; }
+    const task = {
+      id: Date.now().toString(), title,
+      due: due || null, priority, memo,
+      done: false, createdAt: new Date().toISOString(), doneAt: null
+    };
+    appData.tasks.push(task);
+    saveOneTask(task).then(() => {
+      renderTasks();
+      document.getElementById('task-title-input').value = '';
+      document.getElementById('task-due-input').value   = '';
+      document.getElementById('task-memo-input').value  = '';
+      document.getElementById('task-priority-input').value = 'mid';
+    });
+  }
+
+  function toggleTask(id) {
+    const task = appData.tasks.find(t => t.id === id);
+    if (!task) return;
+    task.done   = !task.done;
+    task.doneAt = task.done ? new Date().toISOString() : null;
+    saveOneTask(task).then(() => renderTasks());
+  }
+
+  function deleteTask(id) {
+    if (!confirm('このタスクを削除しますか？')) return;
+    appData.tasks = appData.tasks.filter(t => t.id !== id);
+    deleteTaskFromDB(id).then(() => renderTasks());
+  }
+
+  function renderTasks() {
+    const filter   = document.getElementById('task-filter').value;
+    const sortMode = document.getElementById('task-sort').value;
+    const today    = new Date().toISOString().slice(0,10);
+    const total    = appData.tasks.length;
+    const done     = appData.tasks.filter(t => t.done).length;
+    const overdue  = appData.tasks.filter(t => !t.done && t.due && t.due < today).length;
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-done').textContent    = done;
+    document.getElementById('stat-overdue').textContent = overdue;
+    let items = [...appData.tasks];
+    if (filter === 'todo')    items = items.filter(t => !t.done);
+    if (filter === 'done')    items = items.filter(t => t.done);
+    if (filter === 'overdue') items = items.filter(t => !t.done && t.due && t.due < today);
+    const po = { high:0, mid:1, low:2 };
+    if (sortMode === 'due-asc')       items.sort((a,b) => (a.due||'Z').localeCompare(b.due||'Z'));
+    else if (sortMode === 'due-desc') items.sort((a,b) => (b.due||'').localeCompare(a.due||''));
+    else if (sortMode === 'priority') items.sort((a,b) => po[a.priority]-po[b.priority]);
+    else items.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+    const list = document.getElementById('task-list');
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">✅</div>タスクがありません</div>';
+      return;
+    }
+    list.innerHTML = items.map(task => {
+      const isOver  = !task.done && task.due && task.due < today;
+      const isToday = !task.done && task.due && task.due === today;
+      const dueCls  = isOver ? 'overdue' : isToday ? 'today-due' : '';
+      const dueNote = isOver ? ' ⚠️期限超過' : isToday ? ' 📌今日が期限' : '';
+      const dueStr  = task.due ? task.due + dueNote : '期限なし';
+      const priLabel = task.priority==='high'?'🔴 高':task.priority==='mid'?'🟡 中':'🟢 低';
+      const priCls   = task.priority==='high'?'priority-high':task.priority==='mid'?'priority-mid':'priority-low';
+      const itemCls  = task.done ? 'done' : isOver ? 'overdue' : '';
+      return `<div class="task-item ${itemCls}">
+        <div class="task-check ${task.done?'checked':''}" data-taskid="${task.id}">${task.done?'✓':''}</div>
+        <div class="task-body">
+          <div class="task-title">${escapeHtml(task.title)}</div>
+          <div class="task-meta">
+            <span class="task-priority ${priCls}">${priLabel}</span>
+            <span class="task-due ${dueCls}">📅 ${dueStr}</span>
+            ${task.memo ? `<span>📝 ${escapeHtml(task.memo)}</span>` : ''}
+            ${task.done && task.doneAt ? `<span>✅ ${formatDate(task.doneAt)}完了</span>` : ''}
+          </div>
+        </div>
+        <button class="btn-small btn-danger" data-deltaskid="${task.id}" style="flex-shrink:0;">🗑</button>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-taskid]').forEach(el => {
+      el.addEventListener('click', () => toggleTask(el.dataset.taskid));
+    });
+    list.querySelectorAll('[data-deltaskid]').forEach(btn => {
+      btn.addEventListener('click', () => deleteTask(btn.dataset.deltaskid));
+    });
+  }
+
+  function renderAll() {
+    renderTree(); renderHistory(); renderCalendar();
+    renderContentSelect(); renderManageList(); renderTasks();
+  }
+
+  // ========== 起動 ==========
+  // type="module"はDOMContentLoaded後に実行されるため、そのままinitを呼ぶだけでOK
+  init();
 </script>
 </body>
 </html>
