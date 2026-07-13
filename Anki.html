@@ -785,25 +785,41 @@ function addItem() {
   renderTree();
 }
 
-function saveItem() {
-  if (!window.selectedId) return;
-  const item = window.data.find(d => d.id === window.selectedId);
-  if (!item) return;
-  item.subject = document.getElementById('edit-subject').value.trim();
-  item.chapter = document.getElementById('edit-chapter').value.trim();
-  item.no      = document.getElementById('edit-no').value.trim();
-  item.title   = document.getElementById('edit-title').value.trim();
-  item.text    = document.getElementById('edit-text').value.trim();
-  window.saveOneItem(item).then(() => {
-    renderTree();
-    updatePreview(item);
-    document.getElementById('study-title').textContent =
-      `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
-    document.getElementById('view-text').innerHTML =
-      applyKeywords(item.text, item.keywords || []);
-    document.getElementById('original-text-display').innerHTML =
-      applyKeywords(item.text, item.keywords || []);
-    alert('保存しました！');
+function addItem() {
+  const subject = document.getElementById('new-subject').value.trim();
+  const chapter = document.getElementById('new-chapter').value.trim();
+  const no      = document.getElementById('new-no').value.trim();
+  const title   = document.getElementById('new-title').value.trim();
+  const text    = document.getElementById('new-text').value.trim();
+
+  if (!subject || !chapter || !no || !title || !text) {
+    alert('すべての項目を入力してください'); return;
+  }
+
+  // ログイン確認
+  if (!window.saveOneItem) {
+    alert('ログインしてから追加してください'); return;
+  }
+
+  const item = {
+    id:       Date.now().toString(),
+    subject, chapter, no, title, text,
+    keywords: []
+  };
+
+  // ローカルに追加してすぐ表示
+  window.data.push(item);
+  renderTree();
+  selectItem(item.id);
+  closeModal();
+
+  // フォームリセット
+  ['new-subject','new-chapter','new-no','new-title','new-text']
+    .forEach(id => { document.getElementById(id).value = ''; });
+
+  // Firestoreに保存（完了を待たない）
+  window.saveOneItem(item).catch(err => {
+    alert('保存に失敗しました: ' + err.message);
   });
 }
 
