@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>長文暗記ツール</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; }
+
+  header {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: white; padding: 16px 24px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  header h1 { font-size: 1.4rem; }
+  .tab-nav { display: flex; gap: 8px; margin-left: auto; }
+  .tab-btn {
+    background: rgba(255,255,255,0.15); border: none; color: white;
+    padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  .tab-btn.active, .tab-btn:hover { background: rgba(255,255,255,0.35); }
+
+  .container { display: flex; height: calc(100vh - 60px); }
+
+  .sidebar {
+    width: 280px; background: #fff; border-right: 1px solid #dde3ea;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 14px 16px; background: #f7f9fc;
+    border-bottom: 1px solid #dde3ea; font-weight: 700; font-size: 0.95rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .btn-small {
+    background: #3498db; color: white; border: none;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem;
+  }
+  .btn-small:hover { background: #2980b9; }
+  .btn-danger { background: #e74c3c; }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-success { background: #27ae60; }
+  .btn-success:hover { background: #219a52; }
+  .btn-warning { background: #f39c12; }
+  .btn-warning:hover { background: #d68910; }
+
+  .tree { flex: 1; overflow-y: auto; padding: 8px; }
+  .tree-subject { margin-bottom: 4px; }
+  .tree-subject-label {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 10px; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 0.88rem; color: #2c3e50;
+    background: #eaf2fb; transition: background 0.15s;
+  }
+  .tree-subject-label:hover { background: #d6eaf8; }
+  .tree-chapter { margin-left: 14px; margin-top: 2px; }
+  .tree-chapter-label {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 0.84rem; color: #555; background: #f4f6f8;
+    transition: background 0.15s;
+  }
+  .tree-chapter-label:hover { background: #e8ecf0; }
+  .tree-items { margin-left: 14px; margin-top: 2px; }
+  .tree-item {
+    padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 0.82rem; color: #666; transition: background 0.15s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .tree-item:hover { background: #eaf2fb; }
+  .tree-item.active { background: #3498db; color: white; font-weight: 600; }
+  .tree-item .item-score {
+    font-size: 0.75rem; opacity: 0.8;
+    background: rgba(255,255,255,0.3); padding: 1px 5px; border-radius: 10px;
+  }
+  .tree-item:not(.active) .item-score { background: #e0e7ef; color: #555; }
+  .toggle-icon { font-size: 0.7rem; transition: transform 0.2s; }
+  .collapsed .toggle-icon { transform: rotate(-90deg); }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+  .tab-content.active { display: flex; }
+
+  #tab-manage {
+    padding: 24px; overflow-y: auto; flex-direction: column; gap: 20px;
+  }
+  .manage-section {
+    background: white; border-radius: 12px; padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .manage-section h3 { margin-bottom: 14px; color: #2c3e50; font-size: 1rem; }
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 0.8rem; color: #666; font-weight: 600; }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1px solid #dde3ea; border-radius: 8px; padding: 8px 12px;
+    font-size: 0.88rem; outline: none; transition: border 0.2s;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: #3498db;
+  }
+  .form-group textarea { resize: vertical; min-height: 120px; width: 100%; }
+  .btn-primary {
+    background: #3498db; color: white; border: none;
+    padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 0.88rem;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .btn-primary:hover { background: #2980b9; }
+
+  .keyword-editor { margin-top: 12px; }
+  .keyword-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .keyword-tag {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px; font-size: 0.82rem;
+    font-weight: 600; cursor: pointer; border: 2px solid transparent;
+  }
+  .keyword-tag .kw-del { cursor: pointer; opacity: 0.7; font-size: 0.75rem; }
+  .keyword-tag .kw-del:hover { opacity: 1; }
+  .color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .color-swatch {
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: transform 0.15s;
+  }
+  .color-swatch:hover, .color-swatch.selected { transform: scale(1.2); border-color: #333; }
+
+  .text-preview {
+    background: #f7f9fc; border: 1px solid #dde3ea; border-radius: 8px;
+    padding: 14px; font-size: 0.88rem; line-height: 1.8; white-space: pre-wrap;
+    max-height: 200px; overflow-y: auto; margin-top: 10px;
+  }
+
+  #tab-study { flex-direction: row; }
+  .study-area {
+    flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 16px; overflow-y: auto;
+  }
+  .study-header {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .study-title { font-size: 1.1rem; font-weight: 700; color: #2c3e50; flex: 1; }
+  .mode-toggle { display: flex; gap: 8px; }
+  .mode-btn {
+    padding: 7px 16px; border-radius: 20px; border: 2px solid #3498db;
+    background: white; color: #3498db; cursor: pointer; font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .mode-btn.active { background: #3498db; color: white; }
+
+  .view-panel {
+    background: white; border-radius: 12px; padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 0.95rem; line-height: 2; white-space: pre-wrap;
+    flex: 1; overflow-y: auto;
+  }
+
+  .typing-panel {
+    display: flex; flex-direction: column; gap: 12px; flex: 1;
+  }
+  .original-text {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 0.88rem; line-height: 1.9; white-space: pre-wrap;
+    max-height: 220px; overflow-y: auto;
+  }
+  .typing-input-wrap {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex: 1; display: flex; flex-direction: column; gap: 10px;
+  }
+  .typing-input-wrap textarea {
+    flex: 1; border: 1px solid #dde3ea; border-radius: 8px;
+    padding: 12px; font-size: 0.9rem; line-height: 1.8; resize: none;
+    outline: none; font-family: inherit; min-height: 140px;
+  }
+  .typing-input-wrap textarea:focus { border-color: #3498db; }
+
+  /* スコアバー：入力中は非表示、採点後のみ表示 */
+  .score-bar-wrap {
+    display: none;
+    align-items: center; gap: 12px;
+  }
+  .score-bar-wrap.visible { display: flex; }
+  .score-bar-bg {
+    flex: 1; height: 12px; background: #e0e7ef; border-radius: 6px; overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%; border-radius: 6px; transition: width 0.4s, background 0.4s;
+    background: #e74c3c;
+  }
+  .score-label { font-size: 1.1rem; font-weight: 700; min-width: 52px; text-align: right; }
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .diff-panel {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 0.88rem; line-height: 1.9;
+    max-height: 200px; overflow-y: auto; display: none;
+  }
+  .diff-ok { color: #27ae60; }
+  .diff-ng { color: #e74c3c; text-decoration: underline; background: #fdecea; }
+
+  #tab-history { padding: 24px; overflow-y: auto; flex-direction: column; gap: 16px; }
+  .history-filter {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 10px; }
+  .history-card {
+    background: white; border-radius: 12px; padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .history-info { flex: 1; }
+  .history-path { font-size: 0.78rem; color: #888; margin-bottom: 3px; }
+  .history-title { font-size: 0.92rem; font-weight: 600; color: #2c3e50; }
+  .history-date { font-size: 0.8rem; color: #999; }
+  .history-score-badge {
+    font-size: 1.1rem; font-weight: 700; padding: 6px 14px;
+    border-radius: 20px; color: white;
+  }
+
+  #tab-calendar { padding: 24px; overflow-y: auto; flex-direction: column; gap: 16px; }
+  .calendar-nav {
+    background: white; border-radius: 12px; padding: 14px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .cal-title { font-size: 1.1rem; font-weight: 700; flex: 1; text-align: center; }
+  .cal-nav-btn {
+    background: #eaf2fb; border: none; padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; font-size: 1rem; transition: background 0.2s;
+  }
+  .cal-nav-btn:hover { background: #d6eaf8; }
+  .calendar-grid {
+    background: white; border-radius: 12px; padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .cal-weekdays {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    text-align: center; font-size: 0.8rem; font-weight: 700;
+    color: #888; margin-bottom: 8px;
+  }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day {
+    min-height: 72px; border-radius: 8px; padding: 6px;
+    background: #f7f9fc; position: relative; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .cal-day:hover { background: #eaf2fb; }
+  .cal-day.today { background: #eaf2fb; border: 2px solid #3498db; }
+  .cal-day.other-month { opacity: 0.35; }
+  .cal-day-num { font-size: 0.82rem; font-weight: 700; color: #555; margin-bottom: 4px; }
+  .cal-day.today .cal-day-num { color: #3498db; }
+  .cal-events { display: flex; flex-direction: column; gap: 2px; }
+  .cal-event {
+    font-size: 0.68rem; padding: 1px 5px; border-radius: 4px;
+    color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cal-detail {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: none;
+  }
+  .cal-detail h3 { margin-bottom: 12px; color: #2c3e50; }
+  .cal-detail-list { display: flex; flex-direction: column; gap: 8px; }
+  .cal-detail-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; background: #f7f9fc; border-radius: 8px;
+  }
+
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; padding: 28px;
+    width: 480px; max-width: 95vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .modal h3 { margin-bottom: 18px; color: #2c3e50; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .btn-cancel {
+    background: #ecf0f1; color: #555; border: none;
+    padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 0.88rem;
+  }
+
+  .score-high { background: #27ae60; }
+  .score-mid  { background: #f39c12; }
+  .score-low  { background: #e74c3c; }
+
+  .empty-state {
+    text-align: center; padding: 48px; color: #aaa; font-size: 0.95rem;
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📖 長文暗記ツール</h1>
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('manage',this)">📝 管理</button>
+    <button class="tab-btn" onclick="switchTab('study',this)">🎯 学習</button>
+    <button class="tab-btn" onclick="switchTab('history',this)">📊 記録</button>
+    <button class="tab-btn" onclick="switchTab('calendar',this)">📅 カレンダー</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span>📚 コンテンツ</span>
+      <button class="btn-small" onclick="openAddModal()">＋ 追加</button>
+    </div>
+    <div class="tree" id="tree"></div>
+  </div>
+
+  <div class="main">
+
+    <!-- 管理タブ -->
+    <div class="tab-content active" id="tab-manage">
+      <div class="manage-section">
+        <h3>📌 コンテンツを選択して編集</h3>
+        <div id="manage-empty" class="empty-state">
+          <div class="icon">📂</div>
+          左のツリーからコンテンツを選択するか、<br>「＋ 追加」で新規作成してください
+        </div>
+        <div id="manage-editor" style="display:none;">
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group">
+              <label>大分類（科目）</label>
+              <input type="text" id="edit-subject" placeholder="例：英語">
+            </div>
+            <div class="form-group">
+              <label>中分類（章）</label>
+              <input type="text" id="edit-chapter" placeholder="例：第1章">
+            </div>
+            <div class="form-group">
+              <label>No（小分類）</label>
+              <input type="text" id="edit-no" placeholder="例：001">
+            </div>
+            <div class="form-group">
+              <label>タイトル</label>
+              <input type="text" id="edit-title" placeholder="例：重要フレーズ">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label>本文テキスト</label>
+            <textarea id="edit-text" placeholder="暗記したい長文を入力してください..." oninput="livePreview()"></textarea>
+          </div>
+          <div class="keyword-editor">
+            <label style="font-size:0.8rem;color:#666;font-weight:600;">🎨 重要キーワード色付け</label>
+            <div class="form-row" style="margin-top:8px;">
+              <div class="form-group">
+                <input type="text" id="kw-input" placeholder="キーワードを入力" style="width:180px;">
+              </div>
+              <div class="color-picker-row" id="color-picker-row"></div>
+              <button class="btn-small btn-success" onclick="addKeyword()">追加</button>
+            </div>
+            <div class="keyword-list" id="keyword-list"></div>
+          </div>
+          <div style="margin-top:14px;">
+            <label style="font-size:0.8rem;color:#666;font-weight:600;">👁 プレビュー（キーワード色付き）</label>
+            <div class="text-preview" id="text-preview"></div>
+          </div>
+          <div class="action-row" style="margin-top:16px;">
+            <button class="btn-primary" onclick="saveItem()">💾 保存</button>
+            <button class="btn-small btn-danger" onclick="deleteItem()">🗑 削除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 学習タブ -->
+    <div class="tab-content" id="tab-study">
+      <div class="study-area">
+        <div class="study-header">
+          <div class="study-title" id="study-title">← コンテンツを選択してください</div>
+          <div class="mode-toggle">
+            <button class="mode-btn active" onclick="setMode('view')" id="mode-view-btn">👁 閲覧</button>
+            <button class="mode-btn" onclick="setMode('typing')" id="mode-typing-btn">⌨️ タイピング</button>
+          </div>
+        </div>
+
+        <div id="view-mode">
+          <div class="view-panel" id="view-text">
+            <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
+          </div>
+        </div>
+
+        <div id="typing-mode" style="display:none;" class="typing-panel">
+          <div class="original-text" id="original-text-display">
+            <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
+          </div>
+          <div class="typing-input-wrap">
+            <label style="font-size:0.82rem;color:#666;font-weight:600;">✍️ ここに入力してください（句読点・改行は採点対象外）</label>
+            <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
+            <!-- スコアバーは採点後のみ表示 -->
+            <div class="score-bar-wrap" id="score-bar-wrap">
+              <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar"></div></div>
+              <div class="score-label" id="score-label">0%</div>
+            </div>
+            <div class="action-row">
+              <button class="btn-primary" onclick="saveRecord()">💾 記録を保存</button>
+              <button class="btn-small btn-warning" onclick="showDiff()">🔍 差分確認</button>
+              <button class="btn-small" onclick="clearTyping()">🗑 クリア</button>
+              <button class="btn-small" onclick="toggleOriginal()">📄 原文 表示/非表示</button>
+            </div>
+          </div>
+          <div class="diff-panel" id="diff-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 記録タブ -->
+    <div class="tab-content" id="tab-history">
+      <div class="history-filter">
+        <div class="form-group">
+          <label>科目</label>
+          <select id="hist-subject-filter" onchange="renderHistory()">
+            <option value="">すべて</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>期間（開始）</label>
+          <input type="date" id="hist-date-from" onchange="renderHistory()">
+        </div>
+        <div class="form-group">
+          <label>期間（終了）</label>
+          <input type="date" id="hist-date-to" onchange="renderHistory()">
+        </div>
+        <button class="btn-small" onclick="clearHistoryFilter()">リセット</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+
+    <!-- カレンダータブ -->
+    <div class="tab-content" id="tab-calendar">
+      <div class="calendar-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">◀</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="calendar-grid">
+        <div class="cal-weekdays">
+          <div style="color:#e74c3c">日</div><div>月</div><div>火</div>
+          <div>水</div><div>木</div><div>金</div><div style="color:#3498db">土</div>
+        </div>
+        <div class="cal-days" id="cal-days"></div>
+      </div>
+      <div class="cal-detail" id="cal-detail">
+        <h3 id="cal-detail-title"></h3>
+        <div class="cal-detail-list" id="cal-detail-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 追加モーダル -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h3>📝 新規コンテンツ追加</h3>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>大分類（科目）</label>
+      <input type="text" id="new-subject" placeholder="例：英語、歴史、法律">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>中分類（章）</label>
+      <input type="text" id="new-chapter" placeholder="例：第1章、Unit1">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>No（小分類）</label>
+      <input type="text" id="new-no" placeholder="例：001、A-1">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>タイトル</label>
+      <input type="text" id="new-title" placeholder="例：重要フレーズ">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>本文テキスト</label>
+      <textarea id="new-text" placeholder="暗記したい長文を入力..." style="min-height:100px;width:100%;border:1px solid #dde3ea;border-radius:8px;padding:10px;font-family:inherit;font-size:0.88rem;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" onclick="addItem()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== データ =====
+let data    = JSON.parse(localStorage.getItem('memorize_data')    || '[]');
+let records = JSON.parse(localStorage.getItem('memorize_records') || '[]');
+let selectedId   = null;
+let currentMode  = 'view';
+let calYear, calMonth;
+let selectedKwColor = '#e74c3c';
+let showOriginal    = true;
+let lastScore       = 0;   // 最後に採点したスコアを保持
+
+const COLORS = [
+  '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+  '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
+];
+
+// ===== 初期化 =====
+function init() {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
+  renderColorPicker();
+  renderTree();
+  renderCalendar();
+  renderHistory();
+  updateHistoryFilter();
+}
+
+// ===== タブ切替 =====
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'history')  renderHistory();
+  if (tab === 'calendar') renderCalendar();
+}
+
+// ===== ツリー =====
+function renderTree() {
+  const tree = document.getElementById('tree');
+  const subjects = {};
+  data.forEach(item => {
+    if (!subjects[item.subject]) subjects[item.subject] = {};
+    if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
+    subjects[item.subject][item.chapter].push(item);
+  });
+
+  tree.innerHTML = '';
+  if (Object.keys(subjects).length === 0) {
+    tree.innerHTML = '<div style="padding:16px;color:#aaa;font-size:0.82rem;text-align:center;">コンテンツがありません</div>';
+    return;
+  }
+
+  Object.entries(subjects).forEach(([subj, chapters]) => {
+    const subjEl = document.createElement('div');
+    subjEl.className = 'tree-subject';
+    const subjLabel = document.createElement('div');
+    subjLabel.className = 'tree-subject-label';
+    subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${subj}`;
+    const chapterWrap = document.createElement('div');
+    subjLabel.onclick = () => {
+      subjEl.classList.toggle('collapsed');
+      chapterWrap.style.display = subjEl.classList.contains('collapsed') ? 'none' : '';
+    };
+    subjEl.appendChild(subjLabel);
+
+    Object.entries(chapters).forEach(([chap, items]) => {
+      const chapEl = document.createElement('div');
+      chapEl.className = 'tree-chapter';
+      const chapLabel = document.createElement('div');
+      chapLabel.className = 'tree-chapter-label';
+      chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${chap}`;
+      const itemWrap = document.createElement('div');
+      itemWrap.className = 'tree-items';
+      chapLabel.onclick = () => {
+        chapEl.classList.toggle('collapsed');
+        itemWrap.style.display = chapEl.classList.contains('collapsed') ? 'none' : '';
+      };
+      chapEl.appendChild(chapLabel);
+
+      items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
+        const bestScore = getBestScore(item.id);
+        const itemEl = document.createElement('div');
+        itemEl.className = 'tree-item' + (item.id === selectedId ? ' active' : '');
+        itemEl.innerHTML = `
+          <span>${item.no}. ${item.title}</span>
+          ${bestScore !== null ? `<span class="item-score">${bestScore}%</span>` : ''}
+        `;
+        itemEl.onclick = () => selectItem(item.id);
+        itemWrap.appendChild(itemEl);
+      });
+      chapEl.appendChild(itemWrap);
+      chapterWrap.appendChild(chapEl);
+    });
+    subjEl.appendChild(chapterWrap);
+    tree.appendChild(subjEl);
+  });
+}
+
+function getBestScore(id) {
+  const recs = records.filter(r => r.itemId === id);
+  if (recs.length === 0) return null;
+  return Math.max(...recs.map(r => r.score));
+}
+
+// ===== アイテム選択 =====
+function selectItem(id) {
+  selectedId = id;
+  const item = data.find(d => d.id === id);
+  if (!item) return;
+
+  document.getElementById('manage-empty').style.display = 'none';
+  document.getElementById('manage-editor').style.display = 'block';
+  document.getElementById('edit-subject').value = item.subject;
+  document.getElementById('edit-chapter').value = item.chapter;
+  document.getElementById('edit-no').value       = item.no;
+  document.getElementById('edit-title').value    = item.title;
+  document.getElementById('edit-text').value     = item.text;
+  renderKeywordList(item);
+  updatePreview(item);
+
+  document.getElementById('study-title').textContent =
+    `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+  document.getElementById('view-text').innerHTML =
+    applyKeywords(item.text, item.keywords || []);
+  document.getElementById('original-text-display').innerHTML =
+    applyKeywords(item.text, item.keywords || []);
+  clearTyping();
+  renderTree();
+}
+
+// ===== キーワード =====
+function renderColorPicker() {
+  const row = document.getElementById('color-picker-row');
+  row.innerHTML = '';
+  COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch' + (c === selectedKwColor ? ' selected' : '');
+    sw.style.background = c;
+    sw.onclick = () => { selectedKwColor = c; renderColorPicker(); };
+    row.appendChild(sw);
+  });
+}
+
+function addKeyword() {
+  const kw = document.getElementById('kw-input').value.trim();
+  if (!kw || !selectedId) return;
+  const item = data.find(d => d.id === selectedId);
+  if (!item) return;
+  if (!item.keywords) item.keywords = [];
+  if (item.keywords.find(k => k.word === kw)) return;
+  item.keywords.push({ word: kw, color: selectedKwColor });
+  document.getElementById('kw-input').value = '';
+  saveData();
+  renderKeywordList(item);
+  updatePreview(item);
+}
+
+function renderKeywordList(item) {
+  const list = document.getElementById('keyword-list');
+  list.innerHTML = '';
+  (item.keywords || []).forEach((kw, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'keyword-tag';
+    tag.style.background    = kw.color + '22';
+    tag.style.color         = kw.color;
+    tag.style.borderColor   = kw.color;
+    tag.innerHTML = `${kw.word} <span class="kw-del" onclick="removeKeyword(${i})">✕</span>`;
+    list.appendChild(tag);
+  });
+}
+
+function removeKeyword(i) {
+  const item = data.find(d => d.id === selectedId);
+  if (!item) return;
+  item.keywords.splice(i, 1);
+  saveData();
+  renderKeywordList(item);
+  updatePreview(item);
+}
+
+function applyKeywords(text, keywords) {
+  if (!keywords || keywords.length === 0)
+    return escapeHtml(text).replace(/\n/g, '<br>');
+  let result = escapeHtml(text);
+  const sorted = [...keywords].sort((a,b) => b.word.length - a.word.length);
+  sorted.forEach(kw => {
+    const escaped = escapeHtml(kw.word);
+    const re = new RegExp(escaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    result = result.replace(re,
+      `<mark style="background:${kw.color}22;color:${kw.color};font-weight:700;border-radius:3px;padding:0 2px;">${escaped}</mark>`);
+  });
+  return result.replace(/\n/g, '<br>');
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function livePreview() {
+  const item = data.find(d => d.id === selectedId);
+  if (!item) return;
+  updatePreview(item);
+}
+
+function updatePreview(item) {
+  const text = document.getElementById('edit-text').value;
+  document.getElementById('text-preview').innerHTML =
+    applyKeywords(text, item.keywords || []);
+}
+
+// ===== 管理 =====
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('add-modal').classList.remove('open');
+}
+
+function addItem() {
+  const subject = document.getElementById('new-subject').value.trim();
+  const chapter = document.getElementById('new-chapter').value.trim();
+  const no      = document.getElementById('new-no').value.trim();
+  const title   = document.getElementById('new-title').value.trim();
+  const text    = document.getElementById('new-text').value.trim();
+  if (!subject || !chapter || !no || !title || !text) {
+    alert('すべての項目を入力してください'); return;
+  }
+  const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
+  data.push(item);
+  saveData();
+  closeModal();
+  ['new-subject','new-chapter','new-no','new-title','new-text']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  renderTree();
+  selectItem(item.id);
+}
+
+function saveItem() {
+  if (!selectedId) return;
+  const item = data.find(d => d.id === selectedId);
+  if (!item) return;
+  item.subject = document.getElementById('edit-subject').value.trim();
+  item.chapter = document.getElementById('edit-chapter').value.trim();
+  item.no      = document.getElementById('edit-no').value.trim();
+  item.title   = document.getElementById('edit-title').value.trim();
+  item.text    = document.getElementById('edit-text').value.trim();
+  saveData();
+  renderTree();
+  updatePreview(item);
+  document.getElementById('study-title').textContent =
+    `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+  document.getElementById('view-text').innerHTML =
+    applyKeywords(item.text, item.keywords || []);
+  document.getElementById('original-text-display').innerHTML =
+    applyKeywords(item.text, item.keywords || []);
+  alert('保存しました！');
+}
+
+function deleteItem() {
+  if (!selectedId) return;
+  if (!confirm('このコンテンツを削除しますか？')) return;
+  data    = data.filter(d => d.id !== selectedId);
+  records = records.filter(r => r.itemId !== selectedId);
+  selectedId = null;
+  saveData(); saveRecords();
+  document.getElementById('manage-empty').style.display = 'block';
+  document.getElementById('manage-editor').style.display = 'none';
+  renderTree();
+}
+
+// ===== 学習モード =====
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('view-mode').style.display   = mode === 'view'   ? 'block' : 'none';
+  document.getElementById('typing-mode').style.display = mode === 'typing' ? 'flex'  : 'none';
+  document.getElementById('mode-view-btn').classList.toggle('active',   mode === 'view');
+  document.getElementById('mode-typing-btn').classList.toggle('active', mode === 'typing');
+}
+
+function toggleOriginal() {
+  showOriginal = !showOriginal;
+  document.getElementById('original-text-display').style.display = showOriginal ? 'block' : 'none';
+}
+
+// ===== スコア計算（LCS） =====
+// 句読点・改行・空白を除去して比較
+function normalize(str) {
+  return str.replace(/[、。，．・\n\r\s　]/g, '');
+}
+
+/**
+ * LCS（最長共通部分列）の長さを求める
+ * O(n*m) だが暗記文章レベルなら問題なし
+ */
+function lcsLength(a, b) {
+  const m = a.length, n = b.length;
+  // メモリ節約のため1次元DPで計算
+  let prev = new Array(n + 1).fill(0);
+  for (let i = 1; i <= m; i++) {
+    const curr = new Array(n + 1).fill(0);
+    for (let j = 1; j <= n; j++) {
+      if (a[i-1] === b[j-1]) {
+        curr[j] = prev[j-1] + 1;
+      } else {
+        curr[j] = Math.max(prev[j], curr[j-1]);
+      }
+    }
+    prev = curr;
+  }
+  return prev[n];
+}
+
+/**
+ * LCSに基づいてスコアを計算し、バーとラベルを更新する
+ * 「差分確認」ボタン押下時 or 「記録を保存」時のみ呼ぶ
+ */
+function calcScore() {
+  if (!selectedId) return 0;
+  const item = data.find(d => d.id === selectedId);
+  if (!item) return 0;
+  const original = normalize(item.text);
+  const input    = normalize(document.getElementById('typing-input').value);
+  if (original.length === 0) return 0;
+
+  const lcs = lcsLength(original, input);
+  const pct = Math.round((lcs / original.length) * 100);
+
+  // バー表示
+  const bar = document.getElementById('score-bar');
+  bar.style.width      = pct + '%';
+  bar.style.background = pct >= 80 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
+  document.getElementById('score-label').textContent = pct + '%';
+  document.getElementById('score-bar-wrap').classList.add('visible');
+
+  lastScore = pct;
+  return pct;
+}
+
+/**
+ * LCSを使って差分を可視化する
+ * 原文の各文字が入力に含まれているか（順序を保って）を判定
+ */
+function showDiff() {
+  if (!selectedId) return;
+  const item = data.find(d => d.id === selectedId);
+  if (!item) return;
+
+  const original = normalize(item.text);
+  const input    = normalize(document.getElementById('typing-input').value);
+
+  // スコアも同時に更新
+  calcScore();
+
+  // LCSのバックトラック用にDPテーブルを構築
+  const m = original.length, n = input.length;
+  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (original[i-1] === input[j-1]) {
+        dp[i][j] = dp[i-1][j-1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+      }
+    }
+  }
+
+  // バックトラックして原文の各文字がLCSに含まれるか判定
+  const matched = new Array(m).fill(false);
+  let i = m, j = n;
+  while (i > 0 && j > 0) {
+    if (original[i-1] === input[j-1]) {
+      matched[i-1] = true;
+      i--; j--;
+    } else if (dp[i-1][j] >= dp[i][j-1]) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+
+  // HTML生成
+  let html = '';
+  for (let k = 0; k < original.length; k++) {
+    const ch = escapeHtml(original[k]);
+    if (matched[k]) {
+      html += `<span class="diff-ok">${ch}</span>`;
+    } else {
+      html += `<span class="diff-ng">${ch}</span>`;
+    }
+  }
+
+  const panel = document.getElementById('diff-panel');
+  panel.style.display = 'block';
+  panel.innerHTML = '<strong>差分（赤：未入力/誤り、緑：正解）</strong><br><br>' + html;
+}
+
+function clearTyping() {
+  document.getElementById('typing-input').value = '';
+  document.getElementById('score-bar').style.width = '0%';
+  document.getElementById('score-label').textContent = '0%';
+  document.getElementById('score-bar-wrap').classList.remove('visible');
+  document.getElementById('diff-panel').style.display = 'none';
+  lastScore = 0;
+}
+
+function saveRecord() {
+  if (!selectedId) { alert('コンテンツを選択してください'); return; }
+  // 保存時にスコアを計算
+  const score = calcScore();
+  const item  = data.find(d => d.id === selectedId);
+  const record = {
+    id:      Date.now().toString(),
+    itemId:  selectedId,
+    subject: item.subject,
+    chapter: item.chapter,
+    no:      item.no,
+    title:   item.title,
+    score:   score,
+    date:    new Date().toISOString()
+  };
+  records.push(record);
+  saveRecords();
+  renderTree();
+  updateHistoryFilter();
+  alert(`記録を保存しました！ スコア: ${score}%`);
+}
+
+// ===== 記録 =====
+function renderHistory() {
+  const subjectFilter = document.getElementById('hist-subject-filter').value;
+  const dateFrom      = document.getElementById('hist-date-from').value;
+  const dateTo        = document.getElementById('hist-date-to').value;
+
+  let filtered = [...records];
+  if (subjectFilter) filtered = filtered.filter(r => r.subject === subjectFilter);
+  if (dateFrom)      filtered = filtered.filter(r => r.date >= dateFrom);
+  if (dateTo)        filtered = filtered.filter(r => r.date <= dateTo + 'T23:59:59');
+  filtered.sort((a,b) => b.date.localeCompare(a.date));
+
+  const list = document.getElementById('history-list');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(r => {
+    const d = new Date(r.date);
+    const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const cls = r.score >= 80 ? 'score-high' : r.score >= 50 ? 'score-mid' : 'score-low';
+    return `
+      <div class="history-card">
+        <div class="history-info">
+          <div class="history-path">${r.subject} > ${r.chapter}</div>
+          <div class="history-title">${r.no}. ${r.title}</div>
+          <div class="history-date">📅 ${dateStr}</div>
+        </div>
+        <div class="history-score-badge ${cls}">${r.score}%</div>
+        <button class="btn-small btn-danger" onclick="deleteRecord('${r.id}')">削除</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteRecord(id) {
+  if (!confirm('この記録を削除しますか？')) return;
+  records = records.filter(r => r.id !== id);
+  saveRecords();
+  renderHistory();
+  renderTree();
+  renderCalendar();
+}
+
+function updateHistoryFilter() {
+  const sel     = document.getElementById('hist-subject-filter');
+  const current = sel.value;
+  const subjects = [...new Set(data.map(d => d.subject))];
+  sel.innerHTML = '<option value="">すべて</option>' +
+    subjects.map(s => `<option value="${s}" ${s===current?'selected':''}>${s}</option>`).join('');
+}
+
+function clearHistoryFilter() {
+  document.getElementById('hist-subject-filter').value = '';
+  document.getElementById('hist-date-from').value = '';
+  document.getElementById('hist-date-to').value   = '';
+  renderHistory();
+}
+
+// ===== カレンダー =====
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent = `${calYear}年 ${calMonth+1}月`;
+
+  const firstDay   = new Date(calYear, calMonth, 1).getDay();
+  const lastDate   = new Date(calYear, calMonth+1, 0).getDate();
+  const prevLast   = new Date(calYear, calMonth, 0).getDate();
+  const today      = new Date();
+
+  const dayMap = {};
+  records.forEach(r => {
+    const d = new Date(r.date);
+    if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
+      const key = d.getDate();
+      if (!dayMap[key]) dayMap[key] = [];
+      dayMap[key].push(r);
+    }
+  });
+
+  const grid = document.getElementById('cal-days');
+  grid.innerHTML = '';
+
+  for (let i = firstDay - 1; i >= 0; i--)
+    grid.appendChild(createDayCell(prevLast - i, true, [], null));
+
+  for (let d = 1; d <= lastDate; d++) {
+    const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+    const cell = createDayCell(d, false, dayMap[d]||[], isToday ? 'today' : null);
+    cell.onclick = () => showCalDetail(d, dayMap[d]||[]);
+    grid.appendChild(cell);
+  }
+
+  const total  = firstDay + lastDate;
+  const remain = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remain; d++)
+    grid.appendChild(createDayCell(d, true, [], null));
+
+  document.getElementById('cal-detail').style.display = 'none';
+}
+
+function createDayCell(day, otherMonth, recs, extra) {
+  const cell = document.createElement('div');
+  cell.className = 'cal-day' +
+    (otherMonth ? ' other-month' : '') +
+    (extra === 'today' ? ' today' : '');
+  const numDiv = document.createElement('div');
+  numDiv.className = 'cal-day-num';
+  numDiv.textContent = day;
+  cell.appendChild(numDiv);
+
+  if (recs.length > 0) {
+    const evDiv = document.createElement('div');
+    evDiv.className = 'cal-events';
+    recs.slice(0, 3).forEach(r => {
+      const ev = document.createElement('div');
+      ev.className = 'cal-event';
+      ev.style.background = r.score >= 80 ? '#27ae60' : r.score >= 50 ? '#f39c12' : '#e74c3c';
+      ev.textContent = `${r.no} ${r.score}%`;
+      evDiv.appendChild(ev);
+    });
+    if (recs.length > 3) {
+      const more = document.createElement('div');
+      more.style.cssText = 'font-size:0.65rem;color:#888;';
+      more.textContent = `+${recs.length-3}件`;
+      evDiv.appendChild(more);
+    }
+    cell.appendChild(evDiv);
+  }
+  return cell;
+}
+
+function showCalDetail(day, recs) {
+  const detail = document.getElementById('cal-detail');
+  document.getElementById('cal-detail-title').textContent =
+    `${calYear}年${calMonth+1}月${day}日 の記録`;
+  const list = document.getElementById('cal-detail-list');
+  if (recs.length === 0) {
+    list.innerHTML = '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>';
+  } else {
+    list.innerHTML = recs.map(r => {
+      const d = new Date(r.date);
+      const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const col = r.score >= 80 ? '#27ae60' : r.score >= 50 ? '#f39c12' : '#e74c3c';
+      return `
+        <div class="cal-detail-item">
+          <div style="flex:1;">
+            <div style="font-size:0.78rem;color:#888;">${r.subject} > ${r.chapter}</div>
+            <div style="font-size:0.9rem;font-weight:600;">${r.no}. ${r.title}</div>
+            <div style="font-size:0.78rem;color:#aaa;">${timeStr}</div>
+          </div>
+          <div style="font-size:1.1rem;font-weight:700;color:${col};">${r.score}%</div>
+        </div>`;
+    }).join('');
+  }
+  detail.style.display = 'block';
+}
+
+// ===== 保存 =====
+function saveData()    { localStorage.setItem('memorize_data',    JSON.stringify(data));    }
+function saveRecords() { localStorage.setItem('memorize_records', JSON.stringify(records)); }
+
+init();
+</script>
+</body>
+</html>
