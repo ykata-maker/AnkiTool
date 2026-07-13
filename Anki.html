@@ -13,7 +13,6 @@
   import { getFirestore, collection, doc, setDoc, deleteDoc,
            onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  // ★ ここを自分のfirebaseConfigに書き換える ★
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCDcg0WWetaHspC3lKziN6kBwZiPILZ10w",
@@ -25,20 +24,20 @@ const firebaseConfig = {
   measurementId: "G-0QQYCL1831"
 };
 
+
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db   = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  let currentUser = null;
-  let unsubData    = null; // Firestoreリスナー解除用
+  let currentUser  = null;
+  let unsubData    = null;
   let unsubRecords = null;
+  let isSaving     = false; // ← 保存中フラグ
 
-  // ===== 認証状態の監視 =====
   onAuthStateChanged(auth, user => {
     currentUser = user;
     if (user) {
-      // ログイン済み
       document.getElementById('auth-bar').innerHTML = `
         <img src="${user.photoURL}" style="width:32px;height:32px;border-radius:50%;border:2px solid white;">
         <span style="font-size:0.85rem;">${user.displayName}</span>
@@ -51,7 +50,6 @@ const firebaseConfig = {
       document.getElementById('login-overlay').style.display = 'none';
       startFirestoreSync(user.uid);
     } else {
-      // 未ログイン
       document.getElementById('auth-bar').innerHTML = `
         <button onclick="window.doSignIn()"
           style="background:white;color:#2c3e50;border:none;
@@ -62,20 +60,18 @@ const firebaseConfig = {
         </button>
       `;
       document.getElementById('login-overlay').style.display = 'flex';
-      // リスナー解除
       if (unsubData)    { unsubData();    unsubData    = null; }
       if (unsubRecords) { unsubRecords(); unsubRecords = null; }
     }
   });
 
-  // ===== Firestoreリアルタイム同期 =====
   function startFirestoreSync(uid) {
-    // data コレクション
     const dataRef = collection(db, 'users', uid, 'data');
     unsubData = onSnapshot(query(dataRef), snap => {
+      // 保存中は上書きしない
+      if (isSaving) return;
       window.data = snap.docs.map(d => d.data());
       window.renderTree();
-      // 選択中アイテムが消えていたら解除
       if (window.selectedId && !window.data.find(d => d.id === window.selectedId)) {
         window.selectedId = null;
         document.getElementById('manage-empty').style.display = 'block';
@@ -83,9 +79,10 @@ const firebaseConfig = {
       }
     });
 
-    // records コレクション
     const recRef = collection(db, 'users', uid, 'records');
     unsubRecords = onSnapshot(query(recRef), snap => {
+      // 保存中は上書きしない
+      if (isSaving) return;
       window.records = snap.docs.map(d => d.data());
       window.renderTree();
       window.renderHistory();
@@ -94,21 +91,31 @@ const firebaseConfig = {
     });
   }
 
-  // ===== Firestore書き込み関数（グローバル公開） =====
+  // ===== 保存関数（isSavingフラグで保護） =====
   window.saveData = async () => {
     if (!currentUser) return;
-    const uid = currentUser.uid;
-    // 全アイテムをupsert（差分のみ更新でもよいが簡略化）
-    for (const item of window.data) {
-      await setDoc(doc(db, 'users', uid, 'data', item.id), item);
+    isSaving = true;
+    try {
+      const uid = currentUser.uid;
+      for (const item of window.data) {
+        await setDoc(doc(db, 'users', uid, 'data', item.id), item);
+      }
+    } finally {
+      // 少し待ってからフラグを解除（リスナーの遅延対策）
+      setTimeout(() => { isSaving = false; }, 1000);
     }
   };
 
   window.saveRecords = async () => {
     if (!currentUser) return;
-    const uid = currentUser.uid;
-    for (const rec of window.records) {
-      await setDoc(doc(db, 'users', uid, 'records', rec.id), rec);
+    isSaving = true;
+    try {
+      const uid = currentUser.uid;
+      for (const rec of window.records) {
+        await setDoc(doc(db, 'users', uid, 'records', rec.id), rec);
+      }
+    } finally {
+      setTimeout(() => { isSaving = false; }, 1000);
     }
   };
 
@@ -122,11 +129,9 @@ const firebaseConfig = {
     await deleteDoc(doc(db, 'users', currentUser.uid, 'records', recId));
   };
 
-  // ===== 認証操作 =====
   window.doSignIn  = () => signInWithPopup(auth, provider).catch(console.error);
   window.doSignOut = () => signOut(auth);
 </script>
-
 <style>
   /* ===== 前回と同じCSSをここに貼る ===== */
   * { box-sizing: border-box; margin: 0; padding: 0; }
