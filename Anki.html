@@ -28,7 +28,6 @@ const firebaseConfig = {
   const auth     = getAuth(app);
   const db       = getFirestore(app);
   const provider = new GoogleAuthProvider();
-
   let currentUser  = null;
   let unsubData    = null;
   let unsubRecords = null;
@@ -39,7 +38,7 @@ const firebaseConfig = {
       document.getElementById('auth-bar').innerHTML = `
         <img src="${user.photoURL}"
           style="width:32px;height:32px;border-radius:50%;border:2px solid white;">
-        <span style="font-size:0.85rem;">${user.displayName}</span>
+        <span style="font-size:0.85rem;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.displayName}</span>
         <button onclick="window.doSignOut()"
           style="background:rgba(255,255,255,0.2);border:none;color:white;
                  padding:6px 12px;border-radius:16px;cursor:pointer;font-size:0.8rem;">
@@ -56,7 +55,7 @@ const firebaseConfig = {
                  font-size:0.85rem;font-weight:700;
                  display:flex;align-items:center;gap:6px;">
           <img src="https://www.google.com/favicon.ico" style="width:16px;height:16px;">
-          Googleでログイン
+          ログイン
         </button>
       `;
       document.getElementById('login-overlay').style.display = 'flex';
@@ -67,6 +66,7 @@ const firebaseConfig = {
       window.renderTree();
       window.renderHistory();
       window.renderCalendar();
+      window.renderContentSelect();
     }
   });
 
@@ -76,13 +76,13 @@ const firebaseConfig = {
       window.data = snap.docs.map(d => d.data());
       window.renderTree();
       window.updateHistoryFilter();
+      window.renderContentSelect();
       if (window.selectedId && !window.data.find(d => d.id === window.selectedId)) {
         window.selectedId = null;
         document.getElementById('manage-empty').style.display = 'block';
         document.getElementById('manage-editor').style.display = 'none';
       }
     });
-
     const recRef = collection(db, 'users', uid, 'records');
     unsubRecords = onSnapshot(query(recRef), snap => {
       window.records = snap.docs.map(d => d.data());
@@ -213,19 +213,39 @@ const firebaseConfig = {
   .btn-primary:hover { background: #2980b9; }
 
   .tree-subject { margin-bottom: 4px; }
-  .tree-subject-label { display: flex; align-items: center; gap: 6px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: #2c3e50; background: #eaf2fb; transition: background 0.15s; }
+  .tree-subject-label { display: flex; align-items: center; gap: 6px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: #2c3e50; background: #eaf2fb; }
   .tree-subject-label:hover { background: #d6eaf8; }
   .tree-chapter { margin-left: 12px; margin-top: 2px; }
-  .tree-chapter-label { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.86rem; color: #555; background: #f4f6f8; transition: background 0.15s; }
+  .tree-chapter-label { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.86rem; color: #555; background: #f4f6f8; }
   .tree-chapter-label:hover { background: #e8ecf0; }
   .tree-items { margin-left: 12px; margin-top: 2px; }
-  .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.84rem; color: #666; transition: background 0.15s; display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
+  .tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.84rem; color: #666; display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
   .tree-item:hover { background: #eaf2fb; }
   .tree-item.active { background: #3498db; color: white; font-weight: 600; }
-  .tree-item .item-score { font-size: 0.75rem; opacity: 0.8; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
+  .tree-item .item-score { font-size: 0.75rem; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
   .tree-item:not(.active) .item-score { background: #e0e7ef; color: #555; }
   .toggle-icon { font-size: 0.7rem; transition: transform 0.2s; flex-shrink: 0; }
   .collapsed .toggle-icon { transform: rotate(-90deg); }
+
+  .content-select-panel {
+    background: white; border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .content-select-panel label { font-size: 0.8rem; color: #666; font-weight: 600; }
+  .select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .select-row select, .item-select-wrap select {
+    width: 100%; border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 10px;
+    font-size: 0.88rem; outline: none; background: #f7f9fc;
+    -webkit-appearance: none; cursor: pointer; font-family: inherit;
+  }
+  .select-row select:focus, .item-select-wrap select:focus { border-color: #3498db; background: white; }
+  .select-confirm-btn {
+    background: #3498db; color: white; border: none;
+    padding: 11px; border-radius: 8px; cursor: pointer;
+    font-size: 0.9rem; font-weight: 600; width: 100%; transition: background 0.2s;
+  }
+  .select-confirm-btn:hover { background: #2980b9; }
 
   .main { min-height: calc(100vh - 104px); display: flex; flex-direction: column; }
   .tab-content { display: none; flex: 1; flex-direction: column; }
@@ -236,11 +256,14 @@ const firebaseConfig = {
   .manage-section h3 { margin-bottom: 12px; color: #2c3e50; font-size: 0.95rem; }
   .form-group { display: flex; flex-direction: column; gap: 4px; }
   .form-group label { font-size: 0.78rem; color: #666; font-weight: 600; }
-  .form-group input, .form-group select, .form-group textarea { border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 12px; font-size: 0.9rem; outline: none; transition: border 0.2s; font-family: inherit; -webkit-appearance: none; }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 12px;
+    font-size: 0.9rem; outline: none; transition: border 0.2s;
+    font-family: inherit; -webkit-appearance: none;
+  }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3498db; }
   .form-group textarea { resize: vertical; min-height: 120px; width: 100%; }
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-  .edit-grid .full { grid-column: 1 / -1; }
 
   .keyword-editor { margin-top: 12px; }
   .keyword-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
@@ -293,7 +316,7 @@ const firebaseConfig = {
   .calendar-grid { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 700; color: #888; margin-bottom: 6px; }
   .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day { min-height: 52px; border-radius: 6px; padding: 4px; background: #f7f9fc; cursor: pointer; transition: background 0.15s; }
+  .cal-day { min-height: 52px; border-radius: 6px; padding: 4px; background: #f7f9fc; cursor: pointer; }
   .cal-day:hover { background: #eaf2fb; }
   .cal-day.today { background: #eaf2fb; border: 2px solid #3498db; }
   .cal-day.other-month { opacity: 0.35; }
@@ -322,12 +345,9 @@ const firebaseConfig = {
 
   .sync-indicator {
     position: fixed; bottom: 20px; right: 20px;
-    background: #27ae60; color: white;
-    padding: 8px 16px; border-radius: 20px;
-    font-size: 0.82rem; font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    opacity: 0; transition: opacity 0.3s;
-    z-index: 600; pointer-events: none;
+    background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px;
+    font-size: 0.82rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    opacity: 0; transition: opacity 0.3s; z-index: 600; pointer-events: none;
   }
   .sync-indicator.show { opacity: 1; }
 
@@ -344,6 +364,7 @@ const firebaseConfig = {
     .modal { border-radius: 16px; padding: 28px; max-width: 520px; }
     .modal-drag { display: none; }
     .edit-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .select-row { grid-template-columns: 1fr 1fr 1fr; }
     .cal-day { min-height: 68px; }
     .cal-event { font-size: 0.65rem; }
   }
@@ -351,7 +372,6 @@ const firebaseConfig = {
 </head>
 <body>
 
-<!-- ログインオーバーレイ -->
 <div id="login-overlay">
   <div class="login-card">
     <div style="font-size:3rem;margin-bottom:12px;">📖</div>
@@ -364,7 +384,6 @@ const firebaseConfig = {
   </div>
 </div>
 
-<!-- 同期インジケーター -->
 <div class="sync-indicator" id="sync-indicator">✅ 同期完了</div>
 
 <header>
@@ -402,6 +421,9 @@ const firebaseConfig = {
         <div id="manage-empty" class="empty-state">
           <div class="icon">📂</div>
           ☰ メニューからコンテンツを選択するか、<br>「＋ 新規追加」で作成してください
+          <div style="margin-top:16px;">
+            <button class="btn-primary" onclick="openAddModal()">＋ 新規追加</button>
+          </div>
         </div>
         <div id="manage-editor" style="display:none;">
           <div class="edit-grid">
@@ -439,18 +461,44 @@ const firebaseConfig = {
   <!-- 学習タブ -->
   <div class="tab-content" id="tab-study">
     <div class="study-area">
+      <div class="content-select-panel">
+        <label>📚 コンテンツを選択</label>
+        <div class="select-row">
+          <select id="sel-subject" onchange="onSubjectChange()">
+            <option value="">科目を選択</option>
+          </select>
+          <select id="sel-chapter" onchange="onChapterChange()">
+            <option value="">章を選択</option>
+          </select>
+        </div>
+        <div class="item-select-wrap">
+          <select id="sel-item">
+            <option value="">コンテンツを選択</option>
+          </select>
+        </div>
+        <button class="select-confirm-btn" onclick="confirmContentSelect()">
+          このコンテンツで学習する ▶
+        </button>
+      </div>
+
       <div class="study-header">
-        <div class="study-title" id="study-title">☰ メニューからコンテンツを選択してください</div>
+        <div class="study-title" id="study-title">↑ 上のメニューからコンテンツを選択してください</div>
         <div class="mode-toggle">
           <button class="mode-btn active" onclick="setMode('view')" id="mode-view-btn">👁 閲覧</button>
           <button class="mode-btn" onclick="setMode('typing')" id="mode-typing-btn">⌨️ タイピング</button>
         </div>
       </div>
+
       <div id="view-mode">
-        <div class="view-panel" id="view-text"><div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div></div>
+        <div class="view-panel" id="view-text">
+          <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
+        </div>
       </div>
+
       <div id="typing-mode" style="display:none;" class="typing-panel">
-        <div class="original-text" id="original-text-display"><div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div></div>
+        <div class="original-text" id="original-text-display">
+          <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
+        </div>
         <div class="typing-input-wrap">
           <label style="font-size:0.8rem;color:#666;font-weight:600;">✍️ ここに入力（句読点・改行は採点対象外）</label>
           <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
@@ -520,7 +568,8 @@ const firebaseConfig = {
     </div>
     <div class="form-group" style="margin-bottom:12px;">
       <label>本文テキスト</label>
-      <textarea id="new-text" placeholder="暗記したい長文を入力..." style="min-height:100px;width:100%;border:1px solid #dde3ea;border-radius:8px;padding:10px;font-family:inherit;font-size:0.9rem;"></textarea>
+      <textarea id="new-text" placeholder="暗記したい長文を入力..."
+        style="min-height:100px;width:100%;border:1px solid #dde3ea;border-radius:8px;padding:10px;font-family:inherit;font-size:0.9rem;outline:none;"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
@@ -530,7 +579,7 @@ const firebaseConfig = {
 </div>
 
 <script>
-// ===== グローバル変数 =====
+// ===== グローバル =====
 window.data    = [];
 window.records = [];
 window.selectedId = null;
@@ -538,6 +587,7 @@ window.renderTree          = renderTree;
 window.renderHistory       = renderHistory;
 window.renderCalendar      = renderCalendar;
 window.updateHistoryFilter = updateHistoryFilter;
+window.renderContentSelect = renderContentSelect;
 window.showSync = function() {
   const el = document.getElementById('sync-indicator');
   el.classList.add('show');
@@ -554,7 +604,6 @@ const COLORS = [
   '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
 ];
 
-// ===== 初期化 =====
 function init() {
   const now = new Date();
   calYear  = now.getFullYear();
@@ -563,6 +612,7 @@ function init() {
   renderTree();
   renderCalendar();
   renderHistory();
+  renderContentSelect();
 }
 
 // ===== サイドバー =====
@@ -589,26 +639,62 @@ function switchTab(tab, btn) {
   if (tab === 'calendar') renderCalendar();
 }
 
+// ===== コンテンツ選択ドロップダウン =====
+function renderContentSelect() {
+  const subjects = [...new Set(window.data.map(d => d.subject))].sort();
+  const selSubj  = document.getElementById('sel-subject');
+  const prev     = selSubj.value;
+  selSubj.innerHTML = '<option value="">科目を選択</option>' +
+    subjects.map(s => `<option value="${s}" ${s===prev?'selected':''}>${s}</option>`).join('');
+  onSubjectChange();
+}
+
+function onSubjectChange() {
+  const subj     = document.getElementById('sel-subject').value;
+  const chapters = [...new Set(
+    window.data.filter(d => d.subject === subj).map(d => d.chapter)
+  )].sort();
+  const selChap  = document.getElementById('sel-chapter');
+  selChap.innerHTML = '<option value="">章を選択</option>' +
+    chapters.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>';
+}
+
+function onChapterChange() {
+  const subj  = document.getElementById('sel-subject').value;
+  const chap  = document.getElementById('sel-chapter').value;
+  const items = window.data
+    .filter(d => d.subject === subj && d.chapter === chap)
+    .sort((a,b) => a.no.localeCompare(b.no));
+  const selItem = document.getElementById('sel-item');
+  selItem.innerHTML = '<option value="">コンテンツを選択</option>' +
+    items.map(d => `<option value="${d.id}">${d.no}. ${d.title}</option>`).join('');
+}
+
+function confirmContentSelect() {
+  const id = document.getElementById('sel-item').value;
+  if (!id) { alert('コンテンツを選択してください'); return; }
+  selectItem(id);
+}
+
 // ===== ツリー =====
 function renderTree() {
-  const tree = document.getElementById('tree');
+  const tree     = document.getElementById('tree');
   const subjects = {};
   window.data.forEach(item => {
     if (!subjects[item.subject]) subjects[item.subject] = {};
     if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
     subjects[item.subject][item.chapter].push(item);
   });
-
   tree.innerHTML = '';
   if (Object.keys(subjects).length === 0) {
     tree.innerHTML = '<div style="padding:16px;color:#aaa;font-size:0.82rem;text-align:center;">コンテンツがありません</div>';
     return;
   }
-
   Object.entries(subjects).forEach(([subj, chapters]) => {
-    const subjEl    = document.createElement('div');
+    const subjEl = document.createElement('div');
     subjEl.className = 'tree-subject';
-    const subjLabel  = document.createElement('div');
+    const subjLabel = document.createElement('div');
     subjLabel.className = 'tree-subject-label';
     subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${subj}`;
     const chapterWrap = document.createElement('div');
@@ -617,11 +703,10 @@ function renderTree() {
       chapterWrap.style.display = subjEl.classList.contains('collapsed') ? 'none' : '';
     };
     subjEl.appendChild(subjLabel);
-
     Object.entries(chapters).forEach(([chap, items]) => {
-      const chapEl    = document.createElement('div');
+      const chapEl = document.createElement('div');
       chapEl.className = 'tree-chapter';
-      const chapLabel  = document.createElement('div');
+      const chapLabel = document.createElement('div');
       chapLabel.className = 'tree-chapter-label';
       chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${chap}`;
       const itemWrap = document.createElement('div');
@@ -631,7 +716,6 @@ function renderTree() {
         itemWrap.style.display = chapEl.classList.contains('collapsed') ? 'none' : '';
       };
       chapEl.appendChild(chapLabel);
-
       items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
         const best   = getBestScore(item.id);
         const itemEl = document.createElement('div');
@@ -662,7 +746,6 @@ function selectItem(id) {
   window.selectedId = id;
   const item = window.data.find(d => d.id === id);
   if (!item) return;
-
   document.getElementById('manage-empty').style.display = 'none';
   document.getElementById('manage-editor').style.display = 'block';
   document.getElementById('edit-subject').value = item.subject;
@@ -672,7 +755,6 @@ function selectItem(id) {
   document.getElementById('edit-text').value     = item.text;
   renderKeywordList(item);
   updatePreview(item);
-
   document.getElementById('study-title').textContent =
     `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
   document.getElementById('view-text').innerHTML =
@@ -776,50 +858,42 @@ function addItem() {
   if (!subject || !chapter || !no || !title || !text) {
     alert('すべての項目を入力してください'); return;
   }
-  const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
-  window.data.push(item);
-  window.saveOneItem(item).then(() => selectItem(item.id));
-  closeModal();
-  ['new-subject','new-chapter','new-no','new-title','new-text']
-    .forEach(id => { document.getElementById(id).value = ''; });
-  renderTree();
-}
-
-function addItem() {
-  const subject = document.getElementById('new-subject').value.trim();
-  const chapter = document.getElementById('new-chapter').value.trim();
-  const no      = document.getElementById('new-no').value.trim();
-  const title   = document.getElementById('new-title').value.trim();
-  const text    = document.getElementById('new-text').value.trim();
-
-  if (!subject || !chapter || !no || !title || !text) {
-    alert('すべての項目を入力してください'); return;
-  }
-
-  // ログイン確認
   if (!window.saveOneItem) {
     alert('ログインしてから追加してください'); return;
   }
-
-  const item = {
-    id:       Date.now().toString(),
-    subject, chapter, no, title, text,
-    keywords: []
-  };
-
-  // ローカルに追加してすぐ表示
+  const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
   window.data.push(item);
   renderTree();
+  renderContentSelect();
   selectItem(item.id);
   closeModal();
-
-  // フォームリセット
   ['new-subject','new-chapter','new-no','new-title','new-text']
     .forEach(id => { document.getElementById(id).value = ''; });
-
-  // Firestoreに保存（完了を待たない）
   window.saveOneItem(item).catch(err => {
     alert('保存に失敗しました: ' + err.message);
+  });
+}
+
+function saveItem() {
+  if (!window.selectedId) return;
+  const item = window.data.find(d => d.id === window.selectedId);
+  if (!item) return;
+  item.subject = document.getElementById('edit-subject').value.trim();
+  item.chapter = document.getElementById('edit-chapter').value.trim();
+  item.no      = document.getElementById('edit-no').value.trim();
+  item.title   = document.getElementById('edit-title').value.trim();
+  item.text    = document.getElementById('edit-text').value.trim();
+  window.saveOneItem(item).then(() => {
+    renderTree();
+    renderContentSelect();
+    updatePreview(item);
+    document.getElementById('study-title').textContent =
+      `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+    document.getElementById('view-text').innerHTML =
+      applyKeywords(item.text, item.keywords || []);
+    document.getElementById('original-text-display').innerHTML =
+      applyKeywords(item.text, item.keywords || []);
+    alert('保存しました！');
   });
 }
 
@@ -835,6 +909,7 @@ function deleteItem() {
   document.getElementById('manage-empty').style.display = 'block';
   document.getElementById('manage-editor').style.display = 'none';
   renderTree();
+  renderContentSelect();
 }
 
 // ===== 学習モード =====
@@ -851,7 +926,7 @@ function toggleOriginal() {
   document.getElementById('original-text-display').style.display = showOriginal ? 'block' : 'none';
 }
 
-// ===== スコア計算（LCS） =====
+// ===== スコア計算 =====
 function normalize(str) {
   return str.replace(/[、。，．・\n\r\s　]/g, '');
 }
@@ -861,9 +936,8 @@ function lcsLength(a, b) {
   let prev = new Array(n + 1).fill(0);
   for (let i = 1; i <= m; i++) {
     const curr = new Array(n + 1).fill(0);
-    for (let j = 1; j <= n; j++) {
+    for (let j = 1; j <= n; j++)
       curr[j] = a[i-1] === b[j-1] ? prev[j-1] + 1 : Math.max(prev[j], curr[j-1]);
-    }
     prev = curr;
   }
   return prev[n];
@@ -897,8 +971,7 @@ function showDiff() {
   for (let i = 1; i <= m; i++)
     for (let j = 1; j <= n; j++)
       dp[i][j] = original[i-1] === input[j-1]
-        ? dp[i-1][j-1] + 1
-        : Math.max(dp[i-1][j], dp[i][j-1]);
+        ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
   const matched = new Array(m).fill(false);
   let i = m, j = n;
   while (i > 0 && j > 0) {
@@ -984,9 +1057,7 @@ function deleteRecord(id) {
   if (!confirm('この記録を削除しますか？')) return;
   window.records = window.records.filter(r => r.id !== id);
   window.deleteRecordFromDB(id).then(() => {
-    renderHistory();
-    renderTree();
-    renderCalendar();
+    renderHistory(); renderTree(); renderCalendar();
   });
 }
 
