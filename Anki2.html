@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>長文暗記ツール</title>
+<style>
+/* ===== リセット・基本 ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; overflow-x: hidden; }
+
+/* ===== ヘッダー ===== */
+header {
+  background: linear-gradient(135deg, #2c3e50, #3498db);
+  color: white; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  position: sticky; top: 0; z-index: 200;
+}
+header h1 { font-size: 1.1rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hamburger {
+  background: rgba(255,255,255,0.15); border: none; color: white;
+  width: 38px; height: 38px; border-radius: 8px; cursor: pointer;
+  font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+#auth-bar { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* ===== ログインオーバーレイ ===== */
+#login-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6); z-index: 500;
+  align-items: center; justify-content: center;
+}
+#login-overlay.show { display: flex; }
+.login-card {
+  background: white; border-radius: 20px; padding: 40px 32px;
+  text-align: center; max-width: 360px; width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.login-card h2 { margin-bottom: 8px; color: #2c3e50; }
+.login-card p  { color: #888; font-size: 0.88rem; margin-bottom: 24px; }
+.login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.login-form input {
+  border: 1px solid #dde3ea; border-radius: 10px; padding: 12px 14px;
+  font-size: 0.95rem; outline: none; width: 100%; transition: border 0.2s;
+}
+.login-form input:focus { border-color: #3498db; }
+.login-submit-btn {
+  background: linear-gradient(135deg, #2c3e50, #3498db);
+  color: white; border: none; border-radius: 10px;
+  padding: 13px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; width: 100%; transition: opacity 0.2s;
+}
+.login-submit-btn:hover { opacity: 0.88; }
+.login-error { color: #e74c3c; font-size: 0.82rem; text-align: center; min-height: 18px; }
+
+/* ===== タブナビ ===== */
+.tab-nav {
+  display: flex; background: #2c3e50;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  position: sticky; top: 62px; z-index: 190;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1; min-width: 60px; background: none; border: none; color: rgba(255,255,255,0.65);
+  padding: 10px 4px; cursor: pointer; font-size: 0.7rem;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: all 0.2s; border-bottom: 3px solid transparent; white-space: nowrap;
+}
+.tab-btn .tab-icon { font-size: 1.1rem; }
+.tab-btn.active { color: white; border-bottom-color: #3498db; background: rgba(255,255,255,0.08); }
+.tab-btn:hover  { color: white; background: rgba(255,255,255,0.05); }
+
+/* ===== サイドバー ===== */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 300;
+}
+.sidebar-overlay.open { display: block; }
+.sidebar {
+  position: fixed; top: 0; left: -300px; width: 280px; height: 100%;
+  background: #fff; z-index: 310;
+  display: flex; flex-direction: column;
+  box-shadow: 4px 0 16px rgba(0,0,0,0.2);
+  transition: left 0.28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.open { left: 0; }
+.sidebar-header {
+  padding: 14px 16px; background: #f7f9fc;
+  border-bottom: 1px solid #dde3ea; font-weight: 700; font-size: 0.95rem;
+  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+}
+.sidebar-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #666; padding: 2px 6px; border-radius: 6px; }
+.sidebar-actions { padding: 10px 12px; border-bottom: 1px solid #dde3ea; display: flex; gap: 8px; flex-shrink: 0; }
+.tree { flex: 1; overflow-y: auto; padding: 8px; }
+
+/* ===== ボタン共通 ===== */
+.btn-small { background: #3498db; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: background 0.2s; }
+.btn-small:hover { background: #2980b9; }
+.btn-danger  { background: #e74c3c !important; } .btn-danger:hover  { background: #c0392b !important; }
+.btn-success { background: #27ae60 !important; } .btn-success:hover { background: #219a52 !important; }
+.btn-warning { background: #f39c12 !important; } .btn-warning:hover { background: #d68910 !important; }
+.btn-primary { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; white-space: nowrap; }
+.btn-primary:hover { background: #2980b9; }
+.btn-cancel  { background: #ecf0f1; color: #555; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+
+/* ===== ツリー ===== */
+.tree-subject { margin-bottom: 4px; }
+.tree-subject-label { display: flex; align-items: center; gap: 6px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: #2c3e50; background: #eaf2fb; }
+.tree-subject-label:hover { background: #d6eaf8; }
+.tree-chapter { margin-left: 12px; margin-top: 2px; }
+.tree-chapter-label { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.86rem; color: #555; background: #f4f6f8; }
+.tree-chapter-label:hover { background: #e8ecf0; }
+.tree-items { margin-left: 12px; margin-top: 2px; }
+.tree-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.84rem; color: #666; display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
+.tree-item:hover { background: #eaf2fb; }
+.tree-item.active { background: #3498db; color: white; font-weight: 600; }
+.tree-item .item-score { font-size: 0.75rem; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
+.tree-item:not(.active) .item-score { background: #e0e7ef; color: #555; }
+.toggle-icon { font-size: 0.7rem; transition: transform 0.2s; flex-shrink: 0; }
+.collapsed .toggle-icon { transform: rotate(-90deg); }
+
+/* ===== フォーム共通 ===== */
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 0.78rem; color: #666; font-weight: 600; }
+.form-group input, .form-group select, .form-group textarea {
+  border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 12px;
+  font-size: 0.9rem; outline: none; transition: border 0.2s;
+  font-family: inherit; -webkit-appearance: none; width: 100%;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #3498db; }
+.form-group textarea { resize: vertical; min-height: 120px; }
+
+/* ===== コンテンツ選択パネル ===== */
+.content-select-panel {
+  background: white; border-radius: 12px; padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.content-select-panel > label { font-size: 0.8rem; color: #666; font-weight: 600; }
+.select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.select-row select, .item-select-wrap select {
+  width: 100%; border: 1px solid #dde3ea; border-radius: 8px; padding: 9px 10px;
+  font-size: 0.88rem; outline: none; background: #f7f9fc;
+  -webkit-appearance: none; cursor: pointer; font-family: inherit;
+}
+.select-confirm-btn {
+  background: #3498db; color: white; border: none;
+  padding: 11px; border-radius: 8px; cursor: pointer;
+  font-size: 0.9rem; font-weight: 600; width: 100%; transition: background 0.2s;
+}
+.select-confirm-btn:hover { background: #2980b9; }
+
+/* ===== メインレイアウト ===== */
+.main { min-height: calc(100vh - 104px); display: flex; flex-direction: column; }
+.tab-content { display: none; flex: 1; flex-direction: column; }
+.tab-content.active { display: flex; }
+
+/* ===== 管理タブ ===== */
+#tab-manage { overflow-y: auto; }
+.manage-inner { padding: 14px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.manage-section { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.manage-section h3 { margin-bottom: 12px; color: #2c3e50; font-size: 0.95rem; }
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+/* ===== コンテンツ一覧テーブル ===== */
+.content-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.content-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 480px; }
+.content-table th { background: #f0f4f8; padding: 8px 10px; text-align: left; font-weight: 700; color: #555; border-bottom: 2px solid #dde3ea; white-space: nowrap; }
+.content-table td { padding: 8px 10px; border-bottom: 1px solid #f0f4f8; vertical-align: middle; }
+.content-table tr:hover td { background: #f7fbff; cursor: pointer; }
+.content-table tr.selected-row td { background: #eaf2fb; }
+.score-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; color: white; font-size: 0.78rem; font-weight: 700; }
+.score-high { background: #27ae60; }
+.score-mid  { background: #f39c12; }
+.score-low  { background: #e74c3c; }
+.score-none { background: #bdc3c7; }
+
+/* ===== キーワード ===== */
+.keyword-editor { margin-top: 12px; }
+.keyword-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.keyword-tag { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; border: 2px solid transparent; }
+.keyword-tag .kw-del { cursor: pointer; opacity: 0.7; font-size: 0.75rem; }
+.color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.color-swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s; flex-shrink: 0; }
+.color-swatch:hover, .color-swatch.selected { transform: scale(1.2); border-color: #333; }
+.text-preview { background: #f7f9fc; border: 1px solid #dde3ea; border-radius: 8px; padding: 12px; font-size: 0.88rem; line-height: 1.8; white-space: pre-wrap; max-height: 180px; overflow-y: auto; margin-top: 8px; }
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ===== 学習タブ ===== */
+#tab-study { overflow-y: auto; }
+.study-area { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.study-header { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.study-title { font-size: 0.95rem; font-weight: 700; color: #2c3e50; margin-bottom: 10px; }
+.mode-toggle { display: flex; gap: 8px; }
+.mode-btn { flex: 1; padding: 9px 12px; border-radius: 20px; border: 2px solid #3498db; background: white; color: #3498db; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; text-align: center; }
+.mode-btn.active { background: #3498db; color: white; }
+.view-panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.92rem; line-height: 2; white-space: pre-wrap; }
+.typing-panel { display: flex; flex-direction: column; gap: 10px; }
+.original-text { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.88rem; line-height: 1.9; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+.typing-input-wrap { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 10px; }
+.typing-input-wrap textarea { border: 1px solid #dde3ea; border-radius: 8px; padding: 12px; font-size: 0.9rem; line-height: 1.8; resize: none; outline: none; font-family: inherit; min-height: 160px; width: 100%; }
+.typing-input-wrap textarea:focus { border-color: #3498db; }
+.score-bar-wrap { display: none; align-items: center; gap: 10px; }
+.score-bar-wrap.visible { display: flex; }
+.score-bar-bg { flex: 1; height: 14px; background: #e0e7ef; border-radius: 7px; overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 7px; transition: width 0.4s, background 0.4s; background: #e74c3c; }
+.score-label { font-size: 1.1rem; font-weight: 700; min-width: 52px; text-align: right; }
+.diff-panel { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.88rem; line-height: 1.9; max-height: 220px; overflow-y: auto; display: none; }
+.diff-ok { color: #27ae60; }
+.diff-ng { color: #e74c3c; text-decoration: underline; background: #fdecea; }
+
+/* ===== 記録タブ ===== */
+#tab-history { overflow-y: auto; }
+.history-filter { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.history-filter .full { grid-column: 1 / -1; }
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-card { background: white; border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; }
+.history-info { flex: 1; min-width: 0; }
+.history-path { font-size: 0.75rem; color: #888; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-title { font-size: 0.88rem; font-weight: 600; color: #2c3e50; }
+.history-date { font-size: 0.75rem; color: #999; }
+.history-score-badge { font-size: 1rem; font-weight: 700; padding: 5px 12px; border-radius: 20px; color: white; flex-shrink: 0; }
+
+/* ===== カレンダータブ ===== */
+#tab-calendar { overflow-y: auto; }
+.calendar-nav { background: white; border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; }
+.cal-title { font-size: 1rem; font-weight: 700; flex: 1; text-align: center; }
+.cal-nav-btn { background: #eaf2fb; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+.cal-nav-btn:hover { background: #d6eaf8; }
+.calendar-grid { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.72rem; font-weight: 700; color: #888; margin-bottom: 6px; }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-day { min-height: 52px; border-radius: 6px; padding: 4px; background: #f7f9fc; cursor: pointer; }
+.cal-day:hover { background: #eaf2fb; }
+.cal-day.today { background: #eaf2fb; border: 2px solid #3498db; }
+.cal-day.other-month { opacity: 0.35; }
+.cal-day-num { font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 2px; }
+.cal-day.today .cal-day-num { color: #3498db; }
+.cal-events { display: flex; flex-direction: column; gap: 1px; }
+.cal-event { font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-detail { background: white; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: none; }
+.cal-detail h3 { margin-bottom: 10px; color: #2c3e50; font-size: 0.95rem; }
+.cal-detail-list { display: flex; flex-direction: column; gap: 8px; }
+.cal-detail-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f7f9fc; border-radius: 8px; }
+
+/* ===== 学習計画タブ ===== */
+#tab-plan { overflow-y: auto; }
+.plan-inner { padding: 14px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.plan-section { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.plan-section h3 { margin-bottom: 12px; color: #2c3e50; font-size: 0.95rem; }
+.task-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px; border-radius: 10px; background: #f7f9fc;
+  border-left: 4px solid #3498db; margin-bottom: 8px; transition: all 0.2s;
+}
+.task-item.done { border-left-color: #27ae60; opacity: 0.65; }
+.task-item.done .task-title { text-decoration: line-through; color: #aaa; }
+.task-item.overdue { border-left-color: #e74c3c; }
+.task-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #3498db; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; background: white; font-size: 0.8rem; }
+.task-check.checked { background: #27ae60; border-color: #27ae60; color: white; }
+.task-body { flex: 1; min-width: 0; }
+.task-title { font-size: 0.9rem; font-weight: 600; color: #2c3e50; margin-bottom: 3px; }
+.task-meta { font-size: 0.75rem; color: #888; display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.task-due.overdue { color: #e74c3c; font-weight: 700; }
+.task-due.today-due { color: #f39c12; font-weight: 700; }
+.task-priority { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+.priority-high { background: #fdecea; color: #e74c3c; }
+.priority-mid  { background: #fef9e7; color: #f39c12; }
+.priority-low  { background: #eafaf1; color: #27ae60; }
+.plan-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+.stat-card { background: #f7f9fc; border-radius: 10px; padding: 10px; text-align: center; }
+.stat-num { font-size: 1.4rem; font-weight: 700; color: #2c3e50; }
+.stat-label { font-size: 0.72rem; color: #888; margin-top: 2px; }
+
+/* ===== モーダル ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4); z-index: 400;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white; border-radius: 20px 20px 0 0; padding: 24px 20px;
+  width: 100%; max-width: 560px;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+  max-height: 92vh; overflow-y: auto; overflow-x: hidden;
+  word-break: break-word;
+}
+.modal-drag { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 18px; }
+.modal h3 { margin-bottom: 16px; color: #2c3e50; font-size: 1rem; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+.modal .edit-grid { grid-template-columns: 1fr; }
+.combo-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+/* ===== 設定パネル ===== */
+.settings-panel {
+  position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
+  background: white; z-index: 320;
+  display: flex; flex-direction: column;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+  transition: right 0.28s cubic-bezier(.4,0,.2,1);
+}
+.settings-panel.open { right: 0; }
+.settings-header { padding: 14px 16px; background: #f7f9fc; border-bottom: 1px solid #dde3ea; font-weight: 700; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.settings-body { padding: 16px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.settings-item { display: flex; flex-direction: column; gap: 8px; }
+.settings-item > label { font-size: 0.82rem; color: #666; font-weight: 600; }
+.layout-toggle { display: flex; gap: 8px; }
+.layout-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #dde3ea; background: white; cursor: pointer; font-size: 0.82rem; text-align: center; transition: all 0.2s; }
+.layout-btn.active { border-color: #3498db; background: #eaf2fb; color: #3498db; font-weight: 700; }
+
+/* ===== 管理者：ユーザー管理 ===== */
+.user-list-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; background: #f7f9fc; border-radius: 8px; margin-bottom: 6px;
+}
+.user-list-item .user-email { flex: 1; font-size: 0.88rem; color: #2c3e50; }
+.user-list-item .user-role  { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+.role-admin { background: #fdecea; color: #e74c3c; }
+.role-user  { background: #eafaf1; color: #27ae60; }
+
+/* ===== 横画面レイアウト ===== */
+body.landscape-mode .study-area { flex-direction: row; flex-wrap: wrap; }
+body.landscape-mode .study-area > * { flex: 1; min-width: 280px; }
+
+/* ===== 空状態 ===== */
+.empty-state { text-align: center; padding: 40px 20px; color: #aaa; font-size: 0.9rem; }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+/* ===== 同期インジケーター ===== */
+.sync-indicator {
+  position: fixed; bottom: 20px; right: 20px;
+  background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px;
+  font-size: 0.82rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  opacity: 0; transition: opacity 0.3s; z-index: 600; pointer-events: none;
+}
+.sync-indicator.show { opacity: 1; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+@media (min-width: 600px) {
+  header { padding: 14px 24px; }
+  header h1 { font-size: 1.3rem; }
+  .tab-btn { font-size: 0.82rem; padding: 10px 8px; }
+  .tab-btn .tab-icon { font-size: 1.2rem; }
+  .modal-overlay { align-items: center; }
+  .modal { border-radius: 16px; padding: 28px; }
+  .modal-drag { display: none; }
+  .modal .edit-grid { grid-template-columns: 1fr 1fr; }
+  .edit-grid { grid-template-columns: 1fr 1fr; }
+  .cal-day { min-height: 68px; }
+  .cal-event { font-size: 0.65rem; }
+}
+@media (min-width: 900px) {
+  .edit-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ログインオーバーレイ -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div style="font-size:3rem;margin-bottom:12px;">📖</div>
+    <h2>長文暗記ツール</h2>
+    <p>IDとパスワードでログインしてください</p>
+    <div class="login-form">
+      <input type="email" id="login-email" placeholder="メールアドレス（ID）" autocomplete="username">
+      <input type="password" id="login-password" placeholder="パスワード" autocomplete="current-password">
+      <div class="login-error" id="login-error"></div>
+      <button class="login-submit-btn" id="login-btn">ログイン</button>
+    </div>
+  </div>
+</div>
+
+<div class="sync-indicator" id="sync-indicator">✅ 同期完了</div>
+
+<header>
+  <button class="hamburger" id="hamburger-btn">☰</button>
+  <h1>📖 長文暗記ツール</h1>
+  <div id="auth-bar"></div>
+  <button class="hamburger" id="settings-btn" title="設定">⚙️</button>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="manage"><span class="tab-icon">📝</span>管理</button>
+  <button class="tab-btn" data-tab="study"><span class="tab-icon">🎯</span>学習</button>
+  <button class="tab-btn" data-tab="history"><span class="tab-icon">📊</span>記録</button>
+  <button class="tab-btn" data-tab="calendar"><span class="tab-icon">📅</span>カレンダー</button>
+  <button class="tab-btn" data-tab="plan"><span class="tab-icon">✅</span>計画</button>
+  <!-- 管理者のみ表示 -->
+  <button class="tab-btn" data-tab="admin" id="admin-tab-btn" style="display:none;">
+    <span class="tab-icon">👑</span>管理者
+  </button>
+</nav>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span>📚 コンテンツ</span>
+    <button class="sidebar-close" id="sidebar-close-btn">✕</button>
+  </div>
+  <div class="sidebar-actions">
+    <button class="btn-small btn-success" id="sidebar-add-btn" style="flex:1;">＋ 新規追加</button>
+  </div>
+  <div class="tree" id="tree"></div>
+</div>
+
+<!-- 設定パネル -->
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <span>⚙️ 設定</span>
+    <button class="sidebar-close" id="settings-close-btn">✕</button>
+  </div>
+  <div class="settings-body">
+    <div class="settings-item">
+      <label>🖥️ 画面レイアウト</label>
+      <div class="layout-toggle">
+        <button class="layout-btn active" id="layout-portrait">📱 縦画面</button>
+        <button class="layout-btn" id="layout-landscape">🖥️ 横画面</button>
+      </div>
+      <div style="font-size:0.75rem;color:#aaa;">設定はデバイスに保存されます</div>
+    </div>
+    <div class="settings-item">
+      <label>ℹ️ バージョン</label>
+      <div style="font-size:0.82rem;color:#888;">長文暗記ツール v2.1</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- 管理タブ -->
+  <div class="tab-content active" id="tab-manage">
+    <div class="manage-inner">
+      <div class="manage-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <h3 style="margin:0;">📋 コンテンツ一覧</h3>
+          <button class="btn-small btn-success" id="manage-add-btn">＋ 新規追加</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <select id="list-subject-filter" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
+            <option value="">すべての科目</option>
+          </select>
+          <select id="list-sort" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
+            <option value="default">並び順：デフォルト</option>
+            <option value="score-desc">スコア高い順</option>
+            <option value="score-asc">スコア低い順</option>
+            <option value="date-desc">最終学習日 新しい順</option>
+            <option value="date-asc">最終学習日 古い順</option>
+          </select>
+        </div>
+        <div id="manage-list-wrap">
+          <div class="empty-state"><div class="icon">📂</div>コンテンツがありません</div>
+        </div>
+      </div>
+
+      <div class="manage-section">
+        <h3>✏️ 編集</h3>
+        <div id="manage-empty" class="empty-state">
+          <div class="icon">📂</div>
+          上の一覧からコンテンツを選択するか、<br>「＋ 新規追加」で作成してください
+        </div>
+        <div id="manage-editor" style="display:none;">
+          <div class="edit-grid">
+            <div class="form-group"><label>大分類（科目）</label><input type="text" id="edit-subject" placeholder="例：英語"></div>
+            <div class="form-group"><label>中分類（章）</label><input type="text" id="edit-chapter" placeholder="例：第1章"></div>
+            <div class="form-group"><label>No（小分類）</label><input type="text" id="edit-no" placeholder="例：001"></div>
+            <div class="form-group"><label>タイトル</label><input type="text" id="edit-title" placeholder="例：重要フレーズ"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>本文テキスト</label>
+            <textarea id="edit-text" placeholder="暗記したい長文を入力してください..."></textarea>
+          </div>
+          <div class="keyword-editor">
+            <label style="font-size:0.78rem;color:#666;font-weight:600;">🎨 重要キーワード色付け</label>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="form-group" style="flex:1;min-width:120px;"><input type="text" id="kw-input" placeholder="キーワードを入力"></div>
+              <button class="btn-small btn-success" id="kw-add-btn">追加</button>
+            </div>
+            <div class="color-picker-row" id="color-picker-row" style="margin-top:8px;"></div>
+            <div class="keyword-list" id="keyword-list"></div>
+          </div>
+          <div style="margin-top:12px;">
+            <label style="font-size:0.78rem;color:#666;font-weight:600;">👁 プレビュー</label>
+            <div class="text-preview" id="text-preview"></div>
+          </div>
+          <div class="action-row" style="margin-top:14px;">
+            <button class="btn-primary" id="save-item-btn">💾 保存</button>
+            <button class="btn-small btn-danger" id="delete-item-btn">🗑 削除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学習タブ -->
+  <div class="tab-content" id="tab-study">
+    <div class="study-area">
+      <div class="content-select-panel">
+        <label>📚 コンテンツを選択</label>
+        <div class="select-row">
+          <select id="sel-subject"><option value="">科目を選択</option></select>
+          <select id="sel-chapter"><option value="">章を選択</option></select>
+        </div>
+        <div class="item-select-wrap">
+          <select id="sel-item"><option value="">コンテンツを選択</option></select>
+        </div>
+        <button class="select-confirm-btn" id="confirm-select-btn">このコンテンツで学習する ▶</button>
+      </div>
+      <div class="study-header">
+        <div class="study-title" id="study-title">↑ 上のメニューからコンテンツを選択してください</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="mode-view-btn">👁 閲覧</button>
+          <button class="mode-btn" id="mode-typing-btn">⌨️ タイピング</button>
+        </div>
+      </div>
+      <div id="view-mode">
+        <div class="view-panel" id="view-text">
+          <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
+        </div>
+      </div>
+      <div id="typing-mode" style="display:none;" class="typing-panel">
+        <div class="original-text" id="original-text-display">
+          <div class="empty-state"><div class="icon">📖</div>コンテンツを選択してください</div>
+        </div>
+        <div class="typing-input-wrap">
+          <label style="font-size:0.8rem;color:#666;font-weight:600;">✍️ ここに入力（句読点・改行は採点対象外）</label>
+          <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
+          <div class="score-bar-wrap" id="score-bar-wrap">
+            <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar"></div></div>
+            <div class="score-label" id="score-label">0%</div>
+          </div>
+          <div class="action-row">
+            <button class="btn-primary" id="save-record-btn">💾 保存</button>
+            <button class="btn-small btn-warning" id="show-diff-btn">🔍 差分</button>
+            <button class="btn-small" id="clear-typing-btn">🗑 クリア</button>
+            <button class="btn-small" id="toggle-original-btn">📄 原文</button>
+          </div>
+        </div>
+        <div class="diff-panel" id="diff-panel"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 記録タブ -->
+  <div class="tab-content" id="tab-history">
+    <div style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
+      <div class="history-filter">
+        <div class="form-group full"><label>科目</label><select id="hist-subject-filter"><option value="">すべて</option></select></div>
+        <div class="form-group"><label>開始日</label><input type="date" id="hist-date-from"></div>
+        <div class="form-group"><label>終了日</label><input type="date" id="hist-date-to"></div>
+        <div class="full" style="display:flex;justify-content:flex-end;"><button class="btn-small" id="history-reset-btn">リセット</button></div>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- カレンダータブ -->
+  <div class="tab-content" id="tab-calendar">
+    <div style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
+      <div class="calendar-nav">
+        <button class="cal-nav-btn" id="cal-prev-btn">◀</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button class="cal-nav-btn" id="cal-next-btn">▶</button>
+      </div>
+      <div class="calendar-grid">
+        <div class="cal-weekdays">
+          <div style="color:#e74c3c">日</div><div>月</div><div>火</div>
+          <div>水</div><div>木</div><div>金</div><div style="color:#3498db">土</div>
+        </div>
+        <div class="cal-days" id="cal-days"></div>
+      </div>
+      <div class="cal-detail" id="cal-detail">
+        <h3 id="cal-detail-title"></h3>
+        <div class="cal-detail-list" id="cal-detail-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学習計画タブ -->
+  <div class="tab-content" id="tab-plan">
+    <div class="plan-inner">
+      <div class="plan-section">
+        <h3>📊 進捗サマリー</h3>
+        <div class="plan-stats">
+          <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">総タスク</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">完了</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-overdue">0</div><div class="stat-label">期限超過</div></div>
+        </div>
+      </div>
+      <div class="plan-section">
+        <h3>➕ 学習計画を追加</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="form-group"><label>タイトル</label><input type="text" id="task-title-input" placeholder="例：英語 第1章を完璧にする"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label>期限日</label><input type="date" id="task-due-input"></div>
+            <div class="form-group">
+              <label>優先度</label>
+              <select id="task-priority-input">
+                <option value="high">🔴 高</option>
+                <option value="mid" selected>🟡 中</option>
+                <option value="low">🟢 低</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>メモ（任意）</label><input type="text" id="task-memo-input" placeholder="補足メモ..."></div>
+          <button class="btn-primary" id="add-task-btn" style="width:100%;">＋ 追加</button>
+        </div>
+      </div>
+      <div class="plan-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <h3 style="margin:0;">📋 タスク一覧</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="task-filter" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
+              <option value="all">すべて</option>
+              <option value="todo">未完了</option>
+              <option value="done">完了済み</option>
+              <option value="overdue">期限超過</option>
+            </select>
+            <select id="task-sort" style="border:1px solid #dde3ea;border-radius:8px;padding:6px 10px;font-size:0.82rem;outline:none;background:#f7f9fc;-webkit-appearance:none;font-family:inherit;">
+              <option value="due-asc">期限 近い順</option>
+              <option value="due-desc">期限 遠い順</option>
+              <option value="priority">優先度順</option>
+              <option value="created">作成日順</option>
+            </select>
+          </div>
+        </div>
+        <div id="task-list">
+          <div class="empty-state"><div class="icon">✅</div>タスクがありません</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理者タブ（管理者のみ表示） -->
+  <div class="tab-content" id="tab-admin">
+    <div style="padding:14px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
+
+      <!-- ユーザー追加 -->
+      <div class="manage-section">
+        <h3>👤 ユーザー追加</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="edit-grid" style="margin-bottom:0;">
+            <div class="form-group">
+              <label>メールアドレス（ID）</label>
+              <input type="email" id="new-user-email" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+              <label>パスワード（8文字以上）</label>
+              <input type="password" id="new-user-password" placeholder="パスワード">
+            </div>
+            <div class="form-group">
+              <label>表示名</label>
+              <input type="text" id="new-user-name" placeholder="例：田中太郎">
+            </div>
+            <div class="form-group">
+              <label>ロール</label>
+              <select id="new-user-role">
+                <option value="user">一般ユーザー</option>
+                <option value="admin">管理者</option>
+              </select>
+            </div>
+          </div>
+          <div id="add-user-error" style="color:#e74c3c;font-size:0.82rem;min-height:18px;"></div>
+          <button class="btn-primary" id="add-user-btn" style="width:100%;">👤 ユーザーを追加</button>
+        </div>
+      </div>
+
+      <!-- ユーザー一覧 -->
+      <div class="manage-section">
+        <h3>👥 ユーザー一覧</h3>
+        <div id="user-list">
+          <div class="empty-state"><div class="icon">👥</div>読み込み中...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /.main -->
+
+<!-- 新規追加モーダル -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <h3>📝 新規コンテンツ追加</h3>
+    <div class="edit-grid" style="margin-bottom:12px;">
+      <div class="form-group">
+        <label>大分類（科目）</label>
+        <div class="combo-wrap">
+          <select id="new-subject-sel"><option value="">-- 新規入力 --</option></select>
+          <input type="text" id="new-subject" placeholder="新規の場合はここに入力">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>中分類（章）</label>
+        <div class="combo-wrap">
+          <select id="new-chapter-sel"><option value="">-- 新規入力 --</option></select>
+          <input type="text" id="new-chapter" placeholder="新規の場合はここに入力">
+        </div>
+      </div>
+      <div class="form-group"><label>No（小分類）</label><input type="text" id="new-no" placeholder="例：001"></div>
+      <div class="form-group"><label>タイトル</label><input type="text" id="new-title" placeholder="例：重要フレーズ"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>本文テキスト</label>
+      <textarea id="new-text" placeholder="暗記したい長文を入力..." style="min-height:100px;width:100%;border:1px solid #dde3ea;border-radius:8px;padding:10px;font-family:inherit;font-size:0.9rem;outline:none;resize:vertical;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="modal-cancel-btn">キャンセル</button>
+      <button class="btn-primary" id="modal-add-btn">追加</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ========== Firebase ==========
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import {
+    getAuth, signInWithEmailAndPassword, signOut,
+    onAuthStateChanged, createUserWithEmailAndPassword
+  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import {
+    getFirestore, collection, doc, setDoc, deleteDoc,
+    onSnapshot, query, getDoc, getDocs
+  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCDcg0WWetaHspC3lKziN6kBwZiPILZ10w",
+    authDomain: "ankitool-3e1d7.firebaseapp.com",
+    projectId: "ankitool-3e1d7",
+    storageBucket: "ankitool-3e1d7.firebasestorage.app",
+    messagingSenderId: "959520253501",
+    appId: "1:959520253501:web:db39b346f8df1d5d542c54"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ========== 管理者メールアドレス ==========
+  // ここに管理者のメールアドレスを列挙する
+  const ADMIN_EMAILS = [
+    'admin@example.com',   // ← 実際の管理者メールに変更してください
+  ];
+
+  let unsubData = null, unsubRecords = null, unsubTasks = null;
+  let currentUserRole = 'user'; // 'admin' or 'user'
+
+  // ========== 共有状態 ==========
+  const appData = { data: [], records: [], tasks: [], selectedId: null };
+
+  // ========== 定数 ==========
+  const COLORS = [
+    '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+    '#3498db','#9b59b6','#e91e63','#ff5722','#607d8b'
+  ];
+  let selectedKwColor = '#e74c3c';
+  let currentMode  = 'view';
+  let showOriginal = true;
+  let calYear, calMonth;
+
+  // ========== ユーティリティ ==========
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function formatDate(isoStr) {
+    const d = new Date(isoStr);
+    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function formatDateTime(isoStr) {
+    const d = new Date(isoStr);
+    return `${formatDate(isoStr)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function showSync() {
+    const el = document.getElementById('sync-indicator');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2000);
+  }
+
+  // ========== Firebase操作 ==========
+  async function saveOneItem(item) {
+    const u = auth.currentUser;
+    if (!u) return;
+    await setDoc(doc(db, 'users', u.uid, 'data', item.id), item);
+    showSync();
+  }
+  async function saveOneRecord(record) {
+    const u = auth.currentUser;
+    if (!u) return;
+    await setDoc(doc(db, 'users', u.uid, 'records', record.id), record);
+    showSync();
+  }
+  async function deleteItemFromDB(id) {
+    const u = auth.currentUser;
+    if (!u) return;
+    await deleteDoc(doc(db, 'users', u.uid, 'data', id));
+    showSync();
+  }
+  async function deleteRecordFromDB(id) {
+    const u = auth.currentUser;
+    if (!u) return;
+    await deleteDoc(doc(db, 'users', u.uid, 'records', id));
+    showSync();
+  }
+  async function saveOneTask(task) {
+    const u = auth.currentUser;
+    if (!u) return;
+    await setDoc(doc(db, 'users', u.uid, 'tasks', task.id), task);
+    showSync();
+  }
+  async function deleteTaskFromDB(id) {
+    const u = auth.currentUser;
+    if (!u) return;
+    await deleteDoc(doc(db, 'users', u.uid, 'tasks', id));
+    showSync();
+  }
+
+  // ========== 認証 ==========
+  onAuthStateChanged(auth, async user => {
+    const authBar = document.getElementById('auth-bar');
+    const overlay = document.getElementById('login-overlay');
+
+    if (user) {
+      // ロール判定
+      currentUserRole = ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user';
+
+      // ユーザー情報をFirestoreに保存（初回登録時など）
+      const userRef = doc(db, 'userProfiles', user.uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || user.email,
+          role: currentUserRole,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      // ヘッダー表示
+      const displayName = user.displayName || user.email;
+      const roleLabel   = currentUserRole === 'admin' ? ' 👑' : '';
+      authBar.innerHTML = `
+        <span style="font-size:0.85rem;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:white;">
+          ${escapeHtml(displayName)}${roleLabel}
+        </span>
+        <button id="signout-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:6px 12px;border-radius:16px;cursor:pointer;font-size:0.8rem;">ログアウト</button>
+      `;
+      document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+      // 管理者タブ表示制御
+      const adminTab = document.getElementById('admin-tab-btn');
+      adminTab.style.display = currentUserRole === 'admin' ? 'flex' : 'none';
+
+      overlay.classList.remove('show');
+      document.getElementById('login-error').textContent = '';
+      startSync(user.uid);
+
+      // 管理者ならユーザー一覧を読み込む
+      if (currentUserRole === 'admin') renderUserList();
+
+    } else {
+      authBar.innerHTML = '';
+      overlay.classList.add('show');
+      currentUserRole = 'user';
+      document.getElementById('admin-tab-btn').style.display = 'none';
+      if (unsubData)    { unsubData();    unsubData    = null; }
+      if (unsubRecords) { unsubRecords(); unsubRecords = null; }
+      if (unsubTasks)   { unsubTasks();   unsubTasks   = null; }
+      appData.data    = [];
+      appData.records = [];
+      appData.tasks   = [];
+      renderAll();
+    }
+  });
+
+  // ========== ログイン処理 ==========
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl    = document.getElementById('login-error');
+    errEl.textContent = '';
+    if (!email || !password) { errEl.textContent = 'メールアドレスとパスワードを入力してください'; return; }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch(e) {
+      errEl.textContent = getAuthErrorMessage(e.code);
+    }
+  });
+
+  // Enterキーでもログイン
+  ['login-email','login-password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('login-btn').click();
+    });
+  });
+
+  function getAuthErrorMessage(code) {
+    const map = {
+      'auth/user-not-found':      'ユーザーが見つかりません',
+      'auth/wrong-password':      'パスワードが正しくありません',
+      'auth/invalid-email':       'メールアドレスの形式が正しくありません',
+      'auth/too-many-requests':   'ログイン試行が多すぎます。しばらく待ってください',
+      'auth/invalid-credential':  'メールアドレスまたはパスワードが正しくありません',
+    };
+    return map[code] || 'ログインに失敗しました（' + code + '）';
+  }
+
+  // ========== ユーザー追加（管理者機能） ==========
+  document.getElementById('add-user-btn').addEventListener('click', async () => {
+    if (currentUserRole !== 'admin') return;
+    const email    = document.getElementById('new-user-email').value.trim();
+    const password = document.getElementById('new-user-password').value;
+    const name     = document.getElementById('new-user-name').value.trim();
+    const role     = document.getElementById('new-user-role').value;
+    const errEl    = document.getElementById('add-user-error');
+    errEl.textContent = '';
+
+    if (!email || !password || !name) {
+      errEl.textContent = 'すべての項目を入力してください'; return;
+    }
+    if (password.length < 8) {
+      errEl.textContent = 'パスワードは8文字以上にしてください'; return;
+    }
+
+    try {
+      // 注意：createUserWithEmailAndPassword は現在のセッションを切り替えてしまう
+      // そのため、別のFirebaseアプリインスタンスで作成する
+      const secondaryApp  = initializeApp(firebaseConfig, 'secondary-' + Date.now());
+      const secondaryAuth = getAuth(secondaryApp);
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+      const newUid = cred.user.uid;
+
+      // Firestoreにプロフィール保存
+      await setDoc(doc(db, 'userProfiles', newUid), {
+        uid: newUid,
+        email,
+        displayName: name,
+        role,
+        createdAt: new Date().toISOString()
+      });
+
+      // セカンダリアプリをサインアウト
+      await signOut(secondaryAuth);
+
+      errEl.style.color = '#27ae60';
+      errEl.textContent = `✅ ユーザー「${name}」を追加しました`;
+      document.getElementById('new-user-email').value    = '';
+      document.getElementById('new-user-password').value = '';
+      document.getElementById('new-user-name').value     = '';
+      document.getElementById('new-user-role').value     = 'user';
+
+      renderUserList();
+    } catch(e) {
+      errEl.style.color = '#e74c3c';
+      const map = {
+        'auth/email-already-in-use': 'このメールアドレスはすでに使用されています',
+        'auth/weak-password':        'パスワードが弱すぎます',
+        'auth/invalid-email':        'メールアドレスの形式が正しくありません',
+      };
+      errEl.textContent = map[e.code] || 'エラー: ' + e.message;
+    }
+  });
+
+  // ========== ユーザー一覧表示 ==========
+  async function renderUserList() {
+    if (currentUserRole !== 'admin') return;
+    const listEl = document.getElementById('user-list');
+    listEl.innerHTML = '<div style="color:#aaa;font-size:0.88rem;padding:8px;">読み込み中...</div>';
+    try {
+      const snap = await getDocs(collection(db, 'userProfiles'));
+      const users = snap.docs.map(d => d.data()).sort((a,b) => a.email.localeCompare(b.email));
+      if (users.length === 0) {
+        listEl.innerHTML = '<div class="empty-state"><div class="icon">👥</div>ユーザーがいません</div>';
+        return;
+      }
+      listEl.innerHTML = users.map(u => {
+        const roleCls   = u.role === 'admin' ? 'role-admin' : 'role-user';
+        const roleLabel = u.role === 'admin' ? '👑 管理者' : '👤 一般';
+        const isSelf    = auth.currentUser && auth.currentUser.uid === u.uid;
+        return `<div class="user-list-item">
+          <div style="flex:1;min-width:0;">
+            <div class="user-email">${escapeHtml(u.displayName || u.email)}</div>
+            <div style="font-size:0.75rem;color:#aaa;">${escapeHtml(u.email)}</div>
+          </div>
+          <span class="user-role ${roleCls}">${roleLabel}</span>
+          ${!isSelf ? `<button class="btn-small btn-danger" data-deluid="${u.uid}" data-delemail="${escapeHtml(u.email)}">削除</button>` : '<span style="font-size:0.75rem;color:#aaa;">（自分）</span>'}
+        </div>`;
+      }).join('');
+
+      listEl.querySelectorAll('[data-deluid]').forEach(btn => {
+        btn.addEventListener('click', () => deleteUser(btn.dataset.deluid, btn.dataset.delemail));
+      });
+    } catch(e) {
+      listEl.innerHTML = `<div style="color:#e74c3c;font-size:0.88rem;">読み込みエラー: ${e.message}</div>`;
+    }
+  }
+
+  // ========== ユーザー削除（プロフィールのみ） ==========
+  async function deleteUser(uid, email) {
+    if (!confirm(`「${email}」のプロフィールを削除しますか？\n※Firebaseの認証アカウント自体はFirebaseコンソールから削除してください`)) return;
+    try {
+      await deleteDoc(doc(db, 'userProfiles', uid));
+      renderUserList();
+    } catch(e) {
+      alert('削除エラー: ' + e.message);
+    }
+  }
+
+  // ========== データ同期 ==========
+  function startSync(uid) {
+    unsubData = onSnapshot(query(collection(db, 'users', uid, 'data')), snap => {
+      appData.data = snap.docs.map(d => d.data());
+      renderTree();
+      updateHistoryFilter();
+      renderContentSelect();
+      renderManageList();
+      if (appData.selectedId && !appData.data.find(d => d.id === appData.selectedId)) {
+        appData.selectedId = null;
+        document.getElementById('manage-empty').style.display = 'block';
+        document.getElementById('manage-editor').style.display = 'none';
+      }
+    });
+    unsubRecords = onSnapshot(query(collection(db, 'users', uid, 'records')), snap => {
+      appData.records = snap.docs.map(d => d.data());
+      renderTree();
+      renderHistory();
+      renderCalendar();
+      updateHistoryFilter();
+      renderManageList();
+    });
+    unsubTasks = onSnapshot(query(collection(db, 'users', uid, 'tasks')), snap => {
+      appData.tasks = snap.docs.map(d => d.data());
+      renderTasks();
+    });
+  }
+
+  // ========== 初期化 ==========
+  function init() {
+    const now = new Date();
+    calYear  = now.getFullYear();
+    calMonth = now.getMonth();
+    renderColorPicker();
+    renderTree();
+    renderCalendar();
+    renderHistory();
+    renderContentSelect();
+    renderManageList();
+    renderTasks();
+    loadLayoutSetting();
+    bindEvents();
+  }
+
+  // ========== イベントバインド ==========
+  function bindEvents() {
+    document.getElementById('hamburger-btn').addEventListener('click', toggleSidebar);
+    document.getElementById('settings-btn').addEventListener('click', toggleSettings);
+    document.getElementById('sidebar-close-btn').addEventListener('click', closeSidebar);
+    document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+    document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+    document.getElementById('layout-portrait').addEventListener('click', () => setLayout('portrait'));
+    document.getElementById('layout-landscape').addEventListener('click', () => setLayout('landscape'));
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
+    });
+
+    document.getElementById('manage-add-btn').addEventListener('click', openAddModal);
+    document.getElementById('sidebar-add-btn').addEventListener('click', openAddModal);
+    document.getElementById('save-item-btn').addEventListener('click', saveItem);
+    document.getElementById('delete-item-btn').addEventListener('click', deleteItem);
+    document.getElementById('kw-add-btn').addEventListener('click', addKeyword);
+    document.getElementById('edit-text').addEventListener('input', livePreview);
+    document.getElementById('list-subject-filter').addEventListener('change', renderManageList);
+    document.getElementById('list-sort').addEventListener('change', renderManageList);
+
+    document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+    document.getElementById('modal-add-btn').addEventListener('click', addItem);
+    document.getElementById('add-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('add-modal')) closeModal();
+    });
+    document.getElementById('new-subject-sel').addEventListener('change', onNewSubjectSelChange);
+    document.getElementById('new-chapter-sel').addEventListener('change', onNewChapterSelChange);
+
+    document.getElementById('sel-subject').addEventListener('change', onSubjectChange);
+    document.getElementById('sel-chapter').addEventListener('change', onChapterChange);
+    document.getElementById('confirm-select-btn').addEventListener('click', confirmContentSelect);
+    document.getElementById('mode-view-btn').addEventListener('click', () => setMode('view'));
+    document.getElementById('mode-typing-btn').addEventListener('click', () => setMode('typing'));
+    document.getElementById('typing-input').addEventListener('input', () => {
+      if (appData.selectedId) calcScore();
+    });
+    document.getElementById('save-record-btn').addEventListener('click', saveRecord);
+    document.getElementById('show-diff-btn').addEventListener('click', showDiff);
+    document.getElementById('clear-typing-btn').addEventListener('click', clearTyping);
+    document.getElementById('toggle-original-btn').addEventListener('click', toggleOriginal);
+
+    document.getElementById('hist-subject-filter').addEventListener('change', renderHistory);
+    document.getElementById('hist-date-from').addEventListener('change', renderHistory);
+    document.getElementById('hist-date-to').addEventListener('change', renderHistory);
+    document.getElementById('history-reset-btn').addEventListener('click', clearHistoryFilter);
+
+    document.getElementById('cal-prev-btn').addEventListener('click', () => changeMonth(-1));
+    document.getElementById('cal-next-btn').addEventListener('click', () => changeMonth(1));
+
+    document.getElementById('add-task-btn').addEventListener('click', addTask);
+    document.getElementById('task-filter').addEventListener('change', renderTasks);
+    document.getElementById('task-sort').addEventListener('change', renderTasks);
+  }
+
+  // ========== レイアウト ==========
+  function loadLayoutSetting() { applyLayout(localStorage.getItem('ankitool-layout') || 'portrait'); }
+  function setLayout(mode) { localStorage.setItem('ankitool-layout', mode); applyLayout(mode); }
+  function applyLayout(mode) {
+    document.body.classList.toggle('landscape-mode', mode === 'landscape');
+    document.getElementById('layout-portrait').classList.toggle('active', mode === 'portrait');
+    document.getElementById('layout-landscape').classList.toggle('active', mode === 'landscape');
+  }
+
+  // ========== サイドバー ==========
+  function toggleSidebar() {
+    const open = document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ========== 設定パネル ==========
+  function toggleSettings() { document.getElementById('settings-panel').classList.toggle('open'); }
+  function closeSettings()  { document.getElementById('settings-panel').classList.remove('open'); }
+
+  // ========== タブ切替 ==========
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+    if (tab === 'history')  renderHistory();
+    if (tab === 'calendar') renderCalendar();
+    if (tab === 'plan')     renderTasks();
+    if (tab === 'manage')   renderManageList();
+    if (tab === 'admin' && currentUserRole === 'admin') renderUserList();
+  }
+
+  // ========== コンテンツ選択（学習タブ） ==========
+  function renderContentSelect() {
+    const subjects = [...new Set(appData.data.map(d => d.subject))].sort();
+    const selSubj  = document.getElementById('sel-subject');
+    const prev     = selSubj.value;
+    selSubj.innerHTML = '<option value="">科目を選択</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}"${s===prev?' selected':''}>${escapeHtml(s)}</option>`).join('');
+    onSubjectChange();
+    const lf = document.getElementById('list-subject-filter');
+    const prevLf = lf.value;
+    lf.innerHTML = '<option value="">すべての科目</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}"${s===prevLf?' selected':''}>${escapeHtml(s)}</option>`).join('');
+  }
+
+  function onSubjectChange() {
+    const subj = document.getElementById('sel-subject').value;
+    const chapters = [...new Set(appData.data.filter(d => d.subject === subj).map(d => d.chapter))].sort();
+    document.getElementById('sel-chapter').innerHTML = '<option value="">章を選択</option>' +
+      chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>';
+  }
+
+  function onChapterChange() {
+    const subj  = document.getElementById('sel-subject').value;
+    const chap  = document.getElementById('sel-chapter').value;
+    const items = appData.data.filter(d => d.subject === subj && d.chapter === chap)
+      .sort((a,b) => a.no.localeCompare(b.no));
+    document.getElementById('sel-item').innerHTML = '<option value="">コンテンツを選択</option>' +
+      items.map(d => `<option value="${d.id}">${escapeHtml(d.no)}. ${escapeHtml(d.title)}</option>`).join('');
+  }
+
+  function confirmContentSelect() {
+    const id = document.getElementById('sel-item').value;
+    if (!id) { alert('コンテンツを選択してください'); return; }
+    selectItem(id);
+    switchTab('study', document.querySelector('[data-tab="study"]'));
+  }
+
+  // ========== モーダルコンボ ==========
+  function refreshModalSubjects() {
+    const subjects = [...new Set(appData.data.map(d => d.subject))].sort();
+    const sel = document.getElementById('new-subject-sel');
+    sel.innerHTML = '<option value="">-- 新規入力 --</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+    document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>';
+    document.getElementById('new-subject').value = '';
+    document.getElementById('new-chapter').value = '';
+  }
+  function onNewSubjectSelChange() {
+    const val = document.getElementById('new-subject-sel').value;
+    document.getElementById('new-subject').value = val;
+    const chapters = [...new Set(appData.data.filter(d => d.subject === val).map(d => d.chapter))].sort();
+    document.getElementById('new-chapter-sel').innerHTML = '<option value="">-- 新規入力 --</option>' +
+      chapters.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    document.getElementById('new-chapter').value = '';
+  }
+  function onNewChapterSelChange() {
+    document.getElementById('new-chapter').value = document.getElementById('new-chapter-sel').value;
+  }
+
+  // ========== ツリー ==========
+  function getBestScore(id) {
+    const recs = appData.records.filter(r => r.itemId === id);
+    return recs.length === 0 ? null : Math.max(...recs.map(r => r.score));
+  }
+  function getLastStudyDate(id) {
+    const recs = appData.records.filter(r => r.itemId === id);
+    if (recs.length === 0) return null;
+    return recs.sort((a,b) => b.date.localeCompare(a.date))[0].date;
+  }
+
+  function renderTree() {
+    const tree = document.getElementById('tree');
+    const subjects = {};
+    appData.data.forEach(item => {
+      if (!subjects[item.subject]) subjects[item.subject] = {};
+      if (!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter] = [];
+      subjects[item.subject][item.chapter].push(item);
+    });
+    tree.innerHTML = '';
+    if (Object.keys(subjects).length === 0) {
+      tree.innerHTML = '<div style="padding:16px;color:#aaa;font-size:0.82rem;text-align:center;">コンテンツがありません</div>';
+      return;
+    }
+    Object.entries(subjects).forEach(([subj, chapters]) => {
+      const subjEl    = document.createElement('div');
+      subjEl.className = 'tree-subject';
+      const subjLabel  = document.createElement('div');
+      subjLabel.className = 'tree-subject-label';
+      subjLabel.innerHTML = `<span class="toggle-icon">▼</span> 📚 ${escapeHtml(subj)}`;
+      const chapterWrap = document.createElement('div');
+      subjLabel.addEventListener('click', () => {
+        subjEl.classList.toggle('collapsed');
+        chapterWrap.style.display = subjEl.classList.contains('collapsed') ? 'none' : '';
+      });
+      subjEl.appendChild(subjLabel);
+      Object.entries(chapters).forEach(([chap, items]) => {
+        const chapEl    = document.createElement('div');
+        chapEl.className = 'tree-chapter';
+        const chapLabel  = document.createElement('div');
+        chapLabel.className = 'tree-chapter-label';
+        chapLabel.innerHTML = `<span class="toggle-icon">▼</span> 📖 ${escapeHtml(chap)}`;
+        const itemWrap = document.createElement('div');
+        itemWrap.className = 'tree-items';
+        chapLabel.addEventListener('click', () => {
+          chapEl.classList.toggle('collapsed');
+          itemWrap.style.display = chapEl.classList.contains('collapsed') ? 'none' : '';
+        });
+        chapEl.appendChild(chapLabel);
+        items.sort((a,b) => a.no.localeCompare(b.no)).forEach(item => {
+          const best   = getBestScore(item.id);
+          const itemEl = document.createElement('div');
+          itemEl.className = 'tree-item' + (item.id === appData.selectedId ? ' active' : '');
+          itemEl.innerHTML = `<span>${escapeHtml(item.no)}. ${escapeHtml(item.title)}</span>${best !== null ? `<span class="item-score">${best}%</span>` : ''}`;
+          itemEl.addEventListener('click', () => { selectItem(item.id); closeSidebar(); });
+          itemWrap.appendChild(itemEl);
+        });
+        chapEl.appendChild(itemWrap);
+        chapterWrap.appendChild(chapEl);
+      });
+      subjEl.appendChild(chapterWrap);
+      tree.appendChild(subjEl);
+    });
+  }
+
+  // ========== 管理一覧テーブル ==========
+  function renderManageList() {
+    const wrap     = document.getElementById('manage-list-wrap');
+    const subjF    = document.getElementById('list-subject-filter').value;
+    const sortMode = document.getElementById('list-sort').value;
+    let items = appData.data.map(item => ({
+      ...item, _best: getBestScore(item.id), _last: getLastStudyDate(item.id)
+    }));
+    if (subjF) items = items.filter(d => d.subject === subjF);
+    if (sortMode === 'score-desc') items.sort((a,b) => (b._best ?? -1) - (a._best ?? -1));
+    else if (sortMode === 'score-asc') items.sort((a,b) => (a._best ?? 101) - (b._best ?? 101));
+    else if (sortMode === 'date-desc') items.sort((a,b) => (b._last||'').localeCompare(a._last||''));
+    else if (sortMode === 'date-asc')  items.sort((a,b) => (a._last||'Z').localeCompare(b._last||'Z'));
+    else items.sort((a,b) => {
+      const sc = a.subject.localeCompare(b.subject);
+      if (sc) return sc;
+      const cc = a.chapter.localeCompare(b.chapter);
+      if (cc) return cc;
+      return a.no.localeCompare(b.no);
+    });
+    if (items.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="icon">📂</div>コンテンツがありません</div>';
+      return;
+    }
+    let html = `<div class="content-table-wrap"><table class="content-table"><thead><tr>
+      <th>科目</th><th>章</th><th>No</th><th>タイトル</th><th>最高スコア</th><th>最終学習日</th>
+    </tr></thead><tbody>`;
+    items.forEach(item => {
+      const sc  = item._best;
+      const cls = sc === null ? 'score-none' : sc >= 80 ? 'score-high' : sc >= 50 ? 'score-mid' : 'score-low';
+      const scStr = sc === null ? '未学習' : sc + '%';
+      const dtStr = item._last ? formatDate(item._last) : '—';
+      const sel   = item.id === appData.selectedId ? 'selected-row' : '';
+      html += `<tr class="${sel}" data-id="${item.id}">
+        <td>${escapeHtml(item.subject)}</td><td>${escapeHtml(item.chapter)}</td>
+        <td>${escapeHtml(item.no)}</td><td>${escapeHtml(item.title)}</td>
+        <td><span class="score-badge ${cls}">${scStr}</span></td>
+        <td style="font-size:0.78rem;color:#888;">${dtStr}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        selectItem(tr.dataset.id);
+        setTimeout(() => {
+          document.getElementById('manage-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      });
+    });
+  }
+
+  // ========== アイテム選択 ==========
+  function selectItem(id) {
+    appData.selectedId = id;
+    const item = appData.data.find(d => d.id === id);
+    if (!item) return;
+    document.getElementById('manage-empty').style.display = 'none';
+    document.getElementById('manage-editor').style.display = 'block';
+    document.getElementById('edit-subject').value = item.subject;
+    document.getElementById('edit-chapter').value = item.chapter;
+    document.getElementById('edit-no').value       = item.no;
+    document.getElementById('edit-title').value    = item.title;
+    document.getElementById('edit-text').value     = item.text;
+    renderKeywordList(item);
+    updatePreview(item);
+    document.getElementById('study-title').textContent =
+      `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+    document.getElementById('view-text').innerHTML = applyKeywords(item.text, item.keywords || []);
+    document.getElementById('original-text-display').innerHTML = applyKeywords(item.text, item.keywords || []);
+    clearTyping();
+    renderTree();
+    renderManageList();
+  }
+
+  // ========== キーワード ==========
+  function renderColorPicker() {
+    const row = document.getElementById('color-picker-row');
+    row.innerHTML = '';
+    COLORS.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'color-swatch' + (c === selectedKwColor ? ' selected' : '');
+      sw.style.background = c;
+      sw.addEventListener('click', () => { selectedKwColor = c; renderColorPicker(); });
+      row.appendChild(sw);
+    });
+  }
+  function addKeyword() {
+    const kw = document.getElementById('kw-input').value.trim();
+    if (!kw || !appData.selectedId) return;
+    const item = appData.data.find(d => d.id === appData.selectedId);
+    if (!item) return;
+    if (!item.keywords) item.keywords = [];
+    if (item.keywords.find(k => k.word === kw)) return;
+    item.keywords.push({ word: kw, color: selectedKwColor });
+    document.getElementById('kw-input').value = '';
+    saveOneItem(item);
+    renderKeywordList(item);
+    updatePreview(item);
+  }
+  function renderKeywordList(item) {
+    const list = document.getElementById('keyword-list');
+    list.innerHTML = '';
+    (item.keywords || []).forEach((kw, i) => {
+      const tag = document.createElement('div');
+      tag.className = 'keyword-tag';
+      tag.style.cssText = `background:${kw.color}22;color:${kw.color};border-color:${kw.color};`;
+      tag.innerHTML = `${escapeHtml(kw.word)} <span class="kw-del">✕</span>`;
+      tag.querySelector('.kw-del').addEventListener('click', () => removeKeyword(i));
+      list.appendChild(tag);
+    });
+  }
+  function removeKeyword(i) {
+    const item = appData.data.find(d => d.id === appData.selectedId);
+    if (!item) return;
+    item.keywords.splice(i, 1);
+    saveOneItem(item);
+    renderKeywordList(item);
+    updatePreview(item);
+  }
+  function applyKeywords(text, keywords) {
+    if (!keywords || keywords.length === 0) return escapeHtml(text).replace(/\n/g, '<br>');
+    let result = escapeHtml(text);
+    [...keywords].sort((a,b) => b.word.length - a.word.length).forEach(kw => {
+      const esc = escapeHtml(kw.word);
+      const re  = new RegExp(esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      result = result.replace(re,
+        `<mark style="background:${kw.color}22;color:${kw.color};font-weight:700;border-radius:3px;padding:0 2px;">${esc}</mark>`);
+    });
+    return result.replace(/\n/g, '<br>');
+  }
+  function livePreview() {
+    const item = appData.data.find(d => d.id === appData.selectedId);
+    if (item) updatePreview(item);
+  }
+  function updatePreview(item) {
+    document.getElementById('text-preview').innerHTML =
+      applyKeywords(document.getElementById('edit-text').value, item.keywords || []);
+  }
+
+  // ========== 管理操作 ==========
+  function openAddModal() {
+    refreshModalSubjects();
+    document.getElementById('add-modal').classList.add('open');
+  }
+  function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+  function addItem() {
+    const subject = document.getElementById('new-subject').value.trim();
+    const chapter = document.getElementById('new-chapter').value.trim();
+    const no      = document.getElementById('new-no').value.trim();
+    const title   = document.getElementById('new-title').value.trim();
+    const text    = document.getElementById('new-text').value.trim();
+    if (!subject || !chapter || !no || !title || !text) { alert('すべての項目を入力してください'); return; }
+    const item = { id: Date.now().toString(), subject, chapter, no, title, text, keywords: [] };
+    appData.data.push(item);
+    renderTree(); renderContentSelect(); renderManageList();
+    selectItem(item.id);
+    closeModal();
+    ['new-no','new-title','new-text'].forEach(id => { document.getElementById(id).value = ''; });
+    saveOneItem(item).catch(err => alert('保存失敗: ' + err.message));
+  }
+
+  function saveItem() {
+    const id = appData.selectedId;
+    if (!id) return;
+    const item = appData.data.find(d => d.id === id);
+    if (!item) return;
+    item.subject = document.getElementById('edit-subject').value.trim();
+    item.chapter = document.getElementById('edit-chapter').value.trim();
+    item.no      = document.getElementById('edit-no').value.trim();
+    item.title   = document.getElementById('edit-title').value.trim();
+    item.text    = document.getElementById('edit-text').value.trim();
+    saveOneItem(item).then(() => {
+      renderTree(); renderContentSelect(); renderManageList(); updatePreview(item);
+      document.getElementById('study-title').textContent =
+        `${item.subject} > ${item.chapter} > ${item.no}. ${item.title}`;
+      document.getElementById('view-text').innerHTML = applyKeywords(item.text, item.keywords || []);
+      document.getElementById('original-text-display').innerHTML = applyKeywords(item.text, item.keywords || []);
+      alert('保存しました！');
+    });
+  }
+
+  function deleteItem() {
+    const id = appData.selectedId;
+    if (!id || !confirm('このコンテンツを削除しますか？')) return;
+    deleteItemFromDB(id);
+    appData.records.filter(r => r.itemId === id).forEach(r => deleteRecordFromDB(r.id));
+    appData.data    = appData.data.filter(d => d.id !== id);
+    appData.records = appData.records.filter(r => r.itemId !== id);
+    appData.selectedId = null;
+    document.getElementById('manage-empty').style.display = 'block';
+    document.getElementById('manage-editor').style.display = 'none';
+    renderTree(); renderContentSelect(); renderManageList();
+  }
+
+  // ========== 学習モード ==========
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('view-mode').style.display   = mode === 'view'   ? 'block' : 'none';
+    document.getElementById('typing-mode').style.display = mode === 'typing' ? 'flex'  : 'none';
+    document.getElementById('mode-view-btn').classList.toggle('active',   mode === 'view');
+    document.getElementById('mode-typing-btn').classList.toggle('active', mode === 'typing');
+  }
+  function toggleOriginal() {
+    showOriginal = !showOriginal;
+    document.getElementById('original-text-display').style.display = showOriginal ? 'block' : 'none';
+  }
+
+  // ========== スコア計算 ==========
+  function normalize(str) { return str.replace(/[、。，．・\n\r\s　]/g, ''); }
+  function lcsLength(a, b) {
+    const m = a.length, n = b.length;
+    let prev = new Array(n+1).fill(0);
+    for (let i = 1; i <= m; i++) {
+      const curr = new Array(n+1).fill(0);
+      for (let j = 1; j <= n; j++)
+        curr[j] = a[i-1]===b[j-1] ? prev[j-1]+1 : Math.max(prev[j], curr[j-1]);
+      prev = curr;
+    }
+    return prev[n];
+  }
+  function calcScore() {
+    const id = appData.selectedId;
+    if (!id) return 0;
+    const item = appData.data.find(d => d.id === id);
+    if (!item) return 0;
+    const orig  = normalize(item.text);
+    const input = normalize(document.getElementById('typing-input').value);
+    if (!orig.length) return 0;
+    const pct = Math.round(lcsLength(orig, input) / orig.length * 100);
+    const bar = document.getElementById('score-bar');
+    bar.style.width      = pct + '%';
+    bar.style.background = pct >= 80 ? '#27ae60' : pct >= 50 ? '#f39c12' : '#e74c3c';
+    document.getElementById('score-label').textContent = pct + '%';
+    document.getElementById('score-bar-wrap').classList.add('visible');
+    return pct;
+  }
+  function showDiff() {
+    const id = appData.selectedId;
+    if (!id) return;
+    const item  = appData.data.find(d => d.id === id);
+    if (!item) return;
+    const orig  = normalize(item.text);
+    const input = normalize(document.getElementById('typing-input').value);
+    calcScore();
+    const m = orig.length, n = input.length;
+    const dp = Array.from({length:m+1}, () => new Array(n+1).fill(0));
+    for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+      dp[i][j] = orig[i-1]===input[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j],dp[i][j-1]);
+    const matched = new Array(m).fill(false);
+    let i=m, j=n;
+    while (i>0&&j>0) {
+      if (orig[i-1]===input[j-1]) { matched[i-1]=true; i--; j--; }
+      else if (dp[i-1][j]>=dp[i][j-1]) i--; else j--;
+    }
+    let html='';
+    for (let k=0;k<orig.length;k++) {
+      const ch=escapeHtml(orig[k]);
+      html += matched[k] ? `<span class="diff-ok">${ch}</span>` : `<span class="diff-ng">${ch}</span>`;
+    }
+    const panel = document.getElementById('diff-panel');
+    panel.style.display = 'block';
+    panel.innerHTML = '<strong>差分（赤：未入力/誤り、緑：正解）</strong><br><br>' + html;
+  }
+  function clearTyping() {
+    document.getElementById('typing-input').value = '';
+    document.getElementById('score-bar').style.width = '0%';
+    document.getElementById('score-label').textContent = '0%';
+    document.getElementById('score-bar-wrap').classList.remove('visible');
+    document.getElementById('diff-panel').style.display = 'none';
+  }
+  function saveRecord() {
+    const id = appData.selectedId;
+    if (!id) { alert('コンテンツを選択してください'); return; }
+    const score  = calcScore();
+    const item   = appData.data.find(d => d.id === id);
+    const record = {
+      id: Date.now().toString(), itemId: id,
+      subject: item.subject, chapter: item.chapter,
+      no: item.no, title: item.title,
+      score, date: new Date().toISOString()
+    };
+    appData.records.push(record);
+    saveOneRecord(record).then(() => {
+      renderTree(); updateHistoryFilter(); renderManageList();
+      alert(`記録を保存しました！ スコア: ${score}%`);
+    });
+  }
+
+  // ========== 記録 ==========
+  function renderHistory() {
+    const subj  = document.getElementById('hist-subject-filter').value;
+    const from  = document.getElementById('hist-date-from').value;
+    const to    = document.getElementById('hist-date-to').value;
+    let filtered = [...appData.records];
+    if (subj) filtered = filtered.filter(r => r.subject === subj);
+    if (from) filtered = filtered.filter(r => r.date >= from);
+    if (to)   filtered = filtered.filter(r => r.date <= to + 'T23:59:59');
+    filtered.sort((a,b) => b.date.localeCompare(a.date));
+    const list = document.getElementById('history-list');
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(r => {
+      const cls = r.score >= 80 ? 'score-high' : r.score >= 50 ? 'score-mid' : 'score-low';
+      return `<div class="history-card">
+        <div class="history-info">
+          <div class="history-path">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
+          <div class="history-title">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
+          <div class="history-date">📅 ${formatDateTime(r.date)}</div>
+        </div>
+        <div class="history-score-badge ${cls}">${r.score}%</div>
+        <button class="btn-small btn-danger" data-recid="${r.id}">削除</button>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-recid]').forEach(btn => {
+      btn.addEventListener('click', () => deleteRecord(btn.dataset.recid));
+    });
+  }
+  function deleteRecord(id) {
+    if (!confirm('この記録を削除しますか？')) return;
+    appData.records = appData.records.filter(r => r.id !== id);
+    deleteRecordFromDB(id).then(() => {
+      renderHistory(); renderTree(); renderCalendar(); renderManageList();
+    });
+  }
+  function updateHistoryFilter() {
+    const sel     = document.getElementById('hist-subject-filter');
+    const current = sel.value;
+    const subjects = [...new Set(appData.data.map(d => d.subject))];
+    sel.innerHTML = '<option value="">すべて</option>' +
+      subjects.map(s => `<option value="${escapeHtml(s)}"${s===current?' selected':''}>${escapeHtml(s)}</option>`).join('');
+  }
+  function clearHistoryFilter() {
+    document.getElementById('hist-subject-filter').value = '';
+    document.getElementById('hist-date-from').value = '';
+    document.getElementById('hist-date-to').value   = '';
+    renderHistory();
+  }
+
+  // ========== カレンダー ==========
+  function changeMonth(delta) {
+    calMonth += delta;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+  function renderCalendar() {
+    document.getElementById('cal-title').textContent = `${calYear}年 ${calMonth+1}月`;
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const lastDate = new Date(calYear, calMonth+1, 0).getDate();
+    const prevLast = new Date(calYear, calMonth, 0).getDate();
+    const today    = new Date();
+    const dayMap   = {};
+    appData.records.forEach(r => {
+      const d = new Date(r.date);
+      if (d.getFullYear()===calYear && d.getMonth()===calMonth) {
+        const k = d.getDate();
+        if (!dayMap[k]) dayMap[k] = [];
+        dayMap[k].push(r);
+      }
+    });
+    const grid = document.getElementById('cal-days');
+    grid.innerHTML = '';
+    for (let i=firstDay-1; i>=0; i--) grid.appendChild(createDayCell(prevLast-i, true, []));
+    for (let d=1; d<=lastDate; d++) {
+      const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+      const cell = createDayCell(d, false, dayMap[d]||[], isToday);
+      const recs = dayMap[d]||[];
+      cell.addEventListener('click', () => showCalDetail(d, recs));
+      grid.appendChild(cell);
+    }
+    const remain = (firstDay + lastDate) % 7;
+    if (remain) for (let d=1; d<=7-remain; d++) grid.appendChild(createDayCell(d, true, []));
+    document.getElementById('cal-detail').style.display = 'none';
+  }
+  function createDayCell(day, otherMonth, recs, isToday) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (otherMonth?' other-month':'') + (isToday?' today':'');
+    const num = document.createElement('div');
+    num.className = 'cal-day-num';
+    num.textContent = day;
+    cell.appendChild(num);
+    if (recs.length > 0) {
+      const evDiv = document.createElement('div');
+      evDiv.className = 'cal-events';
+      recs.slice(0,2).forEach(r => {
+        const ev = document.createElement('div');
+        ev.className = 'cal-event';
+        ev.style.background = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
+        ev.textContent = r.score + '%';
+        evDiv.appendChild(ev);
+      });
+      if (recs.length > 2) {
+        const more = document.createElement('div');
+        more.style.cssText = 'font-size:0.6rem;color:#888;';
+        more.textContent = `+${recs.length-2}`;
+        evDiv.appendChild(more);
+      }
+      cell.appendChild(evDiv);
+    }
+    return cell;
+  }
+  function showCalDetail(day, recs) {
+    document.getElementById('cal-detail-title').textContent = `${calYear}年${calMonth+1}月${day}日 の記録`;
+    const list = document.getElementById('cal-detail-list');
+    list.innerHTML = recs.length === 0
+      ? '<div style="color:#aaa;font-size:0.88rem;">この日の記録はありません</div>'
+      : recs.map(r => {
+          const d   = new Date(r.date);
+          const t   = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+          const col = r.score>=80?'#27ae60':r.score>=50?'#f39c12':'#e74c3c';
+          return `<div class="cal-detail-item">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.75rem;color:#888;">${escapeHtml(r.subject)} > ${escapeHtml(r.chapter)}</div>
+              <div style="font-size:0.88rem;font-weight:600;">${escapeHtml(r.no)}. ${escapeHtml(r.title)}</div>
+              <div style="font-size:0.75rem;color:#aaa;">${t}</div>
+            </div>
+            <div style="font-size:1.1rem;font-weight:700;color:${col};flex-shrink:0;">${r.score}%</div>
+          </div>`;
+        }).join('');
+    document.getElementById('cal-detail').style.display = 'block';
+  }
+
+  // ========== 学習計画 ==========
+  function addTask() {
+    const title    = document.getElementById('task-title-input').value.trim();
+    const due      = document.getElementById('task-due-input').value;
+    const priority = document.getElementById('task-priority-input').value;
+    const memo     = document.getElementById('task-memo-input').value.trim();
+    if (!title) { alert('タイトルを入力してください'); return; }
+    const task = {
+      id: Date.now().toString(), title,
+      due: due || null, priority, memo,
+      done: false, createdAt: new Date().toISOString(), doneAt: null
+    };
+    appData.tasks.push(task);
+    saveOneTask(task).then(() => {
+      renderTasks();
+      document.getElementById('task-title-input').value = '';
+      document.getElementById('task-due-input').value   = '';
+      document.getElementById('task-memo-input').value  = '';
+      document.getElementById('task-priority-input').value = 'mid';
+    });
+  }
+  function toggleTask(id) {
+    const task = appData.tasks.find(t => t.id === id);
+    if (!task) return;
+    task.done   = !task.done;
+    task.doneAt = task.done ? new Date().toISOString() : null;
+    saveOneTask(task).then(() => renderTasks());
+  }
+  function deleteTask(id) {
+    if (!confirm('このタスクを削除しますか？')) return;
+    appData.tasks = appData.tasks.filter(t => t.id !== id);
+    deleteTaskFromDB(id).then(() => renderTasks());
+  }
+  function renderTasks() {
+    const filter   = document.getElementById('task-filter').value;
+    const sortMode = document.getElementById('task-sort').value;
+    const today    = new Date().toISOString().slice(0,10);
+    const total    = appData.tasks.length;
+    const done     = appData.tasks.filter(t => t.done).length;
+    const overdue  = appData.tasks.filter(t => !t.done && t.due && t.due < today).length;
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-done').textContent    = done;
+    document.getElementById('stat-overdue').textContent = overdue;
+    let items = [...appData.tasks];
+    if (filter === 'todo')    items = items.filter(t => !t.done);
+    if (filter === 'done')    items = items.filter(t => t.done);
+    if (filter === 'overdue') items = items.filter(t => !t.done && t.due && t.due < today);
+    const po = { high:0, mid:1, low:2 };
+    if (sortMode === 'due-asc')       items.sort((a,b) => (a.due||'Z').localeCompare(b.due||'Z'));
+    else if (sortMode === 'due-desc') items.sort((a,b) => (b.due||'').localeCompare(a.due||''));
+    else if (sortMode === 'priority') items.sort((a,b) => po[a.priority]-po[b.priority]);
+    else items.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+    const list = document.getElementById('task-list');
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">✅</div>タスクがありません</div>';
+      return;
+    }
+    list.innerHTML = items.map(task => {
+      const isOver  = !task.done && task.due && task.due < today;
+      const isToday = !task.done && task.due && task.due === today;
+      const dueCls  = isOver ? 'overdue' : isToday ? 'today-due' : '';
+      const dueNote = isOver ? ' ⚠️期限超過' : isToday ? ' 📌今日が期限' : '';
+      const dueStr  = task.due ? task.due + dueNote : '期限なし';
+      const priLabel = task.priority==='high'?'🔴 高':task.priority==='mid'?'🟡 中':'🟢 低';
+      const priCls   = task.priority==='high'?'priority-high':task.priority==='mid'?'priority-mid':'priority-low';
+      const itemCls  = task.done ? 'done' : isOver ? 'overdue' : '';
+      return `<div class="task-item ${itemCls}">
+        <div class="task-check ${task.done?'checked':''}" data-taskid="${task.id}">${task.done?'✓':''}</div>
+        <div class="task-body">
+          <div class="task-title">${escapeHtml(task.title)}</div>
+          <div class="task-meta">
+            <span class="task-priority ${priCls}">${priLabel}</span>
+            <span class="task-due ${dueCls}">📅 ${dueStr}</span>
+            ${task.memo ? `<span>📝 ${escapeHtml(task.memo)}</span>` : ''}
+            ${task.done && task.doneAt ? `<span>✅ ${formatDate(task.doneAt)}完了</span>` : ''}
+          </div>
+        </div>
+        <button class="btn-small btn-danger" data-deltaskid="${task.id}" style="flex-shrink:0;">🗑</button>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-taskid]').forEach(el => {
+      el.addEventListener('click', () => toggleTask(el.dataset.taskid));
+    });
+    list.querySelectorAll('[data-deltaskid]').forEach(btn => {
+      btn.addEventListener('click', () => deleteTask(btn.dataset.deltaskid));
+    });
+  }
+
+  function renderAll() {
+    renderTree(); renderHistory(); renderCalendar();
+    renderContentSelect(); renderManageList(); renderTasks();
+  }
+
+  init();
+</script>
+</body>
+</html>
