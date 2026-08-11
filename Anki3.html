@@ -76,33 +76,44 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .tab-content { display:none; flex:1; flex-direction:column; overflow:hidden; }
 .tab-content.active { display:flex; }
 
+/* ===== ドラッグ境界線 ===== */
+.resizer {
+  width:5px; flex-shrink:0; background:#dde3ea;
+  cursor:col-resize; transition:background 0.15s;
+  position:relative; z-index:10;
+}
+.resizer:hover, .resizer.dragging { background:#2c5f8a; }
+.resizer::after {
+  content:''; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:3px; height:32px; border-radius:2px;
+  background:rgba(44,95,138,0.3);
+}
+
 /* ===== 管理タブ ===== */
 #tab-manage { overflow:hidden; }
 .manage-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); }
-
-/* 左：一覧 */
-.manage-left { width:320px; min-width:220px; flex-shrink:0; border-right:1px solid #dde3ea; display:flex; flex-direction:column; background:white; overflow:hidden; }
+.manage-left { min-width:180px; flex-shrink:0; display:flex; flex-direction:column; background:white; overflow:hidden; }
 .manage-left-header { padding:12px 14px; border-bottom:1px solid #dde3ea; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; flex-wrap:wrap; }
 .manage-left-filters { padding:8px 14px; border-bottom:1px solid #dde3ea; display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; }
 .manage-left-filters select { border:1px solid #dde3ea; border-radius:8px; padding:5px 9px; font-size:0.78rem; outline:none; background:#f7f9fc; -webkit-appearance:none; font-family:inherit; }
 .manage-list-scroll { flex:1; overflow-y:auto; }
-
-/* 右：編集エリア（タブなし・左右分割） */
-.manage-right { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#f7f9fc; }
-.manage-right-header { padding:10px 14px; background:white; border-bottom:1px solid #dde3ea; flex-shrink:0; display:flex; align-items:center; gap:8px; }
+.manage-right { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#f7f9fc; min-width:200px; }
 .manage-right-tabs { display:flex; background:white; border-bottom:2px solid #dde3ea; flex-shrink:0; }
 .manage-right-tab { padding:10px 16px; border:none; background:none; cursor:pointer; font-size:0.82rem; color:#888; border-bottom:3px solid transparent; margin-bottom:-2px; font-family:inherit; transition:all 0.2s; white-space:nowrap; }
 .manage-right-tab.active { color:#2c5f8a; border-bottom-color:#2c5f8a; font-weight:700; }
-
-/* 基本情報タブ */
 .info-panel { flex:1; overflow-y:auto; padding:16px; }
 
 /* ブロック編集：左右分割 */
 .block-edit-layout { display:flex; flex:1; overflow:hidden; }
-.block-edit-left { width:50%; min-width:280px; flex-shrink:0; border-right:1px solid #dde3ea; display:flex; flex-direction:column; overflow:hidden; background:white; }
+.block-edit-left { min-width:200px; flex-shrink:0; display:flex; flex-direction:column; overflow:hidden; background:white; }
 .block-edit-left-scroll { flex:1; overflow-y:auto; padding:12px; }
-.block-edit-right { flex:1; overflow-y:auto; padding:14px; background:#f7f9fc; }
+.block-edit-right { flex:1; overflow-y:auto; padding:14px; background:#f7f9fc; min-width:200px; }
 .block-edit-right-label { font-size:0.75rem; color:#888; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.add-block-bar { display:flex; gap:6px; flex-wrap:wrap; padding:10px 12px; background:#f7f9fc; border-top:1px solid #dde3ea; flex-shrink:0; }
+.add-block-btn { background:white; border:1px solid #dde3ea; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:0.76rem; color:#444; font-family:inherit; white-space:nowrap; }
+.add-block-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
+.block-edit-actions { padding:10px 12px; border-top:1px solid #dde3ea; display:flex; gap:8px; flex-shrink:0; background:white; }
 
 .content-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
 .content-table th { background:#f0f4f8; padding:7px 9px; text-align:left; font-weight:700; color:#555; border-bottom:2px solid #dde3ea; white-space:nowrap; position:sticky; top:0; z-index:1; }
@@ -139,10 +150,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .block-fields textarea { resize:vertical; min-height:60px; line-height:1.7; }
 .block-row { display:flex; gap:8px; flex-wrap:wrap; }
 .block-row > * { flex:1; min-width:100px; }
-.add-block-bar { display:flex; gap:6px; flex-wrap:wrap; padding:10px 12px; background:#f7f9fc; border-top:1px solid #dde3ea; flex-shrink:0; }
-.add-block-btn { background:white; border:1px solid #dde3ea; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:0.76rem; color:#444; font-family:inherit; white-space:nowrap; }
-.add-block-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
-.block-edit-actions { padding:10px 12px; border-top:1px solid #dde3ea; display:flex; gap:8px; flex-shrink:0; background:white; }
 
 /* ===== 理論表示 ===== */
 .theory-view { background:white; border-radius:12px; padding:16px 18px; font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; line-height:1.85; font-size:0.9rem; user-select:text; -webkit-user-select:text; }
@@ -184,10 +191,55 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 
 /* ===== 学習タブ ===== */
 #tab-study { overflow:hidden; }
-.study-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); }
+.study-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); position:relative; }
 
-.study-nav { width:220px; min-width:160px; flex-shrink:0; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; background:white; border-right:1px solid #dde3ea; }
-.study-main { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; background:#f7f9fc; }
+/* 左ナビ */
+.study-nav {
+  min-width:160px; flex-shrink:0;
+  overflow-y:auto; padding:10px;
+  display:flex; flex-direction:column; gap:8px;
+  background:white;
+  transition:width 0.2s, min-width 0.2s, padding 0.2s, opacity 0.2s;
+}
+.study-nav.collapsed {
+  width:0 !important; min-width:0 !important;
+  padding:0 !important; overflow:hidden; opacity:0;
+}
+
+/* 左ナビ折りたたみボタン */
+.nav-toggle-btn {
+  position:absolute; top:10px; left:10px; z-index:50;
+  background:#2c5f8a; color:white; border:none;
+  width:28px; height:28px; border-radius:6px;
+  cursor:pointer; font-size:0.85rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:left 0.2s; flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+.nav-toggle-btn:hover { background:#1a4a6e; }
+
+/* 右メインエリア */
+.study-main { flex:1; overflow:hidden; display:flex; flex-direction:column; background:#f7f9fc; min-width:200px; }
+.study-title-bar { background:white; padding:10px 16px; border-bottom:1px solid #dde3ea; flex-shrink:0; }
+.study-title-text { font-size:0.95rem; font-weight:700; color:#1a2a4a; }
+
+/* 閲覧・暗記：右メインに理論表示 */
+.study-view-area { flex:1; overflow-y:auto; padding:14px; }
+
+/* 柱上げ・全文：右メインをさらに左右分割 */
+.study-typing-layout { display:flex; flex:1; overflow:hidden; }
+.study-text-pane { min-width:150px; overflow-y:auto; padding:14px; background:#f0f4f8; display:flex; flex-direction:column; gap:10px; }
+.study-text-pane.hidden { display:none; }
+.study-input-pane { flex:1; overflow-y:auto; padding:14px; background:#f7f9fc; display:flex; flex-direction:column; gap:10px; min-width:200px; }
+
+/* 本文表示トグルボタン */
+.show-text-btn {
+  background:white; border:1px solid #dde3ea; border-radius:8px;
+  padding:8px 14px; cursor:pointer; font-size:0.82rem; color:#555;
+  font-family:inherit; transition:all 0.2s; white-space:nowrap; flex-shrink:0;
+}
+.show-text-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
+.show-text-btn.showing { background:#eafaf1; border-color:#27ae60; color:#27ae60; }
 
 .content-select-panel { background:#f7f9fc; border-radius:10px; padding:10px 12px; border:1px solid #dde3ea; display:flex; flex-direction:column; gap:6px; }
 .select-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
@@ -207,22 +259,9 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .mode-btn { padding:8px 4px; border-radius:8px; border:2px solid #2c5f8a; background:white; color:#2c5f8a; cursor:pointer; font-size:0.76rem; transition:all 0.2s; text-align:center; font-family:inherit; }
 .mode-btn.active { background:#2c5f8a; color:white; }
 
-/* ナビ幅設定スライダー */
-.nav-width-panel { background:#f7f9fc; border-radius:10px; padding:10px 12px; border:1px solid #dde3ea; }
-.nav-width-label { font-size:0.75rem; color:#666; font-weight:600; margin-bottom:6px; }
-.nav-width-slider { width:100%; accent-color:#2c5f8a; }
-
-.study-title-bar { background:white; border-radius:12px; padding:10px 16px; border:1px solid #dde3ea; }
-.study-title-text { font-size:0.95rem; font-weight:700; color:#1a2a4a; }
-
-.original-area { display:flex; flex-direction:column; gap:8px; }
-.toggle-answer-btn { background:white; border:1px solid #dde3ea; border-radius:8px; padding:8px 16px; cursor:pointer; font-size:0.84rem; color:#555; font-family:inherit; width:100%; text-align:center; transition:all 0.2s; }
-.toggle-answer-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
-.toggle-answer-btn.showing { background:#eafaf1; border-color:#27ae60; color:#27ae60; }
-
-.typing-input-area { background:white; border-radius:12px; padding:16px; border:1px solid #dde3ea; display:flex; flex-direction:column; gap:10px; }
+.typing-input-area { background:white; border-radius:12px; padding:14px; border:1px solid #dde3ea; display:flex; flex-direction:column; gap:10px; }
 .typing-input-area label { font-size:0.8rem; color:#666; font-weight:600; }
-.typing-input-area textarea { border:1px solid #dde3ea; border-radius:8px; padding:12px; font-size:0.92rem; line-height:1.9; resize:vertical; outline:none; font-family:inherit; min-height:260px; width:100%; }
+.typing-input-area textarea { border:1px solid #dde3ea; border-radius:8px; padding:12px; font-size:0.92rem; line-height:1.9; resize:vertical; outline:none; font-family:inherit; min-height:240px; width:100%; }
 .typing-input-area textarea:focus { border-color:#2c5f8a; }
 
 .score-bar-wrap { display:none; align-items:center; gap:10px; }
@@ -315,8 +354,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .settings-body { padding:14px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
 .settings-item { display:flex; flex-direction:column; gap:6px; }
 .settings-item > label { font-size:0.82rem; color:#666; font-weight:600; }
-.settings-item input[type=range] { width:100%; accent-color:#2c5f8a; }
-.settings-item .range-val { font-size:0.8rem; color:#2c5f8a; font-weight:700; text-align:right; }
 
 .empty-state { text-align:center; padding:32px 16px; color:#aaa; font-size:0.88rem; }
 .empty-state .icon { font-size:2.2rem; margin-bottom:8px; }
@@ -327,23 +364,17 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:#ccc; border-radius:2px; }
 
-/* スマホ：480px以下のみ縦積み */
 @media (max-width:480px) {
   .manage-layout { flex-direction:column; height:auto; overflow:visible; }
-  .manage-left { width:100%; border-right:none; border-bottom:1px solid #dde3ea; max-height:260px; }
+  .manage-left { width:100% !important; border-bottom:1px solid #dde3ea; max-height:260px; }
   .manage-right { width:100%; }
   #tab-manage { overflow-y:auto; }
   .block-edit-layout { flex-direction:column; }
-  .block-edit-left { width:100%; border-right:none; border-bottom:1px solid #dde3ea; }
-  .study-nav { width:130px; min-width:110px; padding:6px; gap:6px; }
-  .select-row { grid-template-columns:1fr; }
-  .study-nav .content-select-panel { padding:6px 8px; gap:4px; }
-  .study-nav .select-row select,
-  .study-nav .item-select-wrap select { font-size:0.75rem; padding:5px 6px; }
-  .study-nav .select-confirm-btn { font-size:0.72rem; padding:7px; }
-  .nav-btn-row { flex-direction:column; gap:3px; }
-  .nav-prev-btn,.nav-next-btn { font-size:0.68rem; padding:5px 3px; }
-  .mode-btn { font-size:0.68rem; padding:6px 2px; }
+  .block-edit-left { width:100% !important; border-bottom:1px solid #dde3ea; }
+  .study-typing-layout { flex-direction:column; }
+  .study-text-pane { width:100% !important; }
+  #tab-study { overflow-y:auto; }
+  .study-layout { height:auto; overflow:visible; }
 }
 @media (min-width:600px) {
   header { padding:12px 24px; }
@@ -406,7 +437,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   <div class="tree" id="tree"></div>
 </div>
 
-<!-- 設定パネル -->
 <div class="settings-panel" id="settings-panel">
   <div class="settings-header">
     <span>⚙️ 設定</span>
@@ -414,26 +444,15 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   </div>
   <div class="settings-body">
     <div class="settings-item">
-      <label>📐 学習ナビ幅</label>
-      <input type="range" id="nav-width-range" min="140" max="360" step="10" value="220">
-      <div class="range-val" id="nav-width-val">220px</div>
-      <div style="font-size:0.72rem;color:#aaa;">左ナビの幅を調整します</div>
-    </div>
-    <div class="settings-item">
-      <label>📐 管理一覧幅</label>
-      <input type="range" id="manage-width-range" min="200" max="500" step="10" value="320">
-      <div class="range-val" id="manage-width-val">320px</div>
-      <div style="font-size:0.72rem;color:#aaa;">左一覧の幅を調整します</div>
-    </div>
-    <div class="settings-item">
-      <label>📐 ブロック編集左幅</label>
-      <input type="range" id="block-edit-width-range" min="30" max="70" step="5" value="50">
-      <div class="range-val" id="block-edit-width-val">50%</div>
-      <div style="font-size:0.72rem;color:#aaa;">編集エリアとプレビューの比率</div>
+      <label>📐 レイアウト調整</label>
+      <div style="font-size:0.8rem;color:#888;line-height:1.6;">
+        各エリアの境界線をドラッグして幅を自由に調整できます。<br>
+        設定は自動的に保存されます。
+      </div>
     </div>
     <div class="settings-item">
       <label>ℹ️ バージョン</label>
-      <div style="font-size:0.8rem;color:#888;">税理士理論暗記ツール v1.6</div>
+      <div style="font-size:0.8rem;color:#888;">税理士理論暗記ツール v1.7</div>
     </div>
   </div>
 </div>
@@ -472,14 +491,15 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       </div>
     </div>
 
+    <!-- ドラッグ境界線① -->
+    <div class="resizer" id="resizer-manage"></div>
+
     <!-- 右：編集 -->
     <div class="manage-right">
       <div id="manage-empty-right" class="empty-state" style="margin:40px auto;">
         <div class="icon">📂</div>左の一覧から選択するか<br>「＋ 新規追加」で作成
       </div>
-
       <div id="manage-editor-right" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-        <!-- タブ -->
         <div class="manage-right-tabs">
           <button class="manage-right-tab active" data-rtab="info">📋 基本情報</button>
           <button class="manage-right-tab" data-rtab="blocks">📝 ブロック編集</button>
@@ -511,7 +531,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 
         <!-- ブロック編集：左右分割 -->
         <div class="block-edit-layout" id="rtab-blocks" style="display:none;">
-          <!-- 左：編集 -->
           <div class="block-edit-left" id="block-edit-left-pane">
             <div class="block-edit-left-scroll">
               <div class="block-editor" id="block-editor"></div>
@@ -529,7 +548,11 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
               <button class="btn-small btn-danger" id="delete-item-btn2">🗑 削除</button>
             </div>
           </div>
-          <!-- 右：プレビュー（色付け可能） -->
+
+          <!-- ドラッグ境界線② -->
+          <div class="resizer" id="resizer-block"></div>
+
+          <!-- 右：プレビュー（色付け可） -->
           <div class="block-edit-right">
             <div class="block-edit-right-label">
               🎨 プレビュー
@@ -538,7 +561,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
             <div id="block-live-preview" class="theory-view" style="cursor:text;min-height:200px;font-size:0.86rem;padding:14px;"></div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -547,7 +569,13 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 <!-- ===== 学習タブ ===== -->
 <div class="tab-content" id="tab-study">
   <div class="study-layout">
+
+    <!-- 左ナビ折りたたみボタン -->
+    <button class="nav-toggle-btn" id="nav-toggle-btn" title="ナビを折りたたむ">☰</button>
+
+    <!-- 左ナビ -->
     <div class="study-nav" id="study-nav-pane">
+      <div style="height:36px;flex-shrink:0;"></div><!-- トグルボタン分のスペース -->
       <div class="content-select-panel">
         <label style="font-size:0.75rem;color:#666;font-weight:600;">📚 理論を選択</label>
         <div class="select-row">
@@ -575,55 +603,79 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       </div>
     </div>
 
-    <div class="study-main">
+    <!-- ドラッグ境界線③ -->
+    <div class="resizer" id="resizer-study-nav" style="display:none;"></div>
+
+    <!-- 右メイン -->
+    <div class="study-main" id="study-main-pane">
       <div class="study-title-bar">
         <div class="study-title-text" id="study-title">左のメニューから理論を選択してください</div>
       </div>
-      <div id="view-area">
+
+      <!-- 閲覧・暗記モード -->
+      <div class="study-view-area" id="view-area">
         <div class="theory-view" id="view-text">
           <div class="empty-state"><div class="icon">📖</div>理論を選択してください</div>
         </div>
       </div>
-      <div id="pillar-area" style="display:none;">
-        <div class="pillar-display" id="pillar-display" style="margin-bottom:12px;">
-          <div class="empty-state"><div class="icon">🏛</div>理論を選択してください</div>
+
+      <!-- 柱上げ・全文タイピングモード：左右分割 -->
+      <div class="study-typing-layout" id="typing-layout" style="display:none;">
+
+        <!-- 中央：理論本文（初期非表示） -->
+        <div class="study-text-pane hidden" id="study-text-pane">
+          <div class="theory-view" id="study-text-view" style="font-size:0.86rem;"></div>
         </div>
-        <div class="typing-input-area">
-          <label>✍️ 柱（セクション名・項目名）を入力</label>
-          <textarea id="pillar-input" placeholder="セクション名と項目名を入力..."></textarea>
-          <div class="score-bar-wrap" id="pillar-score-bar-wrap">
-            <div class="score-bar-bg"><div class="score-bar-fill" id="pillar-score-bar"></div></div>
-            <div class="score-label" id="pillar-score-label">0%</div>
+
+        <!-- ドラッグ境界線④（本文表示時のみ） -->
+        <div class="resizer" id="resizer-study-text" style="display:none;"></div>
+
+        <!-- 右：入力エリア -->
+        <div class="study-input-pane" id="study-input-pane">
+
+          <!-- 本文表示トグル -->
+          <button class="show-text-btn" id="show-text-btn">📄 原文を表示する</button>
+
+          <!-- 柱上げ入力 -->
+          <div id="pillar-input-area" style="display:none;">
+            <div class="pillar-display" id="pillar-display" style="margin-bottom:10px;">
+              <div class="empty-state"><div class="icon">🏛</div>理論を選択してください</div>
+            </div>
+            <div class="typing-input-area">
+              <label>✍️ 柱（セクション名・項目名）を入力</label>
+              <textarea id="pillar-input" placeholder="セクション名と項目名を入力..."></textarea>
+              <div class="score-bar-wrap" id="pillar-score-bar-wrap">
+                <div class="score-bar-bg"><div class="score-bar-fill" id="pillar-score-bar"></div></div>
+                <div class="score-label" id="pillar-score-label">0%</div>
+              </div>
+              <div class="action-row">
+                <button class="btn-primary" id="save-pillar-record-btn">💾 保存</button>
+                <button class="btn-small btn-warning" id="show-pillar-diff-btn">🔍 差分</button>
+                <button class="btn-small" id="clear-pillar-btn">🗑 クリア</button>
+              </div>
+            </div>
+            <div class="diff-panel" id="pillar-diff-panel"></div>
           </div>
-          <div class="action-row">
-            <button class="btn-primary" id="save-pillar-record-btn">💾 保存</button>
-            <button class="btn-small btn-warning" id="show-pillar-diff-btn">🔍 差分</button>
-            <button class="btn-small" id="clear-pillar-btn">🗑 クリア</button>
+
+          <!-- 全文タイピング入力 -->
+          <div id="typing-input-area" style="display:none;">
+            <div class="typing-input-area">
+              <label>✍️ 全文を入力（句読点・記号は採点対象外）</label>
+              <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
+              <div class="score-bar-wrap" id="score-bar-wrap">
+                <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar"></div></div>
+                <div class="score-label" id="score-label">0%</div>
+              </div>
+              <div class="action-row">
+                <button class="btn-primary" id="save-record-btn">💾 保存</button>
+                <button class="btn-small btn-warning" id="show-diff-btn">🔍 差分</button>
+                <button class="btn-small" id="clear-typing-btn">🗑 クリア</button>
+              </div>
+            </div>
+            <div class="diff-panel" id="diff-panel"></div>
           </div>
+
         </div>
-        <div class="diff-panel" id="pillar-diff-panel"></div>
-      </div>
-      <div id="typing-area" style="display:none;">
-        <div class="original-area" style="margin-bottom:12px;">
-          <button class="toggle-answer-btn" id="toggle-original-btn">📄 原文を表示する</button>
-          <div id="original-text-display" style="display:none;">
-            <div class="theory-view" id="original-text-inner"></div>
-          </div>
-        </div>
-        <div class="typing-input-area">
-          <label>✍️ 全文を入力（句読点・記号は採点対象外）</label>
-          <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
-          <div class="score-bar-wrap" id="score-bar-wrap">
-            <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar"></div></div>
-            <div class="score-label" id="score-label">0%</div>
-          </div>
-          <div class="action-row">
-            <button class="btn-primary" id="save-record-btn">💾 保存</button>
-            <button class="btn-small btn-warning" id="show-diff-btn">🔍 差分</button>
-            <button class="btn-small" id="clear-typing-btn">🗑 クリア</button>
-          </div>
-        </div>
-        <div class="diff-panel" id="diff-panel"></div>
       </div>
     </div>
   </div>
@@ -811,7 +863,8 @@ let currentMode='view';
 let calYear,calMonth;
 let editBlocks=[];
 let pendingMark=null;
-let showOriginalTyping=false;
+let navCollapsed=false;
+let showTextPane=false;
 
 // ===== ユーティリティ =====
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -820,32 +873,133 @@ function formatDateTime(s){const d=new Date(s);return `${formatDate(s)} ${String
 function showSync(){const el=document.getElementById('sync-indicator');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
 
-// ===== 設定（幅） =====
-function loadSettings(){
-  const nw=localStorage.getItem('nav-width')||'220';
-  const mw=localStorage.getItem('manage-width')||'320';
-  const bw=localStorage.getItem('block-edit-width')||'50';
-  applyNavWidth(nw);
-  applyManageWidth(mw);
-  applyBlockEditWidth(bw);
-  document.getElementById('nav-width-range').value=nw;
-  document.getElementById('nav-width-val').textContent=nw+'px';
-  document.getElementById('manage-width-range').value=mw;
-  document.getElementById('manage-width-val').textContent=mw+'px';
-  document.getElementById('block-edit-width-range').value=bw;
-  document.getElementById('block-edit-width-val').textContent=bw+'%';
+// ===== ドラッグリサイザー =====
+function initResizer(resizerId, getPaneEl, direction='left', storageKey=null, minPx=150){
+  const resizer=document.getElementById(resizerId);
+  if(!resizer)return;
+  let dragging=false, startX=0, startW=0;
+
+  // 保存値を復元
+  if(storageKey){
+    const saved=localStorage.getItem(storageKey);
+    if(saved){
+      const pane=getPaneEl();
+      if(pane) pane.style.width=saved+'px';
+    }
+  }
+
+  resizer.addEventListener('mousedown',e=>{
+    dragging=true;
+    startX=e.clientX;
+    const pane=getPaneEl();
+    startW=pane?pane.offsetWidth:300;
+    resizer.classList.add('dragging');
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging)return;
+    const pane=getPaneEl();
+    if(!pane)return;
+    const dx=e.clientX-startX;
+    const newW=Math.max(minPx, startW+(direction==='left'?dx:-dx));
+    pane.style.width=newW+'px';
+    if(storageKey) localStorage.setItem(storageKey, newW);
+  });
+  document.addEventListener('mouseup',()=>{
+    if(!dragging)return;
+    dragging=false;
+    resizer.classList.remove('dragging');
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+  });
+
+  // タッチ対応
+  resizer.addEventListener('touchstart',e=>{
+    dragging=true;
+    startX=e.touches[0].clientX;
+    const pane=getPaneEl();
+    startW=pane?pane.offsetWidth:300;
+    e.preventDefault();
+  },{passive:false});
+  document.addEventListener('touchmove',e=>{
+    if(!dragging)return;
+    const pane=getPaneEl();
+    if(!pane)return;
+    const dx=e.touches[0].clientX-startX;
+    const newW=Math.max(minPx, startW+(direction==='left'?dx:-dx));
+    pane.style.width=newW+'px';
+    if(storageKey) localStorage.setItem(storageKey, newW);
+  },{passive:false});
+  document.addEventListener('touchend',()=>{dragging=false;});
 }
-function applyNavWidth(w){
-  const el=document.getElementById('study-nav-pane');
-  if(el){el.style.width=w+'px';el.style.minWidth=Math.min(w,140)+'px';}
+
+function initAllResizers(){
+  // ①管理タブ：一覧幅
+  initResizer('resizer-manage',
+    ()=>document.getElementById('manage-left-pane'),
+    'left','manage-left-w',180);
+  // ②ブロック編集：左幅
+  initResizer('resizer-block',
+    ()=>document.getElementById('block-edit-left-pane'),
+    'left','block-edit-left-w',200);
+  // ③学習タブ：ナビ幅（ナビ表示時のみ）
+  initResizer('resizer-study-nav',
+    ()=>document.getElementById('study-nav-pane'),
+    'left','study-nav-w',160);
+  // ④学習タブ：本文エリア幅（本文表示時のみ）
+  initResizer('resizer-study-text',
+    ()=>document.getElementById('study-text-pane'),
+    'left','study-text-w',150);
+
+  // 保存値を復元（manage-left）
+  const mlw=localStorage.getItem('manage-left-w');
+  if(mlw){const el=document.getElementById('manage-left-pane');if(el)el.style.width=mlw+'px';}
+  const belw=localStorage.getItem('block-edit-left-w');
+  if(belw){const el=document.getElementById('block-edit-left-pane');if(el)el.style.width=belw+'px';}
+  const snw=localStorage.getItem('study-nav-w');
+  if(snw){const el=document.getElementById('study-nav-pane');if(el)el.style.width=snw+'px';}
+  const stw=localStorage.getItem('study-text-w');
+  if(stw){const el=document.getElementById('study-text-pane');if(el)el.style.width=stw+'px';}
 }
-function applyManageWidth(w){
-  const el=document.getElementById('manage-left-pane');
-  if(el){el.style.width=w+'px';el.style.minWidth=Math.min(w,180)+'px';}
+
+// ===== 左ナビ折りたたみ =====
+function toggleNav(){
+  navCollapsed=!navCollapsed;
+  const nav=document.getElementById('study-nav-pane');
+  const resizer=document.getElementById('resizer-study-nav');
+  const btn=document.getElementById('nav-toggle-btn');
+  if(navCollapsed){
+    nav.classList.add('collapsed');
+    resizer.style.display='none';
+    btn.textContent='▶';
+    btn.title='ナビを表示する';
+  }else{
+    nav.classList.remove('collapsed');
+    resizer.style.display='';
+    btn.textContent='☰';
+    btn.title='ナビを折りたたむ';
+  }
 }
-function applyBlockEditWidth(w){
-  const el=document.getElementById('block-edit-left-pane');
-  if(el){el.style.width=w+'%';}
+
+// ===== 本文エリア表示切替 =====
+function toggleTextPane(){
+  showTextPane=!showTextPane;
+  const pane=document.getElementById('study-text-pane');
+  const resizer=document.getElementById('resizer-study-text');
+  const btn=document.getElementById('show-text-btn');
+  if(showTextPane){
+    pane.classList.remove('hidden');
+    resizer.style.display='';
+    btn.textContent='📄 原文を隠す';
+    btn.classList.add('showing');
+  }else{
+    pane.classList.add('hidden');
+    resizer.style.display='none';
+    btn.textContent='📄 原文を表示する';
+    btn.classList.remove('showing');
+  }
 }
 
 // ===== ナビ =====
@@ -950,7 +1104,9 @@ function startSync(uid){
 function init(){
   const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();
   initColorPopup();
-  loadSettings();
+  initAllResizers();
+  // 学習ナビのリサイザーは初期表示
+  document.getElementById('resizer-study-nav').style.display='';
   renderTree();renderCalendar();renderHistory();renderContentSelect();renderManageList();renderTasks();
   updateNavButtons();
   bindEvents();
@@ -982,12 +1138,14 @@ function bindEvents(){
   document.getElementById('sel-subject').addEventListener('change',onSubjectChange);
   document.getElementById('sel-chapter').addEventListener('change',onChapterChange);
   document.getElementById('confirm-select-btn').addEventListener('click',confirmContentSelect);
+  document.getElementById('nav-toggle-btn').addEventListener('click',toggleNav);
   document.getElementById('nav-prev-btn').addEventListener('click',()=>{const {prevId}=getNavInfo();if(prevId)selectItem(prevId);});
   document.getElementById('nav-next-btn').addEventListener('click',()=>{const {nextId}=getNavInfo();if(nextId)selectItem(nextId);});
   document.getElementById('mode-view-btn').addEventListener('click',()=>setMode('view'));
   document.getElementById('mode-anki-btn').addEventListener('click',()=>setMode('anki'));
   document.getElementById('mode-pillar-btn').addEventListener('click',()=>setMode('pillar'));
   document.getElementById('mode-typing-btn').addEventListener('click',()=>setMode('typing'));
+  document.getElementById('show-text-btn').addEventListener('click',toggleTextPane);
   document.getElementById('typing-input').addEventListener('input',()=>{if(appData.selectedId)calcScore();});
   document.getElementById('pillar-input').addEventListener('input',()=>{if(appData.selectedId)calcPillarScore();});
   document.getElementById('save-record-btn').addEventListener('click',saveRecordHandler);
@@ -996,13 +1154,6 @@ function bindEvents(){
   document.getElementById('save-pillar-record-btn').addEventListener('click',savePillarRecordHandler);
   document.getElementById('show-pillar-diff-btn').addEventListener('click',showPillarDiff);
   document.getElementById('clear-pillar-btn').addEventListener('click',clearPillar);
-  document.getElementById('toggle-original-btn').addEventListener('click',()=>{
-    showOriginalTyping=!showOriginalTyping;
-    document.getElementById('original-text-display').style.display=showOriginalTyping?'block':'none';
-    const btn=document.getElementById('toggle-original-btn');
-    btn.textContent=showOriginalTyping?'📄 原文を隠す':'📄 原文を表示する';
-    btn.classList.toggle('showing',showOriginalTyping);
-  });
   document.getElementById('hist-subject-filter').addEventListener('change',renderHistory);
   document.getElementById('hist-date-from').addEventListener('change',renderHistory);
   document.getElementById('hist-date-to').addEventListener('change',renderHistory);
@@ -1014,30 +1165,9 @@ function bindEvents(){
   document.getElementById('task-sort').addEventListener('change',renderTasks);
   document.getElementById('add-user-btn').addEventListener('click',addUserHandler);
   document.querySelectorAll('.add-block-btn').forEach(btn=>btn.addEventListener('click',()=>addBlock(btn.dataset.type)));
-
   // ライブプレビューで色付け
   document.getElementById('block-live-preview').addEventListener('mouseup',onLivePreviewSelect);
   document.getElementById('block-live-preview').addEventListener('touchend',onLivePreviewSelect);
-
-  // 設定スライダー
-  document.getElementById('nav-width-range').addEventListener('input',e=>{
-    const v=e.target.value;
-    document.getElementById('nav-width-val').textContent=v+'px';
-    applyNavWidth(v);
-    localStorage.setItem('nav-width',v);
-  });
-  document.getElementById('manage-width-range').addEventListener('input',e=>{
-    const v=e.target.value;
-    document.getElementById('manage-width-val').textContent=v+'px';
-    applyManageWidth(v);
-    localStorage.setItem('manage-width',v);
-  });
-  document.getElementById('block-edit-width-range').addEventListener('input',e=>{
-    const v=e.target.value;
-    document.getElementById('block-edit-width-val').textContent=v+'%';
-    applyBlockEditWidth(v);
-    localStorage.setItem('block-edit-width',v);
-  });
 }
 
 // ===== 右タブ切替 =====
@@ -1094,7 +1224,7 @@ function showColorPopup(x,y,hasExisting){
 }
 function hideColorPopup(){document.getElementById('color-popup').classList.remove('show');pendingMark=null;}
 
-// ===== ライブプレビューでの色付け =====
+// ===== ライブプレビューで色付け（修正済み） =====
 function onLivePreviewSelect(){
   const sel=window.getSelection();
   if(!sel||sel.isCollapsed)return;
@@ -1103,10 +1233,12 @@ function onLivePreviewSelect(){
   const item=appData.data.find(d=>d.id===appData.selectedId);if(!item)return;
   const blockEl=findBlockEl(sel.anchorNode);if(!blockEl)return;
   const blockId=blockEl.dataset.blockId;
-  // editBlocksから探す（リアルタイム編集中のブロック）
-  const block=editBlocks.find(b=>b.id===blockId);
-  if(!block)return;
-  const bodyEl=blockEl.querySelector('[data-body]');if(!bodyEl)return;
+  const block=editBlocks.find(b=>b.id===blockId);if(!block)return;
+
+  // ★修正：data-bodyが自分自身についている場合も対応
+  const bodyEl=blockEl.dataset.body ? blockEl : blockEl.querySelector('[data-body]');
+  if(!bodyEl)return;
+
   const range=sel.getRangeAt(0);
   const preRange=document.createRange();
   preRange.selectNodeContents(bodyEl);
@@ -1130,12 +1262,13 @@ function findBlockEl(node){
 function applyMark(color,bg){
   if(!pendingMark)return;
   const item=appData.data.find(d=>d.id===appData.selectedId);if(!item)return;
+  const newMark={id:genId(),start:pendingMark.start,end:pendingMark.end,color,bg};
   // editBlocksを更新
   const editBlock=editBlocks.find(b=>b.id===pendingMark.blockId);
   if(editBlock){
     if(!editBlock.marks)editBlock.marks=[];
     editBlock.marks=editBlock.marks.filter(m=>!(pendingMark.end>m.start&&pendingMark.start<m.end));
-    editBlock.marks.push({id:genId(),start:pendingMark.start,end:pendingMark.end,color,bg});
+    editBlock.marks.push({...newMark});
     editBlock.marks.sort((a,b)=>a.start-b.start);
   }
   // item.blocksも同期
@@ -1143,7 +1276,7 @@ function applyMark(color,bg){
   if(itemBlock){
     if(!itemBlock.marks)itemBlock.marks=[];
     itemBlock.marks=itemBlock.marks.filter(m=>!(pendingMark.end>m.start&&pendingMark.start<m.end));
-    itemBlock.marks.push({id:editBlock?.marks[editBlock.marks.length-1]?.id||genId(),start:pendingMark.start,end:pendingMark.end,color,bg});
+    itemBlock.marks.push({...newMark});
     itemBlock.marks.sort((a,b)=>a.start-b.start);
   }
   hideColorPopup();
@@ -1214,6 +1347,7 @@ function buildTheoryHTML(item,anki=false,useEditBlocks=false){
         <span class="view-item3-body" data-body="1">${applyMarksToText(block.body||'',marks,anki)}</span>
       </div>`;
     }else if(block.type==='text'){
+      // ★ view-text は data-block-id と data-body が同じ要素
       html+=`<div class="view-text" data-block-id="${block.id}" data-body="1">${applyMarksToText(block.body||'',marks,anki)}</div>`;
     }
   });
@@ -1227,14 +1361,12 @@ function buildTheoryHeader(item){
     </div>`;
 }
 
-// ===== ライブプレビュー更新（editBlocksを使用） =====
+// ===== ライブプレビュー更新 =====
 function updateLivePreview(){
   const preview=document.getElementById('block-live-preview');
   if(!preview||!appData.selectedId)return;
-  const item=appData.data.find(d=>d.id===appData.selectedId);
-  if(!item)return;
+  const item=appData.data.find(d=>d.id===appData.selectedId);if(!item)return;
   preview.innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,false,true);
-  // 色付きspanのクリックで変更・削除
   preview.querySelectorAll('.mark-span').forEach(span=>{
     span.addEventListener('click',e=>{
       e.stopPropagation();
@@ -1260,31 +1392,38 @@ function bindAnkiReveal(container){
 function updateStudyView(item){
   document.getElementById('study-title').textContent=`【${item.chapter}】${item.no} ${item.title}`;
   const isAnki=currentMode==='anki';
+  // 閲覧・暗記モード
   const viewEl=document.getElementById('view-text');
   viewEl.innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,isAnki,false);
   if(isAnki){viewEl.classList.add('anki-mode');bindAnkiReveal(viewEl);}
   else viewEl.classList.remove('anki-mode');
-  document.getElementById('original-text-inner').innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,false,false);
+  // タイピング時の本文エリア
+  document.getElementById('study-text-view').innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,false,false);
   buildPillarDisplay(item);
-  document.querySelector('.study-main').scrollTop=0;
 }
 
 // ===== モード切替 =====
 function setMode(mode){
   currentMode=mode;
-  document.getElementById('view-area').style.display   =(mode==='view'||mode==='anki')?'block':'none';
-  document.getElementById('pillar-area').style.display =mode==='pillar'?'block':'none';
-  document.getElementById('typing-area').style.display =mode==='typing'?'block':'none';
-  document.getElementById('diff-panel').style.display  ='none';
-  document.getElementById('pillar-diff-panel').style.display='none';
+  const isTypingMode=mode==='pillar'||mode==='typing';
+  // 閲覧・暗記エリア
+  document.getElementById('view-area').style.display=(mode==='view'||mode==='anki')?'flex':'none';
+  // タイピングレイアウト
+  document.getElementById('typing-layout').style.display=isTypingMode?'flex':'none';
+  // 柱上げ・全文入力エリア切替
+  document.getElementById('pillar-input-area').style.display=mode==='pillar'?'block':'none';
+  document.getElementById('typing-input-area').style.display=mode==='typing'?'block':'none';
+  // モードボタン
   ['view','anki','pillar','typing'].forEach(m=>{
     document.getElementById(`mode-${m}-btn`).classList.toggle('active',m===mode);
   });
-  if(mode==='typing'||mode==='pillar'){
-    showOriginalTyping=false;
-    document.getElementById('original-text-display').style.display='none';
-    const btn=document.getElementById('toggle-original-btn');
-    btn.textContent='📄 原文を表示する';btn.classList.remove('showing');
+  // タイピングモード切替時：本文エリアをリセット（非表示）
+  if(isTypingMode){
+    showTextPane=false;
+    document.getElementById('study-text-pane').classList.add('hidden');
+    document.getElementById('resizer-study-text').style.display='none';
+    document.getElementById('show-text-btn').textContent='📄 原文を表示する';
+    document.getElementById('show-text-btn').classList.remove('showing');
   }
   const item=appData.data.find(d=>d.id===appData.selectedId);
   if(item)updateStudyView(item);
@@ -1404,8 +1543,7 @@ function syncSelectBoxes(item){
 const BLOCK_LABELS={section:'【】セクション',item1:'(1) 大項目',item2:'① 小項目',item3:'(イ) 細項目',text:'本文'};
 function addBlock(type){
   editBlocks.push({id:genId(),type,title:'',body:'',law:'',rank:'A',marks:[]});
-  renderBlockEditor();
-  updateLivePreview();
+  renderBlockEditor();updateLivePreview();
 }
 function renderBlockEditor(){
   const editor=document.getElementById('block-editor');
@@ -1431,8 +1569,7 @@ function renderBlockEditor(){
       if(btn.dataset.action==='up')[editBlocks[i-1],editBlocks[i]]=[editBlocks[i],editBlocks[i-1]];
       else if(btn.dataset.action==='down')[editBlocks[i],editBlocks[i+1]]=[editBlocks[i+1],editBlocks[i]];
       else if(btn.dataset.action==='del')editBlocks.splice(i,1);
-      renderBlockEditor();
-      updateLivePreview();
+      renderBlockEditor();updateLivePreview();
     });
   });
   editor.querySelectorAll('input,textarea,select').forEach(el=>{
