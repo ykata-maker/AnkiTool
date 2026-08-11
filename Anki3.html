@@ -8,13 +8,11 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; background: #f0f4f8; color: #222; overflow-x: hidden; font-size: 14px; }
 
-/* ヘッダー */
 header { background: linear-gradient(135deg,#1a2a4a,#2c5f8a); color:white; padding:10px 16px; display:flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,0.25); position:sticky; top:0; z-index:200; }
 header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .hamburger { background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:8px; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 #auth-bar { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 
-/* ログイン */
 #login-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:500; align-items:center; justify-content:center; }
 #login-overlay.show { display:flex; }
 .login-card { background:white; border-radius:20px; padding:40px 32px; text-align:center; max-width:360px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.25); }
@@ -26,7 +24,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .login-submit-btn { background:linear-gradient(135deg,#1a2a4a,#2c5f8a); color:white; border:none; border-radius:10px; padding:13px; font-size:0.95rem; font-weight:700; cursor:pointer; width:100%; font-family:inherit; }
 .login-error { color:#e74c3c; font-size:0.82rem; text-align:center; min-height:18px; }
 
-/* タブナビ */
 .tab-nav { display:flex; background:#1a2a4a; position:sticky; top:56px; z-index:190; overflow-x:auto; -webkit-overflow-scrolling:touch; border-bottom:1px solid rgba(255,255,255,0.1); }
 .tab-nav::-webkit-scrollbar { display:none; }
 .tab-btn { flex:1; min-width:52px; background:none; border:none; color:rgba(255,255,255,0.6); padding:9px 4px; cursor:pointer; font-size:0.65rem; display:flex; flex-direction:column; align-items:center; gap:2px; transition:all 0.2s; border-bottom:3px solid transparent; }
@@ -34,7 +31,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .tab-btn.active { color:white; border-bottom-color:#5ba3d9; background:rgba(255,255,255,0.08); }
 .tab-btn:hover { color:white; background:rgba(255,255,255,0.05); }
 
-/* サイドバー */
 .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:300; }
 .sidebar-overlay.open { display:block; }
 .sidebar { position:fixed; top:0; left:-300px; width:280px; height:100%; background:#fff; z-index:310; display:flex; flex-direction:column; box-shadow:4px 0 16px rgba(0,0,0,0.2); transition:left 0.28s cubic-bezier(.4,0,.2,1); }
@@ -44,7 +40,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .sidebar-actions { padding:8px 10px; border-bottom:1px solid #dde3ea; display:flex; gap:6px; flex-shrink:0; }
 .tree { flex:1; overflow-y:auto; padding:6px; }
 
-/* ツリー */
 .tree-subject { margin-bottom:4px; }
 .tree-subject-label { display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.88rem; color:#1a2a4a; background:#e8f0f8; }
 .tree-subject-label:hover { background:#d0e4f4; }
@@ -62,7 +57,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .collapsed > .tree-subject-label .toggle-icon,
 .collapsed > .tree-chapter-label .toggle-icon { transform:rotate(-90deg); }
 
-/* ボタン */
 .btn-small { background:#2c5f8a; color:white; border:none; padding:6px 11px; border-radius:6px; cursor:pointer; font-size:0.78rem; white-space:nowrap; transition:background 0.2s; font-family:inherit; }
 .btn-small:hover { background:#1a4a6e; }
 .btn-danger  { background:#c0392b !important; } .btn-danger:hover  { background:#a93226 !important; }
@@ -72,57 +66,32 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .btn-primary:hover { background:#1a4a6e; }
 .btn-cancel { background:#ecf0f1; color:#555; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9rem; font-family:inherit; }
 
-/* フォーム */
 .form-group { display:flex; flex-direction:column; gap:4px; }
 .form-group label { font-size:0.75rem; color:#666; font-weight:600; }
 .form-group input,.form-group select,.form-group textarea { border:1px solid #dde3ea; border-radius:8px; padding:8px 11px; font-size:0.88rem; outline:none; transition:border 0.2s; font-family:inherit; -webkit-appearance:none; width:100%; }
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus { border-color:#2c5f8a; }
 .form-group textarea { resize:vertical; min-height:80px; line-height:1.7; }
 
-/* メイン */
 .main { min-height:calc(100vh - 96px); display:flex; flex-direction:column; }
 .tab-content { display:none; flex:1; flex-direction:column; overflow:hidden; }
 .tab-content.active { display:flex; }
 
-/* ===== 管理タブ：左右分割 ===== */
+/* ===== 管理タブ ===== */
 #tab-manage { overflow:hidden; }
-.manage-layout {
-  display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px);
-}
-/* 左ペイン：一覧 */
-.manage-left {
-  width:340px; min-width:260px; flex-shrink:0;
-  border-right:1px solid #dde3ea;
-  display:flex; flex-direction:column;
-  background:white; overflow:hidden;
-}
-.manage-left-header {
-  padding:12px 14px; border-bottom:1px solid #dde3ea;
-  display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; flex-wrap:wrap;
-}
+.manage-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); }
+.manage-left { width:340px; min-width:240px; flex-shrink:0; border-right:1px solid #dde3ea; display:flex; flex-direction:column; background:white; overflow:hidden; }
+.manage-left-header { padding:12px 14px; border-bottom:1px solid #dde3ea; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; flex-wrap:wrap; }
 .manage-left-filters { padding:8px 14px; border-bottom:1px solid #dde3ea; display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; }
 .manage-left-filters select { border:1px solid #dde3ea; border-radius:8px; padding:5px 9px; font-size:0.78rem; outline:none; background:#f7f9fc; -webkit-appearance:none; font-family:inherit; }
 .manage-list-scroll { flex:1; overflow-y:auto; }
-
-/* 右ペイン：編集 */
-.manage-right {
-  flex:1; display:flex; flex-direction:column; overflow:hidden; background:#f7f9fc;
-}
-/* 右ペイン内タブ */
-.edit-tab-nav {
-  display:flex; background:white; border-bottom:2px solid #dde3ea; flex-shrink:0;
-}
-.edit-tab-btn {
-  padding:10px 16px; border:none; background:none; cursor:pointer;
-  font-size:0.82rem; color:#888; border-bottom:3px solid transparent;
-  margin-bottom:-2px; font-family:inherit; transition:all 0.2s; white-space:nowrap;
-}
+.manage-right { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#f7f9fc; }
+.edit-tab-nav { display:flex; background:white; border-bottom:2px solid #dde3ea; flex-shrink:0; }
+.edit-tab-btn { padding:10px 16px; border:none; background:none; cursor:pointer; font-size:0.82rem; color:#888; border-bottom:3px solid transparent; margin-bottom:-2px; font-family:inherit; transition:all 0.2s; white-space:nowrap; }
 .edit-tab-btn.active { color:#2c5f8a; border-bottom-color:#2c5f8a; font-weight:700; }
 .edit-tab-btn:hover { color:#2c5f8a; background:#f7f9fc; }
 .edit-tab-content { display:none; flex:1; overflow-y:auto; padding:16px; }
 .edit-tab-content.active { display:block; }
 
-/* 一覧テーブル */
 .content-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
 .content-table th { background:#f0f4f8; padding:7px 9px; text-align:left; font-weight:700; color:#555; border-bottom:2px solid #dde3ea; white-space:nowrap; position:sticky; top:0; }
 .content-table td { padding:7px 9px; border-bottom:1px solid #f0f4f8; vertical-align:middle; }
@@ -135,7 +104,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .score-badge { display:inline-block; padding:1px 7px; border-radius:8px; color:white; font-size:0.75rem; font-weight:700; }
 .score-high { background:#27ae60; } .score-mid { background:#d68910; } .score-low { background:#c0392b; } .score-none { background:#bdc3c7; }
 
-/* ブロックエディタ */
 .block-editor { display:flex; flex-direction:column; gap:8px; }
 .block-item { border:1px solid #dde3ea; border-radius:10px; padding:10px 12px; background:#fafbfc; }
 .block-item.block-section { border-left:4px solid #1a2a4a; background:#f0f4f8; }
@@ -163,12 +131,8 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .add-block-btn { background:white; border:1px solid #dde3ea; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:0.78rem; color:#444; font-family:inherit; white-space:nowrap; }
 .add-block-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
 
-/* ===== 理論表示（本レイアウト） ===== */
-.theory-view {
-  background:white; border-radius:12px; padding:20px 18px;
-  font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;
-  line-height:1.85; font-size:0.9rem; user-select:text; -webkit-user-select:text;
-}
+/* ===== 理論表示 ===== */
+.theory-view { background:white; border-radius:12px; padding:20px 18px; font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; line-height:1.85; font-size:0.9rem; user-select:text; -webkit-user-select:text; }
 .theory-header { text-align:right; font-size:0.8rem; color:#666; border-bottom:2px solid #1a2a4a; padding-bottom:4px; margin-bottom:14px; }
 .theory-mondai { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
 .theory-mondai-num { background:#1a2a4a; color:white; padding:4px 10px; font-size:0.85rem; font-weight:700; white-space:nowrap; border-radius:4px; }
@@ -191,12 +155,10 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .view-item3-body { font-size:0.86rem; white-space:pre-wrap; }
 .view-text { font-size:0.88rem; white-space:pre-wrap; margin:4px 0; }
 
-/* マーク */
 .mark-span { border-radius:2px; padding:0 1px; cursor:pointer; }
 .anki-mode .mark-span { background:#333 !important; color:transparent !important; border-radius:3px; cursor:pointer; user-select:none; -webkit-user-select:none; }
 .anki-mode .mark-span.revealed { background:inherit !important; color:inherit !important; }
 
-/* 色ポップアップ */
 #color-popup { position:fixed; z-index:800; background:white; border-radius:12px; padding:10px 12px; box-shadow:0 4px 20px rgba(0,0,0,0.25); display:none; flex-direction:column; gap:8px; min-width:180px; }
 #color-popup.show { display:flex; }
 .color-popup-title { font-size:0.75rem; color:#666; font-weight:600; }
@@ -207,66 +169,58 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .color-popup-del:hover { background:#fdecea; }
 .color-popup-cancel { background:#f7f9fc; border:1px solid #dde3ea; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:0.78rem; color:#666; text-align:center; font-family:inherit; }
 
-/* ===== 学習タブ：左右分割 ===== */
+/* ===== 学習タブ：左右分割（左サブ・右メイン） ===== */
 #tab-study { overflow:hidden; }
-.study-layout {
-  display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px);
-}
-/* 左：理論表示 */
+.study-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); }
+
+/* 左（サブ）：操作パネル */
 .study-left {
-  flex:1; overflow-y:auto; padding:14px;
-  border-right:1px solid #dde3ea; background:#f7f9fc;
+  width:300px; min-width:240px; flex-shrink:0;
+  overflow-y:auto; padding:12px;
   display:flex; flex-direction:column; gap:10px;
-}
-/* 右：操作パネル */
-.study-right {
-  width:360px; min-width:280px; flex-shrink:0;
-  overflow-y:auto; padding:14px;
-  display:flex; flex-direction:column; gap:10px; background:white;
+  background:white; border-right:1px solid #dde3ea;
 }
 
-/* コンテンツ選択 */
+/* 右（メイン）：理論表示 */
+.study-right {
+  flex:1; overflow-y:auto; padding:14px;
+  display:flex; flex-direction:column; gap:10px;
+  background:#f7f9fc;
+}
+
 .content-select-panel { background:#f7f9fc; border-radius:12px; padding:12px 14px; border:1px solid #dde3ea; display:flex; flex-direction:column; gap:8px; }
 .select-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .select-row select,.item-select-wrap select { width:100%; border:1px solid #dde3ea; border-radius:8px; padding:8px 10px; font-size:0.86rem; outline:none; background:white; -webkit-appearance:none; font-family:inherit; }
 .select-confirm-btn { background:#2c5f8a; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-size:0.88rem; font-weight:600; width:100%; font-family:inherit; }
 .select-confirm-btn:hover { background:#1a4a6e; }
 
-/* モード切替 */
 .mode-panel { background:#f7f9fc; border-radius:12px; padding:12px 14px; border:1px solid #dde3ea; }
 .mode-panel-title { font-size:0.78rem; color:#666; font-weight:600; margin-bottom:8px; }
 .mode-toggle { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
 .mode-btn { padding:9px 6px; border-radius:10px; border:2px solid #2c5f8a; background:white; color:#2c5f8a; cursor:pointer; font-size:0.8rem; transition:all 0.2s; text-align:center; font-family:inherit; }
 .mode-btn.active { background:#2c5f8a; color:white; }
 
-/* タイピング入力 */
-.typing-panel-right { display:flex; flex-direction:column; gap:8px; }
-.typing-panel-right textarea { border:1px solid #dde3ea; border-radius:8px; padding:10px; font-size:0.88rem; line-height:1.8; resize:none; outline:none; font-family:inherit; min-height:200px; width:100%; }
-.typing-panel-right textarea:focus { border-color:#2c5f8a; }
+.typing-panel-left { display:flex; flex-direction:column; gap:8px; }
+.typing-panel-left textarea { border:1px solid #dde3ea; border-radius:8px; padding:10px; font-size:0.88rem; line-height:1.8; resize:none; outline:none; font-family:inherit; min-height:180px; width:100%; }
+.typing-panel-left textarea:focus { border-color:#2c5f8a; }
 .score-bar-wrap { display:none; align-items:center; gap:10px; }
 .score-bar-wrap.visible { display:flex; }
 .score-bar-bg { flex:1; height:12px; background:#e0e7ef; border-radius:6px; overflow:hidden; }
 .score-bar-fill { height:100%; border-radius:6px; transition:width 0.4s,background 0.4s; background:#c0392b; }
 .score-label { font-size:1.05rem; font-weight:700; min-width:48px; text-align:right; }
 .action-row { display:flex; gap:6px; flex-wrap:wrap; }
-.diff-panel { background:#f7f9fc; border-radius:10px; padding:12px 14px; font-size:0.86rem; line-height:1.9; max-height:200px; overflow-y:auto; display:none; border:1px solid #dde3ea; }
-.diff-ok { color:#27ae60; } .diff-ng { color:#c0392b; text-decoration:underline; background:#fdecea; }
 
-/* 原文表示（学習左ペイン） */
 .study-title-bar { background:white; border-radius:12px; padding:10px 14px; border:1px solid #dde3ea; }
 .study-title-text { font-size:0.9rem; font-weight:700; color:#1a2a4a; }
 
-/* 柱上げ表示 */
+.diff-panel { background:white; border-radius:10px; padding:12px 14px; font-size:0.86rem; line-height:1.9; max-height:200px; overflow-y:auto; display:none; border:1px solid #dde3ea; }
+.diff-ok { color:#27ae60; } .diff-ng { color:#c0392b; text-decoration:underline; background:#fdecea; }
+
 .pillar-display { background:white; border-radius:12px; padding:16px 18px; border:1px solid #dde3ea; font-size:0.9rem; line-height:2; }
 .pillar-section-title { font-weight:700; font-size:0.92rem; border:2px solid #1a2a4a; border-radius:4px; padding:3px 10px; display:inline-block; margin-bottom:4px; }
 .pillar-item1-title { font-weight:700; font-size:0.88rem; padding-left:0.5em; }
 
-/* 原文トグルボタン */
-.toggle-answer-btn {
-  background:#f7f9fc; border:1px solid #dde3ea; border-radius:8px;
-  padding:8px 14px; cursor:pointer; font-size:0.82rem; color:#555;
-  font-family:inherit; width:100%; text-align:center; transition:all 0.2s;
-}
+.toggle-answer-btn { background:#f7f9fc; border:1px solid #dde3ea; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:0.82rem; color:#555; font-family:inherit; width:100%; text-align:center; transition:all 0.2s; }
 .toggle-answer-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
 .toggle-answer-btn.showing { background:#eafaf1; border-color:#27ae60; color:#27ae60; }
 
@@ -328,13 +282,11 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .stat-num { font-size:1.3rem; font-weight:700; color:#1a2a4a; }
 .stat-label { font-size:0.7rem; color:#888; margin-top:1px; }
 
-/* 管理者 */
 .user-list-item { display:flex; align-items:center; gap:8px; padding:8px 10px; background:#f7f9fc; border-radius:8px; margin-bottom:6px; }
 .user-role { font-size:0.72rem; padding:2px 7px; border-radius:8px; font-weight:700; }
 .role-admin { background:#fdecea; color:#c0392b; }
 .role-user  { background:#eafaf1; color:#27ae60; }
 
-/* モーダル */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; align-items:flex-end; justify-content:center; }
 .modal-overlay.open { display:flex; }
 .modal { background:white; border-radius:20px 20px 0 0; padding:20px 16px; width:100%; max-width:600px; box-shadow:0 -4px 24px rgba(0,0,0,0.18); max-height:92vh; overflow-y:auto; overflow-x:hidden; word-break:break-word; }
@@ -342,21 +294,16 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .modal h3 { margin-bottom:12px; color:#1a2a4a; font-size:0.95rem; }
 .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
 
-/* 設定 */
 .settings-panel { position:fixed; top:0; right:-320px; width:300px; height:100%; background:white; z-index:320; display:flex; flex-direction:column; box-shadow:-4px 0 16px rgba(0,0,0,0.15); transition:right 0.28s cubic-bezier(.4,0,.2,1); }
 .settings-panel.open { right:0; }
 .settings-header { padding:12px 14px; background:#f7f9fc; border-bottom:1px solid #dde3ea; font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; }
 .settings-body { padding:14px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:14px; }
 .settings-item { display:flex; flex-direction:column; gap:6px; }
 .settings-item > label { font-size:0.8rem; color:#666; font-weight:600; }
-.layout-btn { flex:1; padding:9px; border-radius:8px; border:2px solid #dde3ea; background:white; cursor:pointer; font-size:0.8rem; text-align:center; font-family:inherit; }
-.layout-btn.active { border-color:#2c5f8a; background:#e8f0f8; color:#2c5f8a; font-weight:700; }
 
-/* 空状態 */
 .empty-state { text-align:center; padding:32px 16px; color:#aaa; font-size:0.88rem; }
 .empty-state .icon { font-size:2.2rem; margin-bottom:8px; }
 
-/* 同期 */
 .sync-indicator { position:fixed; bottom:16px; right:16px; background:#27ae60; color:white; padding:7px 14px; border-radius:16px; font-size:0.8rem; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s; z-index:600; pointer-events:none; }
 .sync-indicator.show { opacity:1; }
 
@@ -364,13 +311,12 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:#ccc; border-radius:2px; }
 
-/* スマホ：縦積み */
 @media (max-width:768px) {
   .manage-layout { flex-direction:column; height:auto; overflow:visible; }
   .manage-left { width:100%; border-right:none; border-bottom:1px solid #dde3ea; max-height:280px; }
   .manage-right { width:100%; }
   .study-layout { flex-direction:column; height:auto; overflow:visible; }
-  .study-left { border-right:none; border-bottom:1px solid #dde3ea; }
+  .study-left { width:100%; border-right:none; border-bottom:1px solid #dde3ea; }
   .study-right { width:100%; }
   #tab-manage,#tab-study { overflow-y:auto; }
 }
@@ -384,7 +330,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 </style>
 </head>
 <body>
-<!-- 色ポップアップ -->
 <div id="color-popup">
   <div class="color-popup-title">🎨 色を選択</div>
   <div class="color-swatches" id="color-swatches"></div>
@@ -392,7 +337,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   <button class="color-popup-cancel" id="color-popup-cancel">キャンセル</button>
 </div>
 
-<!-- ログイン -->
 <div id="login-overlay">
   <div class="login-card">
     <div style="font-size:2.8rem;margin-bottom:10px;">📖</div>
@@ -445,7 +389,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   <div class="settings-body">
     <div class="settings-item">
       <label>ℹ️ バージョン</label>
-      <div style="font-size:0.8rem;color:#888;">税理士理論暗記ツール v1.1</div>
+      <div style="font-size:0.8rem;color:#888;">税理士理論暗記ツール v1.2</div>
     </div>
   </div>
 </div>
@@ -455,17 +399,13 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 <!-- ===== 管理タブ ===== -->
 <div class="tab-content active" id="tab-manage">
   <div class="manage-layout">
-
-    <!-- 左：一覧 -->
     <div class="manage-left">
       <div class="manage-left-header">
         <span style="font-weight:700;font-size:0.92rem;color:#1a2a4a;">📋 理論一覧</span>
         <button class="btn-small btn-success" id="manage-add-btn">＋ 新規追加</button>
       </div>
       <div class="manage-left-filters">
-        <select id="list-subject-filter">
-          <option value="">すべての科目</option>
-        </select>
+        <select id="list-subject-filter"><option value="">すべての科目</option></select>
         <select id="list-rank-filter">
           <option value="">すべての重要度</option>
           <option value="A">A 最重要</option>
@@ -486,22 +426,16 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       </div>
     </div>
 
-    <!-- 右：編集（タブ切替） -->
     <div class="manage-right">
       <div id="manage-empty-right" class="empty-state" style="margin:40px auto;">
-        <div class="icon">📂</div>
-        左の一覧から選択するか<br>「＋ 新規追加」で作成
+        <div class="icon">📂</div>左の一覧から選択するか<br>「＋ 新規追加」で作成
       </div>
-
       <div id="manage-editor-right" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-        <!-- 右ペイン内タブ -->
         <div class="edit-tab-nav">
           <button class="edit-tab-btn active" data-etab="info">📋 基本情報</button>
           <button class="edit-tab-btn" data-etab="blocks">📝 ブロック編集</button>
           <button class="edit-tab-btn" data-etab="preview">🎨 プレビュー・色付け</button>
         </div>
-
-        <!-- 基本情報タブ -->
         <div class="edit-tab-content active" id="etab-info">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="form-group"><label>科目</label><input type="text" id="edit-subject" placeholder="例：所得税"></div>
@@ -524,8 +458,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
             <button class="btn-small btn-danger" id="delete-item-btn">🗑 削除</button>
           </div>
         </div>
-
-        <!-- ブロック編集タブ -->
         <div class="edit-tab-content" id="etab-blocks">
           <div class="block-editor" id="block-editor"></div>
           <div class="add-block-bar">
@@ -541,27 +473,78 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
             <button class="btn-small btn-danger" id="delete-item-btn2">🗑 削除</button>
           </div>
         </div>
-
-        <!-- プレビュー・色付けタブ -->
         <div class="edit-tab-content" id="etab-preview">
           <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">
             📌 テキストをドラッグ選択 → 色を選ぶ　／　色付き箇所をタップ → 変更・削除
           </div>
           <div id="color-preview" class="theory-view" style="cursor:text;min-height:100px;"></div>
         </div>
-
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- ===== 学習タブ ===== -->
+<!-- ===== 学習タブ（左：操作サブ / 右：理論メイン） ===== -->
 <div class="tab-content" id="tab-study">
   <div class="study-layout">
 
-    <!-- 左：理論表示エリア -->
+    <!-- 左（サブ）：操作パネル -->
     <div class="study-left">
+      <div class="content-select-panel">
+        <label style="font-size:0.78rem;color:#666;font-weight:600;">📚 理論を選択</label>
+        <div class="select-row">
+          <select id="sel-subject"><option value="">科目を選択</option></select>
+          <select id="sel-chapter"><option value="">章を選択</option></select>
+        </div>
+        <div class="item-select-wrap">
+          <select id="sel-item"><option value="">問題を選択</option></select>
+        </div>
+        <button class="select-confirm-btn" id="confirm-select-btn">この理論で学習する ▶</button>
+      </div>
+
+      <div class="mode-panel">
+        <div class="mode-panel-title">📖 学習モード</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="mode-view-btn">👁 閲覧</button>
+          <button class="mode-btn" id="mode-anki-btn">🙈 暗記</button>
+          <button class="mode-btn" id="mode-pillar-btn">🏛 柱上げ</button>
+          <button class="mode-btn" id="mode-typing-btn">⌨️ 全文</button>
+        </div>
+      </div>
+
+      <!-- 柱上げ入力 -->
+      <div id="pillar-input-panel" style="display:none;" class="typing-panel-left">
+        <label style="font-size:0.78rem;color:#666;font-weight:600;">✍️ 柱を入力</label>
+        <textarea id="pillar-input" placeholder="セクション名と項目名を入力..."></textarea>
+        <div class="score-bar-wrap" id="pillar-score-bar-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill" id="pillar-score-bar"></div></div>
+          <div class="score-label" id="pillar-score-label">0%</div>
+        </div>
+        <div class="action-row">
+          <button class="btn-primary" id="save-pillar-record-btn">💾 保存</button>
+          <button class="btn-small btn-warning" id="show-pillar-diff-btn">🔍 差分</button>
+          <button class="btn-small" id="clear-pillar-btn">🗑 クリア</button>
+        </div>
+      </div>
+
+      <!-- 全文タイピング入力 -->
+      <div id="typing-input-panel" style="display:none;" class="typing-panel-left">
+        <label style="font-size:0.78rem;color:#666;font-weight:600;">✍️ 全文を入力</label>
+        <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
+        <div class="score-bar-wrap" id="score-bar-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar"></div></div>
+          <div class="score-label" id="score-label">0%</div>
+        </div>
+        <div class="action-row">
+          <button class="btn-primary" id="save-record-btn">💾 保存</button>
+          <button class="btn-small btn-warning" id="show-diff-btn">🔍 差分</button>
+          <button class="btn-small" id="clear-typing-btn">🗑 クリア</button>
+        </div>
+      </div>
+    </div><!-- /.study-left -->
+
+    <!-- 右（メイン）：理論表示エリア -->
+    <div class="study-right">
       <div class="study-title-bar">
         <div class="study-title-text" id="study-title">理論を選択してください</div>
       </div>
@@ -569,7 +552,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       <!-- 閲覧・暗記モード -->
       <div id="view-area">
         <div class="theory-view" id="view-text">
-          <div class="empty-state"><div class="icon">📖</div>右のメニューから理論を選択してください</div>
+          <div class="empty-state"><div class="icon">📖</div>左のメニューから理論を選択してください</div>
         </div>
       </div>
 
@@ -591,66 +574,8 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       <!-- 差分表示 -->
       <div class="diff-panel" id="diff-panel"></div>
       <div class="diff-panel" id="pillar-diff-panel"></div>
-    </div>
+    </div><!-- /.study-right -->
 
-    <!-- 右：操作パネル -->
-    <div class="study-right">
-
-      <!-- コンテンツ選択 -->
-      <div class="content-select-panel">
-        <label style="font-size:0.78rem;color:#666;font-weight:600;">📚 理論を選択</label>
-        <div class="select-row">
-          <select id="sel-subject"><option value="">科目を選択</option></select>
-          <select id="sel-chapter"><option value="">章を選択</option></select>
-        </div>
-        <div class="item-select-wrap">
-          <select id="sel-item"><option value="">問題を選択</option></select>
-        </div>
-        <button class="select-confirm-btn" id="confirm-select-btn">この理論で学習する ▶</button>
-      </div>
-
-      <!-- モード切替 -->
-      <div class="mode-panel">
-        <div class="mode-panel-title">📖 学習モード</div>
-        <div class="mode-toggle">
-          <button class="mode-btn active" id="mode-view-btn">👁 閲覧</button>
-          <button class="mode-btn" id="mode-anki-btn">🙈 暗記</button>
-          <button class="mode-btn" id="mode-pillar-btn">🏛 柱上げ</button>
-          <button class="mode-btn" id="mode-typing-btn">⌨️ 全文</button>
-        </div>
-      </div>
-
-      <!-- 柱上げ入力 -->
-      <div id="pillar-input-panel" style="display:none;" class="typing-panel-right">
-        <label style="font-size:0.78rem;color:#666;font-weight:600;">✍️ 柱（セクション名・項目名）を入力</label>
-        <textarea id="pillar-input" placeholder="セクション名と項目名を入力..."></textarea>
-        <div class="score-bar-wrap" id="pillar-score-bar-wrap">
-          <div class="score-bar-bg"><div class="score-bar-fill" id="pillar-score-bar"></div></div>
-          <div class="score-label" id="pillar-score-label">0%</div>
-        </div>
-        <div class="action-row">
-          <button class="btn-primary" id="save-pillar-record-btn">💾 保存</button>
-          <button class="btn-small btn-warning" id="show-pillar-diff-btn">🔍 差分</button>
-          <button class="btn-small" id="clear-pillar-btn">🗑 クリア</button>
-        </div>
-      </div>
-
-      <!-- 全文タイピング入力 -->
-      <div id="typing-input-panel" style="display:none;" class="typing-panel-right">
-        <label style="font-size:0.78rem;color:#666;font-weight:600;">✍️ 全文を入力</label>
-        <textarea id="typing-input" placeholder="テキストを入力..."></textarea>
-        <div class="score-bar-wrap" id="score-bar-wrap">
-          <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar"></div></div>
-          <div class="score-label" id="score-label">0%</div>
-        </div>
-        <div class="action-row">
-          <button class="btn-primary" id="save-record-btn">💾 保存</button>
-          <button class="btn-small btn-warning" id="show-diff-btn">🔍 差分</button>
-          <button class="btn-small" id="clear-typing-btn">🗑 クリア</button>
-        </div>
-      </div>
-
-    </div>
   </div>
 </div>
 
@@ -820,8 +745,7 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-const ADMIN_EMAILS = ['admin@example.com']; // ← 変更してください
-
+const ADMIN_EMAILS = ['admin@example.com'];
 const MARK_COLORS = [
   {color:'#e74c3c',bg:'#fdecea'},{color:'#e67e22',bg:'#fef5ec'},
   {color:'#f1c40f',bg:'#fefde7'},{color:'#27ae60',bg:'#eafaf1'},
@@ -837,16 +761,14 @@ let currentMode='view';
 let calYear,calMonth;
 let editBlocks=[];
 let pendingMark=null;
-let showOriginalTyping=false; // 初期は非表示
+let showOriginalTyping=false;
 
-// ===== ユーティリティ =====
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function formatDate(s){const d=new Date(s);return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;}
 function formatDateTime(s){const d=new Date(s);return `${formatDate(s)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function showSync(){const el=document.getElementById('sync-indicator');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
 
-// ===== Firebase =====
 async function saveItem(item){const u=auth.currentUser;if(!u)return;await setDoc(doc(db,'users',u.uid,'data',item.id),item);showSync();}
 async function delItem(id){const u=auth.currentUser;if(!u)return;await deleteDoc(doc(db,'users',u.uid,'data',id));showSync();}
 async function saveRec(rec){const u=auth.currentUser;if(!u)return;await setDoc(doc(db,'users',u.uid,'records',rec.id),rec);showSync();}
@@ -854,7 +776,6 @@ async function delRec(id){const u=auth.currentUser;if(!u)return;await deleteDoc(
 async function saveTask(task){const u=auth.currentUser;if(!u)return;await setDoc(doc(db,'users',u.uid,'tasks',task.id),task);showSync();}
 async function delTask(id){const u=auth.currentUser;if(!u)return;await deleteDoc(doc(db,'users',u.uid,'tasks',id));showSync();}
 
-// ===== 認証 =====
 onAuthStateChanged(auth,async user=>{
   const authBar=document.getElementById('auth-bar');
   const overlay=document.getElementById('login-overlay');
@@ -900,7 +821,6 @@ function authErrMsg(code){
     'auth/invalid-credential':'メールアドレスまたはパスワードが正しくありません'}[code]||'ログインに失敗しました';
 }
 
-// ===== 同期 =====
 function startSync(uid){
   unsubData=onSnapshot(query(collection(db,'users',uid,'data')),snap=>{
     appData.data=snap.docs.map(d=>d.data());
@@ -924,7 +844,6 @@ function startSync(uid){
   });
 }
 
-// ===== 初期化 =====
 function init(){
   const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();
   initColorPopup();
@@ -932,7 +851,6 @@ function init(){
   bindEvents();
 }
 
-// ===== イベント =====
 function bindEvents(){
   document.getElementById('hamburger-btn').addEventListener('click',toggleSidebar);
   document.getElementById('settings-btn').addEventListener('click',toggleSettings);
@@ -940,12 +858,7 @@ function bindEvents(){
   document.getElementById('sidebar-overlay').addEventListener('click',closeSidebar);
   document.getElementById('settings-close-btn').addEventListener('click',closeSettings);
   document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab,btn)));
-
-  // 右ペイン内タブ
-  document.querySelectorAll('.edit-tab-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>switchEditTab(btn.dataset.etab,btn));
-  });
-
+  document.querySelectorAll('.edit-tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchEditTab(btn.dataset.etab,btn)));
   document.getElementById('manage-add-btn').addEventListener('click',openAddModal);
   document.getElementById('sidebar-add-btn').addEventListener('click',openAddModal);
   document.getElementById('save-item-btn').addEventListener('click',saveItemHandler);
@@ -975,12 +888,10 @@ function bindEvents(){
   document.getElementById('save-pillar-record-btn').addEventListener('click',savePillarRecordHandler);
   document.getElementById('show-pillar-diff-btn').addEventListener('click',showPillarDiff);
   document.getElementById('clear-pillar-btn').addEventListener('click',clearPillar);
-  // 原文トグル
   document.getElementById('toggle-original-btn').addEventListener('click',()=>{
     showOriginalTyping=!showOriginalTyping;
-    const dispEl=document.getElementById('original-text-display');
+    document.getElementById('original-text-display').style.display=showOriginalTyping?'block':'none';
     const btn=document.getElementById('toggle-original-btn');
-    dispEl.style.display=showOriginalTyping?'block':'none';
     btn.textContent=showOriginalTyping?'📄 原文を隠す':'📄 原文を表示する';
     btn.classList.toggle('showing',showOriginalTyping);
   });
@@ -999,7 +910,6 @@ function bindEvents(){
   document.getElementById('color-preview').addEventListener('touchend',onPreviewSelect);
 }
 
-// ===== 右ペイン内タブ切替 =====
 function switchEditTab(etab,btn){
   document.querySelectorAll('.edit-tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.edit-tab-content').forEach(c=>c.classList.remove('active'));
@@ -1007,11 +917,11 @@ function switchEditTab(etab,btn){
   document.getElementById('etab-'+etab).classList.add('active');
 }
 
-// ===== サイドバー・設定・タブ =====
 function toggleSidebar(){const o=document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open',o);document.body.style.overflow=o?'hidden':'';}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');document.body.style.overflow='';}
 function toggleSettings(){document.getElementById('settings-panel').classList.toggle('open');}
 function closeSettings(){document.getElementById('settings-panel').classList.remove('open');}
+
 function switchTab(tab,btn){
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
@@ -1024,12 +934,11 @@ function switchTab(tab,btn){
   if(tab==='admin'&&currentUserRole==='admin')renderUserList();
 }
 
-// ===== 色付けポップアップ =====
 function initColorPopup(){
   const swatches=document.getElementById('color-swatches');
   MARK_COLORS.forEach(mc=>{
     const btn=document.createElement('button');
-    btn.className='color-swatch-btn';btn.style.background=mc.color;btn.title=mc.label||'';
+    btn.className='color-swatch-btn';btn.style.background=mc.color;
     btn.addEventListener('click',()=>applyMark(mc.color,mc.bg));
     swatches.appendChild(btn);
   });
@@ -1058,16 +967,11 @@ function onPreviewSelect(){
   if(!sel||sel.isCollapsed)return;
   const selectedText=sel.toString();
   if(!selectedText.trim())return;
-  const item=appData.data.find(d=>d.id===appData.selectedId);
-  if(!item)return;
-  const anchorNode=sel.anchorNode;
-  const blockEl=findBlockEl(anchorNode);
-  if(!blockEl)return;
+  const item=appData.data.find(d=>d.id===appData.selectedId);if(!item)return;
+  const blockEl=findBlockEl(sel.anchorNode);if(!blockEl)return;
   const blockId=blockEl.dataset.blockId;
-  const block=item.blocks.find(b=>b.id===blockId);
-  if(!block)return;
-  const bodyEl=blockEl.querySelector('[data-body]');
-  if(!bodyEl)return;
+  const block=item.blocks.find(b=>b.id===blockId);if(!block)return;
+  const bodyEl=blockEl.querySelector('[data-body]');if(!bodyEl)return;
   const range=sel.getRangeAt(0);
   const preRange=document.createRange();
   preRange.selectNodeContents(bodyEl);
@@ -1106,7 +1010,6 @@ function removeMark(){
   saveItem(item).then(()=>{renderColorPreview(item);updateStudyView(item);});
 }
 
-// ===== マーク適用テキスト =====
 function applyMarksToText(text,marks,anki=false){
   if(!marks||!marks.length)return escapeHtml(text).replace(/\n/g,'<br>');
   const sorted=[...marks].sort((a,b)=>a.start-b.start);
@@ -1114,18 +1017,15 @@ function applyMarksToText(text,marks,anki=false){
   sorted.forEach(m=>{
     if(m.start>pos)result+=escapeHtml(text.slice(pos,m.start)).replace(/\n/g,'<br>');
     const chunk=escapeHtml(text.slice(m.start,m.end));
-    if(anki){
-      result+=`<span class="mark-span" data-mark-id="${m.id}" style="background:${m.color};color:${m.color};">${chunk}</span>`;
-    }else{
-      result+=`<span class="mark-span" style="background:${m.bg};color:${m.color};font-weight:600;" data-mark-id="${m.id}">${chunk}</span>`;
-    }
+    result+=anki
+      ?`<span class="mark-span" data-mark-id="${m.id}" style="background:${m.color};color:${m.color};">${chunk}</span>`
+      :`<span class="mark-span" style="background:${m.bg};color:${m.color};font-weight:600;" data-mark-id="${m.id}">${chunk}</span>`;
     pos=m.end;
   });
   if(pos<text.length)result+=escapeHtml(text.slice(pos)).replace(/\n/g,'<br>');
   return result;
 }
 
-// ===== 理論HTML生成 =====
 function buildTheoryHTML(item,anki=false){
   if(!item||!item.blocks||!item.blocks.length)return '<div class="empty-state"><div class="icon">📖</div>ブロックがありません</div>';
   let sectionCount=0,item1Count=0,item2Count=0,item3Count=0;
@@ -1134,11 +1034,10 @@ function buildTheoryHTML(item,anki=false){
     const marks=block.marks||[];
     if(block.type==='section'){
       sectionCount++;item1Count=0;item2Count=0;item3Count=0;
-      const rankCls=`rank-disp-${block.rank||'A'}`;
       html+=`<div class="view-section" data-block-id="${block.id}">
         <span class="view-section-title" data-body="1">${applyMarksToText(block.title||'',marks,anki)}</span>
         <span class="view-section-law">${escapeHtml(block.law||'')}</span>
-        <span class="view-section-rank ${rankCls}">${block.rank||'A'}</span>
+        <span class="view-section-rank rank-disp-${block.rank||'A'}">${block.rank||'A'}</span>
       </div>`;
     }else if(block.type==='item1'){
       item1Count++;item2Count=0;item3Count=0;
@@ -1148,16 +1047,14 @@ function buildTheoryHTML(item,anki=false){
       </div>`;
     }else if(block.type==='item2'){
       item2Count++;item3Count=0;
-      const num=MARU[item2Count-1]||`(${item2Count})`;
       html+=`<div class="view-item2" data-block-id="${block.id}">
-        <span class="view-item2-num">${num}</span>
+        <span class="view-item2-num">${MARU[item2Count-1]||`(${item2Count})`}</span>
         <span class="view-item2-body" data-body="1">${applyMarksToText(block.body||'',marks,anki)}</span>
       </div>`;
     }else if(block.type==='item3'){
       item3Count++;
-      const num=IROHA[item3Count-1]||`(${item3Count})`;
       html+=`<div class="view-item3" data-block-id="${block.id}">
-        <span class="view-item3-num">${num}</span>
+        <span class="view-item3-num">${IROHA[item3Count-1]||`(${item3Count})`}</span>
         <span class="view-item3-body" data-body="1">${applyMarksToText(block.body||'',marks,anki)}</span>
       </div>`;
     }else if(block.type==='text'){
@@ -1174,7 +1071,6 @@ function buildTheoryHeader(item){
     </div>`;
 }
 
-// ===== プレビュー（管理タブ） =====
 function renderColorPreview(item){
   const el=document.getElementById('color-preview');
   el.innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,false);
@@ -1183,24 +1079,21 @@ function renderColorPreview(item){
       e.stopPropagation();
       const markId=span.dataset.markId;
       const blockEl=findBlockEl(span);if(!blockEl)return;
-      const blockId=blockEl.dataset.blockId;
-      const block=item.blocks.find(b=>b.id===blockId);if(!block)return;
+      const block=item.blocks.find(b=>b.id===blockEl.dataset.blockId);if(!block)return;
       const mark=(block.marks||[]).find(m=>m.id===markId);if(!mark)return;
-      pendingMark={blockId,start:mark.start,end:mark.end,existingMark:mark};
+      pendingMark={blockId:blockEl.dataset.blockId,start:mark.start,end:mark.end,existingMark:mark};
       const rect=span.getBoundingClientRect();
       showColorPopup(rect.left,rect.bottom,true);
     });
   });
 }
 
-// ===== 暗記モード =====
 function bindAnkiReveal(container){
   container.querySelectorAll('.mark-span').forEach(span=>{
     span.addEventListener('click',e=>{e.stopPropagation();span.classList.toggle('revealed');});
   });
 }
 
-// ===== 学習ビュー更新 =====
 function updateStudyView(item){
   document.getElementById('study-title').textContent=`【${item.chapter}】${item.no} ${item.title}`;
   const isAnki=currentMode==='anki';
@@ -1212,37 +1105,31 @@ function updateStudyView(item){
   buildPillarDisplay(item);
 }
 
-// ===== モード切替 =====
 function setMode(mode){
   currentMode=mode;
-  // 左ペイン表示切替
-  document.getElementById('view-area').style.display         =(mode==='view'||mode==='anki')?'block':'none';
-  document.getElementById('pillar-area').style.display       =mode==='pillar'?'block':'none';
+  document.getElementById('view-area').style.display          =(mode==='view'||mode==='anki')?'block':'none';
+  document.getElementById('pillar-area').style.display        =mode==='pillar'?'block':'none';
   document.getElementById('typing-original-area').style.display=mode==='typing'?'block':'none';
-  document.getElementById('diff-panel').style.display        ='none';
-  document.getElementById('pillar-diff-panel').style.display ='none';
-  // 右ペイン入力切替
+  document.getElementById('diff-panel').style.display         ='none';
+  document.getElementById('pillar-diff-panel').style.display  ='none';
   document.getElementById('pillar-input-panel').style.display =mode==='pillar'?'flex':'none';
   document.getElementById('typing-input-panel').style.display =mode==='typing'?'flex':'none';
-  // モードボタン
   ['view','anki','pillar','typing'].forEach(m=>{
     document.getElementById(`mode-${m}-btn`).classList.toggle('active',m===mode);
   });
-  // タイピング・柱上げ：原文リセット（初期非表示）
   if(mode==='typing'||mode==='pillar'){
     showOriginalTyping=false;
-    const dispEl=document.getElementById('original-text-display');
+    document.getElementById('original-text-display').style.display='none';
     const btn=document.getElementById('toggle-original-btn');
-    if(dispEl){dispEl.style.display='none';}
-    if(btn){btn.textContent='📄 原文を表示する';btn.classList.remove('showing');}
+    btn.textContent='📄 原文を表示する';btn.classList.remove('showing');
   }
   const item=appData.data.find(d=>d.id===appData.selectedId);
   if(item)updateStudyView(item);
 }
 
-// ===== ツリー =====
 function getBestScore(id){const r=appData.records.filter(r=>r.itemId===id);return r.length?Math.max(...r.map(r=>r.score)):null;}
 function getLastDate(id){const r=appData.records.filter(r=>r.itemId===id);return r.length?r.sort((a,b)=>b.date.localeCompare(a.date))[0].date:null;}
+
 function renderTree(){
   const tree=document.getElementById('tree');
   const subjects={};
@@ -1282,7 +1169,6 @@ function renderTree(){
   });
 }
 
-// ===== 管理一覧 =====
 function renderManageList(){
   const wrap=document.getElementById('manage-list-wrap');
   const subjF=document.getElementById('list-subject-filter').value;
@@ -1303,8 +1189,7 @@ function renderManageList(){
     const sc=item._best;
     const scCls=sc===null?'score-none':sc>=80?'score-high':sc>=50?'score-mid':'score-low';
     const scStr=sc===null?'未学習':sc+'%';
-    const sel=item.id===appData.selectedId?'selected-row':'';
-    html+=`<tr class="${sel}" data-id="${item.id}">
+    html+=`<tr class="${item.id===appData.selectedId?'selected-row':''}" data-id="${item.id}">
       <td>${escapeHtml(item.subject)}</td><td>${escapeHtml(item.chapter)}</td>
       <td>${escapeHtml(item.no)}</td><td>${escapeHtml(item.title)}</td>
       <td><span class="rank-badge rank-${item.rank||'B'}">${item.rank||'B'}</span></td>
@@ -1317,7 +1202,6 @@ function renderManageList(){
   });
 }
 
-// ===== アイテム選択 =====
 function selectItem(id){
   appData.selectedId=id;
   const item=appData.data.find(d=>d.id===id);if(!item)return;
@@ -1335,7 +1219,6 @@ function selectItem(id){
   renderTree();renderManageList();
 }
 
-// ===== ブロックエディタ =====
 const BLOCK_LABELS={section:'【】セクション',item1:'(1) 大項目',item2:'① 小項目',item3:'(イ) 細項目',text:'本文'};
 function addBlock(type){editBlocks.push({id:genId(),type,title:'',body:'',law:'',rank:'A',marks:[]});renderBlockEditor();}
 function renderBlockEditor(){
@@ -1393,7 +1276,6 @@ function syncBlockFromDOM(){
   });
 }
 
-// ===== 保存・削除 =====
 function saveItemHandler(){
   const id=appData.selectedId;if(!id)return;
   const item=appData.data.find(d=>d.id===id);if(!item)return;
@@ -1418,7 +1300,6 @@ function deleteItemHandler(){
   renderTree();renderContentSelect();renderManageList();
 }
 
-// ===== 新規追加モーダル =====
 function openAddModal(){refreshModalSubjects();document.getElementById('add-modal').classList.add('open');}
 function closeModal(){document.getElementById('add-modal').classList.remove('open');}
 function refreshModalSubjects(){
@@ -1451,7 +1332,6 @@ function addItemHandler(){
   saveItem(item).catch(err=>alert('保存失敗: '+err.message));
 }
 
-// ===== コンテンツ選択 =====
 function renderContentSelect(){
   const subjects=[...new Set(appData.data.map(d=>d.subject))].sort();
   const selSubj=document.getElementById('sel-subject');
@@ -1481,7 +1361,6 @@ function confirmContentSelect(){
   switchTab('study',document.querySelector('[data-tab="study"]'));
 }
 
-// ===== 柱上げ =====
 function buildPillarDisplay(item){
   const el=document.getElementById('pillar-display');
   if(!item||!item.blocks||!item.blocks.length){el.innerHTML='<div class="empty-state"><div class="icon">🏛</div>ブロックがありません</div>';return;}
@@ -1494,10 +1373,10 @@ function buildPillarDisplay(item){
 }
 function extractPillarText(item){
   if(!item||!item.blocks)return'';
-  let sectionCount=0,item1Count=0;
+  let sc=0,i1=0;
   return item.blocks.filter(b=>b.type==='section'||b.type==='item1').map(b=>{
-    if(b.type==='section'){sectionCount++;item1Count=0;return b.title||'';}
-    if(b.type==='item1'){item1Count++;return b.title||'';}
+    if(b.type==='section'){sc++;i1=0;return b.title||'';}
+    if(b.type==='item1'){i1++;return b.title||'';}
     return'';
   }).join('');
 }
@@ -1540,7 +1419,6 @@ function savePillarRecordHandler(){
   saveRec(rec).then(()=>{renderTree();updateHistoryFilter();renderManageList();alert(`保存しました！ スコア: ${score}%`);});
 }
 
-// ===== 全文タイピング =====
 function extractPlainText(item){
   if(!item||!item.blocks)return'';
   return item.blocks.map(b=>{
@@ -1604,7 +1482,6 @@ function saveRecordHandler(){
   saveRec(rec).then(()=>{renderTree();updateHistoryFilter();renderManageList();alert(`保存しました！ スコア: ${score}%`);});
 }
 
-// ===== 記録 =====
 function renderHistory(){
   const subj=document.getElementById('hist-subject-filter').value;
   const from=document.getElementById('hist-date-from').value;
@@ -1647,7 +1524,6 @@ function clearHistoryFilter(){
   renderHistory();
 }
 
-// ===== カレンダー =====
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function renderCalendar(){
   document.getElementById('cal-title').textContent=`${calYear}年 ${calMonth+1}月`;
@@ -1697,7 +1573,6 @@ function showCalDetail(day,recs){
   document.getElementById('cal-detail').style.display='block';
 }
 
-// ===== 計画 =====
 function addTask(){
   const title=document.getElementById('task-title-input').value.trim();
   const due=document.getElementById('task-due-input').value;
@@ -1755,7 +1630,6 @@ function renderTasks(){
   list.querySelectorAll('[data-deltaskid]').forEach(btn=>btn.addEventListener('click',()=>deleteTaskHandler(btn.dataset.deltaskid)));
 }
 
-// ===== 管理者 =====
 async function addUserHandler(){
   if(currentUserRole!=='admin')return;
   const email=document.getElementById('new-user-email').value.trim();
