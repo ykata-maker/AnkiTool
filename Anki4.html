@@ -87,6 +87,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .form-group input,.form-group select,.form-group textarea { border:1px solid #dde3ea; border-radius:8px; padding:8px 11px; font-size:0.88rem; outline:none; transition:border 0.2s; font-family:inherit; -webkit-appearance:none; width:100%; }
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus { border-color:#2c5f8a; }
 .form-group textarea { resize:vertical; min-height:80px; line-height:1.7; }
+.help { font-size:0.78rem; color:#888; line-height:1.6; }
 
 .empty-state { text-align:center; padding:32px 16px; color:#aaa; font-size:0.88rem; }
 .empty-state .icon { font-size:2.2rem; margin-bottom:8px; }
@@ -129,7 +130,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .score-badge { display:inline-block; padding:1px 7px; border-radius:8px; color:white; font-size:0.75rem; font-weight:700; }
 .score-high { background:#27ae60; } .score-mid { background:#d68910; } .score-low { background:#c0392b; } .score-none { background:#bdc3c7; }
 
-/* ===== Study (kept mostly) ===== */
+/* ===== Study ===== */
 #tab-study { overflow:hidden; }
 .study-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); position:relative; }
 .study-nav { min-width:160px; flex-shrink:0; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; background:white; transition:width 0.2s,min-width 0.2s,padding 0.2s,opacity 0.2s; }
@@ -213,50 +214,44 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .pillar-section-title { font-weight:700; font-size:0.92rem; border:2px solid #1a2a4a; border-radius:4px; padding:3px 10px; display:inline-block; margin-bottom:4px; }
 .pillar-item1-title { font-weight:700; font-size:0.88rem; padding-left:0.5em; }
 
-/* ===== History ===== */
-#tab-history { overflow-y:auto; }
-.history-filter { background:white; border-radius:12px; padding:12px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.history-filter .full { grid-column:1/-1; }
-.history-list { display:flex; flex-direction:column; gap:8px; }
-.history-card { background:white; border-radius:12px; padding:10px 12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; align-items:center; gap:10px; }
-.history-info { flex:1; min-width:0; }
-.history-path { font-size:0.72rem; color:#888; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.history-title { font-size:0.86rem; font-weight:600; color:#1a2a4a; }
-.history-date { font-size:0.72rem; color:#999; }
-.history-score-badge { font-size:0.95rem; font-weight:700; padding:4px 10px; border-radius:16px; color:white; flex-shrink:0; }
-
-/* ===== Calendar ===== */
+/* ===== Calendar (2 columns) ===== */
 #tab-calendar { overflow-y:auto; }
+.calendar-shell { padding:12px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; flex:1; }
+.calendar-layout { display:flex; gap:10px; align-items:flex-start; }
+.calendar-left { flex: 1.05; min-width: 320px; display:flex; flex-direction:column; gap:10px; }
+.calendar-right { flex: 0.95; min-width: 280px; display:flex; flex-direction:column; gap:10px; position:sticky; top:106px; }
+
 .calendar-nav { background:white; border-radius:12px; padding:10px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; align-items:center; gap:10px; }
 .cal-title { font-size:0.95rem; font-weight:700; flex:1; text-align:center; }
 .cal-nav-btn { background:#e8f0f8; border:none; padding:7px 12px; border-radius:8px; cursor:pointer; font-size:0.95rem; }
 .cal-nav-btn:hover { background:#d0e4f4; }
+
 .calendar-grid { background:white; border-radius:12px; padding:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
 .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:0.7rem; font-weight:700; color:#888; margin-bottom:4px; }
 .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-.cal-day { min-height:56px; border-radius:5px; padding:3px; background:#f7f9fc; cursor:pointer; border:1px solid transparent; }
+.cal-day { min-height:66px; border-radius:6px; padding:4px; background:#f7f9fc; cursor:pointer; border:1px solid transparent; }
 .cal-day:hover { background:#e8f0f8; }
 .cal-day.today { background:#e8f0f8; border:1px solid #2c5f8a; }
+.cal-day.selected { border:2px solid #5ba3d9; background:#f0f7ff; }
 .cal-day.other-month { opacity:0.3; }
 .cal-day-num { font-size:0.72rem; font-weight:700; color:#555; }
 .cal-day.today .cal-day-num { color:#2c5f8a; }
 
 .cal-events { display:flex; flex-direction:column; gap:2px; margin-top:2px; }
-.cal-event { font-size:0.58rem; padding:1px 3px; border-radius:3px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cal-event { font-size:0.58rem; padding:2px 4px; border-radius:4px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .cal-ev-plan { background:#2c5f8a; }
 .cal-ev-record-high { background:#27ae60; }
 .cal-ev-record-mid { background:#d68910; }
 .cal-ev-record-low { background:#c0392b; }
 .cal-ev-record-none { background:#7f8c8d; }
 
-.cal-detail { background:white; border-radius:12px; padding:12px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:none; }
-.cal-detail h3 { margin-bottom:8px; color:#1a2a4a; font-size:0.9rem; }
+.panel { background:white; border-radius:12px; padding:12px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.panel h3 { margin-bottom:8px; color:#1a2a4a; font-size:0.9rem; }
+.panel-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-bottom:10px; }
 
-.cal-detail-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-bottom:10px; }
 .cal-section-title { font-size:0.78rem; color:#666; font-weight:700; margin:10px 0 6px; }
 .cal-detail-item { display:flex; align-items:flex-start; gap:8px; padding:10px; background:#f7f9fc; border-radius:10px; margin-bottom:6px; border-left:4px solid #dde3ea; }
 .cal-detail-item.plan { border-left-color:#2c5f8a; }
-.cal-detail-item.plan.done { border-left-color:#27ae60; opacity:0.65; }
 .cal-detail-item.record { border-left-color:#7f8c8d; }
 .cal-detail-item .meta { font-size:0.72rem; color:#888; display:flex; gap:8px; flex-wrap:wrap; margin-top:3px; }
 .cal-detail-item .title { font-size:0.86rem; font-weight:700; color:#1a2a4a; }
@@ -264,25 +259,17 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .cal-detail-item .right { display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
 .badge { display:inline-block; font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:999px; }
 .badge-plan { background:#e8f0f8; color:#2c5f8a; }
-.badge-done { background:#eafaf1; color:#27ae60; }
 .badge-record { background:#ecf0f1; color:#555; }
+.badge-sum { background:#1a2a4a; color:white; }
 
-/* ===== Plan ===== */
-#tab-plan { overflow-y:auto; }
-.plan-inner { padding:12px; display:flex; flex-direction:column; gap:12px; }
-.plan-section { background:white; border-radius:12px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.plan-section h3 { margin-bottom:10px; color:#1a2a4a; font-size:0.92rem; }
+.sum-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+.sum-kpi { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.kpi { background:#f7f9fc; border:1px solid #dde3ea; border-radius:10px; padding:8px 10px; }
+.kpi .num { font-size:1.1rem; font-weight:800; color:#1a2a4a; }
+.kpi .lab { font-size:0.72rem; color:#888; margin-top:2px; }
 
-.plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.plan-grid .full { grid-column:1/-1; }
-.help { font-size:0.78rem; color:#888; line-height:1.6; }
-
-.series-list { display:flex; flex-direction:column; gap:6px; }
-.series-card { background:#f7f9fc; border:1px solid #dde3ea; border-radius:10px; padding:10px; display:flex; gap:10px; align-items:flex-start; }
-.series-card .info { flex:1; min-width:0; }
-.series-card .name { font-size:0.86rem; font-weight:800; color:#1a2a4a; }
-.series-card .sub { font-size:0.72rem; color:#888; margin-top:2px; }
-.series-card .actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.inline-select { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.inline-select select { border:1px solid #dde3ea; border-radius:8px; padding:6px 10px; background:#f7f9fc; font-family:inherit; font-size:0.82rem; }
 
 /* ===== Modal ===== */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; align-items:flex-end; justify-content:center; }
@@ -292,7 +279,16 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .modal h3 { margin-bottom:12px; color:#1a2a4a; font-size:0.95rem; }
 .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
 
-/* ===== Color popup (kept) ===== */
+.plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.plan-grid .full { grid-column:1/-1; }
+
+/* Duration input (HH:MM + minutes mirror) */
+.duration-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.duration-row input[type="time"] { width: 140px; }
+.duration-row input[type="number"] { width: 120px; }
+.duration-row .hint { font-size:0.76rem; color:#888; }
+
+/* ===== Color popup ===== */
 #color-popup { position:fixed; z-index:800; background:white; border-radius:12px; padding:10px 12px; box-shadow:0 4px 20px rgba(0,0,0,0.25); display:none; flex-direction:column; gap:8px; min-width:180px; }
 #color-popup.show { display:flex; }
 .color-popup-title { font-size:0.75rem; color:#666; font-weight:600; }
@@ -304,6 +300,10 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .color-popup-cancel { background:#f7f9fc; border:1px solid #dde3ea; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:0.78rem; color:#666; text-align:center; font-family:inherit; }
 
 /* ===== Responsive ===== */
+@media (max-width:980px){
+  .calendar-layout { flex-direction:column; }
+  .calendar-right { position:static; }
+}
 @media (max-width:480px) {
   .manage-layout { flex-direction:column; height:auto; overflow:visible; }
   .manage-left { width:100% !important; border-bottom:1px solid #dde3ea; max-height:260px; }
@@ -320,7 +320,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   .modal-overlay { align-items:center; }
   .modal { border-radius:16px; }
   .modal-drag { display:none; }
-  .cal-day { min-height:68px; }
 }
 </style>
 </head>
@@ -359,9 +358,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 <nav class="tab-nav">
   <button class="tab-btn active" data-tab="manage"><span class="tab-icon">📝</span>管理</button>
   <button class="tab-btn" data-tab="study"><span class="tab-icon">🎯</span>学習</button>
-  <button class="tab-btn" data-tab="history"><span class="tab-icon">📊</span>記録</button>
   <button class="tab-btn" data-tab="calendar"><span class="tab-icon">📅</span>カレンダー</button>
-  <button class="tab-btn" data-tab="plan"><span class="tab-icon">✅</span>計画</button>
   <button class="tab-btn" data-tab="admin" id="admin-tab-btn" style="display:none;"><span class="tab-icon">👑</span>管理者</button>
 </nav>
 
@@ -385,7 +382,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   <div class="settings-body">
     <div class="settings-item">
       <label>📐 レイアウト調整</label>
-      <div style="font-size:0.8rem;color:#888;line-height:1.6;">各エリアの境界線をドラッグして幅を調整できます。設定は自動保存されます。</div>
+      <div class="help">各エリアの境界線をドラッグして幅を調整できます（管理・学習のみ）。</div>
     </div>
 
     <div class="settings-item">
@@ -397,7 +394,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
           <option value="all">すべて表示</option>
         </select>
       </div>
-      <div class="help">「アクティブ科目のみ表示」の場合、下でチェックした科目だけが理論一覧・記録・カレンダーに表示されます。</div>
+      <div class="help">「アクティブ科目のみ表示」の場合、下でチェックした科目だけが理論一覧・学習セレクト・カレンダーに表示されます。</div>
       <div id="subject-checklist" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
         <button class="btn-small" id="save-subject-settings-btn">保存</button>
@@ -407,7 +404,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 
     <div class="settings-item">
       <label>ℹ️ バージョン</label>
-      <div style="font-size:0.8rem;color:#888;">税理士理論暗記ツール v2.0（計画/カレンダー統合）</div>
+      <div class="help">税理士理論暗記ツール v2.1（カレンダー統合・集計・2カラム）</div>
     </div>
   </div>
 </div>
@@ -474,7 +471,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
           </div>
         </div>
 
-        <!-- ブロック編集（元コードを維持：色付け含む） -->
         <div class="block-edit-layout" id="rtab-blocks" style="display:none;flex:1;overflow:hidden;">
           <div style="min-width:200px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;background:white;" id="block-edit-left-pane">
             <div style="flex:1;overflow-y:auto;padding:12px;">
@@ -482,11 +478,11 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;background:#f7f9fc;border-top:1px solid #dde3ea;flex-shrink:0;">
               <span style="font-size:0.72rem;color:#888;align-self:center;">＋</span>
-              <button class="add-block-btn" data-type="section">【】</button>
-              <button class="add-block-btn" data-type="item1">(1)</button>
-              <button class="add-block-btn" data-type="item2">①</button>
-              <button class="add-block-btn" data-type="item3">(イ)</button>
-              <button class="add-block-btn" data-type="text">本文</button>
+              <button class="btn-small" id="add-block-section" data-type="section">【】</button>
+              <button class="btn-small" id="add-block-item1" data-type="item1">(1)</button>
+              <button class="btn-small" id="add-block-item2" data-type="item2">①</button>
+              <button class="btn-small" id="add-block-item3" data-type="item3">(イ)</button>
+              <button class="btn-small" id="add-block-text" data-type="text">本文</button>
             </div>
             <div style="padding:10px 12px;border-top:1px solid #dde3ea;display:flex;gap:8px;flex-shrink:0;background:white;">
               <button class="btn-primary" id="save-item-btn2">💾 保存</button>
@@ -602,156 +598,84 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   </div>
 </div>
 
-<!-- 記録タブ -->
-<div class="tab-content" id="tab-history">
-  <div style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;">
-    <div class="history-filter">
-      <div class="form-group full"><label>科目</label><select id="hist-subject-filter"><option value="">すべて</option></select></div>
-      <div class="form-group"><label>開始日</label><input type="date" id="hist-date-from"></div>
-      <div class="form-group"><label>終了日</label><input type="date" id="hist-date-to"></div>
-      <div class="full" style="display:flex;justify-content:flex-end;"><button class="btn-small" id="history-reset-btn">リセット</button></div>
-    </div>
-    <div class="history-list" id="history-list"></div>
-  </div>
-</div>
-
 <!-- カレンダータブ -->
 <div class="tab-content" id="tab-calendar">
-  <div style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;">
-    <div class="calendar-nav">
-      <button class="cal-nav-btn" id="cal-prev-btn">◀</button>
-      <div class="cal-title" id="cal-title"></div>
-      <button class="cal-nav-btn" id="cal-next-btn">▶</button>
-    </div>
-    <div class="calendar-grid">
-      <div class="cal-weekdays">
-        <div style="color:#c0392b">日</div><div>月</div><div>火</div>
-        <div>水</div><div>木</div><div>金</div><div style="color:#2c5f8a">土</div>
-      </div>
-      <div class="cal-days" id="cal-days"></div>
-    </div>
-    <div class="cal-detail" id="cal-detail">
-      <h3 id="cal-detail-title"></h3>
-      <div class="cal-detail-actions">
-        <button class="btn-small btn-success" id="cal-add-plan-btn">＋予定</button>
-        <button class="btn-small btn-primary" id="cal-add-record-btn">＋実績（計画なし）</button>
-      </div>
-      <div id="cal-detail-list"></div>
-    </div>
-  </div>
-</div>
+  <div class="calendar-shell">
+    <div class="calendar-layout">
 
-<!-- 計画タブ -->
-<div class="tab-content" id="tab-plan">
-  <div class="plan-inner">
-
-    <div class="plan-section">
-      <h3>➕ 計画を追加</h3>
-      <div class="help" style="margin-bottom:10px;">
-        まず「単発 / 繰り返し / 期限なし（テンプレ）」を選択します。<br>
-        ※ 科目は必須（null禁止）。繰り返しは開始日・終了日が必須です。
+      <!-- Left: month grid -->
+      <div class="calendar-left">
+        <div class="calendar-nav">
+          <button class="cal-nav-btn" id="cal-prev-btn">◀</button>
+          <div class="cal-title" id="cal-title"></div>
+          <button class="cal-nav-btn" id="cal-next-btn">▶</button>
+        </div>
+        <div class="calendar-grid">
+          <div class="cal-weekdays">
+            <div style="color:#c0392b">日</div><div>月</div><div>火</div>
+            <div>水</div><div>木</div><div>金</div><div style="color:#2c5f8a">土</div>
+          </div>
+          <div class="cal-days" id="cal-days"></div>
+        </div>
       </div>
 
-      <div class="plan-grid">
-        <div class="form-group full">
-          <label>種別</label>
-          <select id="plan-kind">
-            <option value="single">単発（実施予定日を1日指定）</option>
-            <option value="repeat">繰り返し（開始〜終了を一括登録）</option>
-            <option value="template">期限なし（テンプレ：開始〜終了を後で決めて生成）</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>科目（必須）</label>
-          <select id="plan-subject">
-            <option value="">選択してください</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>関連理論（任意）</label>
-          <select id="plan-item">
-            <option value="">（なし）</option>
-          </select>
-        </div>
-
-        <div class="form-group full">
-          <label>タイトル</label>
-          <input type="text" id="plan-title" placeholder="例：理論暗記 / 講義1 / 総則 復習 など">
-        </div>
-
-        <div class="form-group" id="single-date-wrap">
-          <label>実施予定日（単発）</label>
-          <input type="date" id="plan-date">
-        </div>
-
-        <div class="form-group" id="repeat-start-wrap" style="display:none;">
-          <label>開始日（繰り返し）</label>
-          <input type="date" id="plan-start">
-        </div>
-
-        <div class="form-group" id="repeat-end-wrap" style="display:none;">
-          <label>終了日（繰り返し/テンプレ生成時に必須）</label>
-          <input type="date" id="plan-end">
-        </div>
-
-        <div class="form-group full" id="repeat-rule-wrap" style="display:none;">
-          <label>繰り返しルール</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <select id="repeat-type" style="flex:1;min-width:160px;">
-              <option value="daily">毎日</option>
-              <option value="weekly">毎週（曜日指定）</option>
-            </select>
-            <div id="weekday-wrap" style="display:none;flex-wrap:wrap;gap:6px;">
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="0">日</label>
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="1" checked>月</label>
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="2" checked>火</label>
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="3" checked>水</label>
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="4" checked>木</label>
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="5" checked>金</label>
-              <label style="display:flex;gap:4px;align-items:center;font-size:0.8rem;color:#555;"><input type="checkbox" class="wday" value="6">土</label>
+      <!-- Right: selected day detail + actions + summary -->
+      <div class="calendar-right">
+        <div class="panel">
+          <h3>📊 集計</h3>
+          <div class="sum-row" style="margin-bottom:10px;">
+            <div class="inline-select">
+              <select id="sum-scope">
+                <option value="day">日（選択日）</option>
+                <option value="month">月（表示中）</option>
+                <option value="year">年（表示中）</option>
+              </select>
+              <select id="sum-subject">
+                <option value="__all__">全科目</option>
+              </select>
             </div>
+            <span class="badge badge-sum" id="sum-range-badge">-</span>
+          </div>
+          <div class="sum-kpi">
+            <div class="kpi">
+              <div class="num" id="sum-min">0分</div>
+              <div class="lab">合計（分）</div>
+            </div>
+            <div class="kpi">
+              <div class="num" id="sum-hm">0時間0分</div>
+              <div class="lab">合計（時分）</div>
+            </div>
+            <div class="kpi">
+              <div class="num" id="sum-count">0</div>
+              <div class="lab">実績件数</div>
+            </div>
+          </div>
+          <div class="help" style="margin-top:8px;">
+            ※ minutes未入力の実績（typing/pillar等）は集計から除外します。
           </div>
         </div>
 
-        <div class="form-group">
-          <label>開始時刻（任意）</label>
-          <input type="time" id="plan-start-time">
+        <div class="panel">
+          <h3 id="day-title">📅 選択日：-</h3>
+          <div class="panel-actions">
+            <button class="btn-small btn-success" id="cal-add-plan-btn">＋予定</button>
+            <button class="btn-small btn-primary" id="cal-add-record-btn">＋実績（計画なし）</button>
+            <button class="btn-small btn-warning" id="cal-open-series-btn">🧩 シリーズ管理</button>
+          </div>
+
+          <div id="day-detail"></div>
         </div>
 
-        <div class="form-group">
-          <label>予定時間（分）</label>
-          <input type="number" id="plan-minutes" min="1" step="1" value="30">
-        </div>
-
-        <div class="form-group full">
-          <label>メモ</label>
-          <input type="text" id="plan-note" placeholder="補足メモ...">
-        </div>
-
-        <div class="full" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          <button class="btn-primary" id="add-plan-btn">＋ 追加</button>
-        </div>
       </div>
-    </div>
 
-    <div class="plan-section">
-      <h3>🧩 繰り返しシリーズ（分かりやすい名前付き）</h3>
-      <div class="help" style="margin-bottom:8px;">
-        繰り返しで登録すると「シリーズ名」が自動生成されます（例：<b>所得税｜理論暗記｜毎日｜2026-08-01〜2027-07-31</b>）。<br>
-        タイトルが同じでもシリーズで判別できます。
-      </div>
-      <div id="series-list" class="series-list"></div>
     </div>
-
   </div>
 </div>
 
 <!-- 管理者タブ -->
 <div class="tab-content" id="tab-admin">
   <div style="padding:12px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
-    <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div class="panel">
       <h3 style="margin-bottom:10px;color:#1a2a4a;font-size:0.92rem;">👤 ユーザー追加</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div class="form-group"><label>メールアドレス</label><input type="email" id="new-user-email" placeholder="user@example.com"></div>
@@ -764,7 +688,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       <div id="add-user-error" style="color:#c0392b;font-size:0.8rem;min-height:16px;margin-top:6px;"></div>
       <button class="btn-primary" id="add-user-btn" style="margin-top:8px;">👤 ユーザーを追加</button>
     </div>
-    <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div class="panel">
       <h3 style="margin-bottom:10px;color:#1a2a4a;font-size:0.92rem;">👥 ユーザー一覧</h3>
       <div id="user-list"><div class="empty-state"><div class="icon">👥</div>読み込み中...</div></div>
     </div>
@@ -773,7 +697,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 
 </div><!-- /.main -->
 
-<!-- 新規理論追加モーダル（元のまま） -->
+<!-- 新規理論追加モーダル -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal">
     <div class="modal-drag"></div>
@@ -813,7 +737,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   </div>
 </div>
 
-<!-- 予定/実績モーダル（新規） -->
+<!-- カレンダー：予定/実績/シリーズ管理 共通モーダル -->
 <div class="modal-overlay" id="cal-modal">
   <div class="modal">
     <div class="modal-drag"></div>
@@ -879,12 +803,15 @@ let editBlocks=[];
 let pendingMark=null;
 let navCollapsed=false;
 let showTextPane=false;
-let calSelectedDate=null; // "YYYY-MM-DD"
+
+let calSelectedDate=null; // YYYY-MM-DD
+let calSelectedDayNum=null;
 
 /* ===== Utils ===== */
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function showSync(){const el=document.getElementById('sync-indicator');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+
 function ymd(d){
   const dt = (d instanceof Date)? d : new Date(d);
   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
@@ -895,20 +822,59 @@ function formatDateTime(iso){
   const tt=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   return `${dd} ${tt}`;
 }
+function formatHMFromISO(iso){
+  const d=new Date(iso);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function formatHMFromYmdAndTime(ymdStr, hm){
+  // ymd + HH:MM => HH:MM
+  if(!hm) return '';
+  return hm;
+}
+function addMinutesToHM(hm, minutes){
+  if(!hm || !minutes) return '';
+  const [h,m]=hm.split(':').map(n=>parseInt(n,10));
+  const d=new Date(2000,0,1,h,m,0);
+  d.setMinutes(d.getMinutes()+minutes);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function formatRangeHM(hmStart, minutes){
+  if(!hmStart || !minutes) return hmStart || '';
+  const hmEnd=addMinutesToHM(hmStart, minutes);
+  return `${hmStart}-${hmEnd}`;
+}
 function addDays(dateStr, days){
   const d=new Date(dateStr+'T00:00:00');
   d.setDate(d.getDate()+days);
   return ymd(d);
 }
-function betweenYmd(dateStr, start, end){
-  return dateStr>=start && dateStr<=end;
-}
 function uniq(arr){ return [...new Set(arr)]; }
 
-/* ===== Subject filter (A: activeSubjects) ===== */
+/* ===== Duration helpers ===== */
+function minutesToLabel(min){
+  const m = parseInt(min||0,10);
+  const h = Math.floor(m/60);
+  const mm = m%60;
+  if(h<=0) return `${mm}分`;
+  if(mm===0) return `${h}時間`;
+  return `${h}時間${mm}分`;
+}
+function hmToMinutes(hm){
+  if(!hm) return 0;
+  const [h,m]=hm.split(':').map(n=>parseInt(n,10));
+  if(Number.isNaN(h)||Number.isNaN(m)) return 0;
+  return h*60+m;
+}
+function minutesToHM(min){
+  const m=parseInt(min||0,10);
+  const h=Math.floor(m/60);
+  const mm=m%60;
+  return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+}
+
+/* ===== Subject filter ===== */
 function subjectAllowed(subject){
-  // 科目は必須（null禁止）の設計。ただし理論や古いデータで空が来たら安全に弾く
-  if(!subject) return false;
+  if(!subject) return false; // 科目必須
   const mode = appData.settings?.subjectViewMode || 'activeOnly';
   if(mode==='all') return true;
   const active = appData.settings?.activeSubjects || [];
@@ -1039,7 +1005,7 @@ function startSync(uid){
 
   unsubData = onSnapshot(query(collection(db,'users',uid,'data')), snap=>{
     appData.data = snap.docs.map(d=>d.data());
-    refreshSettingsSubjectChecklist(); // 科目一覧更新
+    refreshSettingsSubjectChecklist();
     renderAll();
     if(appData.selectedId){
       const item=appData.data.find(d=>d.id===appData.selectedId);
@@ -1090,19 +1056,6 @@ function initResizer(resizerId,getPaneEl,direction='left',storageKey=null,minPx=
     document.body.style.cursor='';
     document.body.style.userSelect='';
   });
-  resizer.addEventListener('touchstart',e=>{
-    dragging=true;startX=e.touches[0].clientX;
-    const p=getPaneEl();startW=p?p.offsetWidth:300;
-    e.preventDefault();
-  },{passive:false});
-  document.addEventListener('touchmove',e=>{
-    if(!dragging) return;
-    const p=getPaneEl(); if(!p) return;
-    const newW=Math.max(minPx,startW+(direction==='left'?e.touches[0].clientX-startX:startX-e.touches[0].clientX));
-    p.style.width=newW+'px';
-    if(storageKey) localStorage.setItem(storageKey,newW);
-  },{passive:false});
-  document.addEventListener('touchend',()=>{dragging=false;});
 }
 function initAllResizers(){
   initResizer('resizer-manage',()=>document.getElementById('manage-left-pane'),'left','manage-left-w',180);
@@ -1134,11 +1087,20 @@ function switchTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  if(tab==='history') renderHistory();
-  if(tab==='calendar') renderCalendar();
-  if(tab==='plan') renderSeriesList();
-  if(tab==='manage') renderManageList();
-  if(tab==='admin' && currentUserRole==='admin') renderUserList();
+
+  if(tab==='calendar'){
+    // 選択日が未設定なら今日を選択
+    if(!calSelectedDate){
+      const today=ymd(new Date());
+      calSelectedDate=today;
+      // 表示月を今日に合わせる
+      const d=new Date(today+'T00:00:00');
+      calYear=d.getFullYear(); calMonth=d.getMonth();
+    }
+    renderCalendar();
+    renderDayPanel();
+    renderSummary();
+  }
 }
 
 /* ===== Settings UI ===== */
@@ -1160,8 +1122,7 @@ function refreshSettingsSubjectChecklist(){
   }).join('') : `<div class="help">理論データがまだ無いので科目一覧を作れません。</div>`;
 }
 function syncSettingsUI(){
-  const modeEl=document.getElementById('subject-view-mode');
-  modeEl.value = appData.settings?.subjectViewMode || 'activeOnly';
+  document.getElementById('subject-view-mode').value = appData.settings?.subjectViewMode || 'activeOnly';
 }
 async function saveSubjectSettingsHandler(){
   const mode=document.getElementById('subject-view-mode').value;
@@ -1172,793 +1133,11 @@ async function saveSubjectSettingsHandler(){
 function autoFillSubjects(){
   const subjects=allSubjectsFromData();
   document.querySelectorAll('.active-subj-chk').forEach(el=>{
-    el.checked = subjects.includes(el.value); // 全部ON
+    el.checked = subjects.includes(el.value);
   });
 }
 
-/* ===== Plan form kind toggle ===== */
-function updatePlanKindUI(){
-  const kind=document.getElementById('plan-kind').value;
-  const singleWrap=document.getElementById('single-date-wrap');
-  const rs=document.getElementById('repeat-start-wrap');
-  const re=document.getElementById('repeat-end-wrap');
-  const rr=document.getElementById('repeat-rule-wrap');
-
-  if(kind==='single'){
-    singleWrap.style.display='';
-    rs.style.display='none';
-    re.style.display='none';
-    rr.style.display='none';
-  }else if(kind==='repeat'){
-    singleWrap.style.display='none';
-    rs.style.display='';
-    re.style.display='';
-    rr.style.display='';
-  }else{
-    // template：この版では「テンプレ保存」を実装（plansではなく templates にしたいが、簡略化で seriesIdテンプレとして保存）
-    // ただし「期限無し」を厳密にするには別コレクション推奨。今回は要望通り選べるUIだけ残し、保存時にアラートで案内。
-    singleWrap.style.display='none';
-    rs.style.display='';
-    re.style.display='';
-    rr.style.display='';
-  }
-}
-function updateWeekdayUI(){
-  const t=document.getElementById('repeat-type').value;
-  document.getElementById('weekday-wrap').style.display = (t==='weekly') ? 'flex' : 'none';
-}
-
-/* ===== Subject / item selectors ===== */
-function refreshPlanSubjectSelect(){
-  const sel=document.getElementById('plan-subject');
-  const subjects=allSubjectsFromData();
-  const cur=sel.value;
-  sel.innerHTML = `<option value="">選択してください</option>` + subjects.map(s=>`<option value="${escapeHtml(s)}"${s===cur?' selected':''}>${escapeHtml(s)}</option>`).join('');
-}
-function refreshPlanItemSelect(){
-  const subj=document.getElementById('plan-subject').value;
-  const sel=document.getElementById('plan-item');
-  const cur=sel.value;
-  const items=appData.data.filter(d=>d.subject===subj).sort((a,b)=>a.no.localeCompare(b.no,'ja',{numeric:true}));
-  sel.innerHTML = `<option value="">（なし）</option>` + items.map(it=>`<option value="${it.id}"${it.id===cur?' selected':''}>${escapeHtml(it.no)} ${escapeHtml(it.title)}</option>`).join('');
-}
-
-/* ===== Plan create (single / repeat) ===== */
-function buildSeriesName({subject,title,repeatType,start,end,weekdaySet}){
-  if(repeatType==='daily'){
-    return `${subject}｜${title}｜毎日｜${start}〜${end}`;
-  }
-  const w=['日','月','火','水','木','金','土'];
-  const days=[...weekdaySet].sort().map(n=>w[n]).join('');
-  return `${subject}｜${title}｜毎週(${days})｜${start}〜${end}`;
-}
-
-async function createPlans(){
-  const kind=document.getElementById('plan-kind').value;
-  const subject=document.getElementById('plan-subject').value;
-  const itemId=document.getElementById('plan-item').value || null;
-  const title=document.getElementById('plan-title').value.trim();
-  const startTime=document.getElementById('plan-start-time').value || null;
-  const minutes=parseInt(document.getElementById('plan-minutes').value,10);
-  const note=document.getElementById('plan-note').value.trim();
-
-  if(!subject){ alert('科目は必須です'); return; }
-  if(!title){ alert('タイトルを入力してください'); return; }
-  if(!minutes || minutes<1){ alert('予定時間（分）を正しく入力してください'); return; }
-
-  const u=auth.currentUser; if(!u) return;
-
-  if(kind==='single'){
-    const date=document.getElementById('plan-date').value;
-    if(!date){ alert('単発の場合は実施予定日を入力してください'); return; }
-    const plan={
-      id: genId(),
-      title, subject, itemId,
-      date,
-      startTime,
-      minutes,
-      note,
-      status:'planned',
-      recordId:null,
-      seriesId:null,
-      createdAt:new Date().toISOString(),
-      updatedAt:new Date().toISOString()
-    };
-    await savePlan(plan);
-    alert('単発の予定を追加しました');
-    return;
-  }
-
-  // repeat / template: start-end required
-  const start=document.getElementById('plan-start').value;
-  const end=document.getElementById('plan-end').value;
-  if(!start||!end){ alert('開始日と終了日は必須です'); return; }
-  if(end<start){ alert('終了日は開始日以降にしてください'); return; }
-
-  if(kind==='template'){
-    alert('この版では「期限なし（テンプレ）」は、いったん繰り返しとして生成する形に統一しています。\n（テンプレ専用コレクション実装は次段階で対応可能です）');
-  }
-
-  const repeatType=document.getElementById('repeat-type').value;
-  const weekdaySet=new Set(
-    [...document.querySelectorAll('.wday:checked')].map(el=>parseInt(el.value,10))
-  );
-
-  if(repeatType==='weekly' && weekdaySet.size===0){
-    alert('毎週の場合は曜日を1つ以上選んでください');
-    return;
-  }
-
-  const seriesId = 'series_' + genId();
-  const seriesName = buildSeriesName({subject,title,repeatType,start,end,weekdaySet});
-
-  // generate dates
-  const dates=[];
-  let cur=start;
-  while(cur<=end){
-    if(repeatType==='daily'){
-      dates.push(cur);
-    }else{
-      const d=new Date(cur+'T00:00:00');
-      if(weekdaySet.has(d.getDay())) dates.push(cur);
-    }
-    cur=addDays(cur,1);
-  }
-
-  if(dates.length===0){
-    alert('条件に合う日付がありませんでした');
-    return;
-  }
-  if(!confirm(`${dates.length}件の予定を作成します。\nシリーズ名：${seriesName}\nよろしいですか？`)) return;
-
-  // batch write (<=500)
-  const chunks=[];
-  for(let i=0;i<dates.length;i+=450) chunks.push(dates.slice(i,i+450));
-
-  for(const chunk of chunks){
-    const batch=writeBatch(db);
-    for(const date of chunk){
-      const plan={
-        id: genId(),
-        title, subject, itemId,
-        date,
-        startTime,
-        minutes,
-        note,
-        status:'planned',
-        recordId:null,
-        seriesId,
-        seriesName,
-        repeatType,
-        start,
-        end,
-        createdAt:new Date().toISOString(),
-        updatedAt:new Date().toISOString()
-      };
-      batch.set(doc(db,'users',u.uid,'plans',plan.id), plan);
-    }
-    await batch.commit();
-  }
-  showSync();
-  alert(`繰り返し予定を追加しました（${dates.length}件）`);
-}
-
-/* ===== Series list & bulk update (undone only) ===== */
-function seriesSummary(){
-  const plans=filteredPlans();
-  const map=new Map(); // seriesId -> {seriesId, seriesName, subject, title, start,end, repeatType, total, done, planned}
-  for(const p of plans){
-    if(!p.seriesId) continue;
-    const key=p.seriesId;
-    if(!map.has(key)){
-      map.set(key,{
-        seriesId:key,
-        seriesName: p.seriesName || '(series)',
-        subject:p.subject,
-        title:p.title,
-        start:p.start||null,
-        end:p.end||null,
-        repeatType:p.repeatType||null,
-        total:0,
-        done:0,
-        planned:0
-      });
-    }
-    const s=map.get(key);
-    s.total++;
-    if(p.status==='done') s.done++;
-    if(p.status==='planned') s.planned++;
-  }
-  return [...map.values()].sort((a,b)=>(a.seriesName||'').localeCompare(b.seriesName||''));
-}
-
-function renderSeriesList(){
-  refreshPlanSubjectSelect();
-  refreshPlanItemSelect();
-
-  const list=document.getElementById('series-list');
-  const arr=seriesSummary();
-  if(!arr.length){
-    list.innerHTML = `<div class="empty-state"><div class="icon">🧩</div>繰り返しシリーズがありません</div>`;
-    return;
-  }
-
-  list.innerHTML = arr.map(s=>{
-    return `
-      <div class="series-card">
-        <div class="info">
-          <div class="name">${escapeHtml(s.seriesName)}</div>
-          <div class="sub">総数：${s.total} / 未完了：${s.planned} / 完了：${s.done}</div>
-          <div class="sub">seriesId：${escapeHtml(s.seriesId)}</div>
-        </div>
-        <div class="actions">
-          <button class="btn-small btn-warning" data-series-edit="${escapeHtml(s.seriesId)}">未完了を一括修正</button>
-          <button class="btn-small btn-danger" data-series-del="${escapeHtml(s.seriesId)}">未完了を一括削除</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  list.querySelectorAll('[data-series-edit]').forEach(btn=>{
-    btn.addEventListener('click',()=>openSeriesBulkEdit(btn.dataset.seriesEdit));
-  });
-  list.querySelectorAll('[data-series-del]').forEach(btn=>{
-    btn.addEventListener('click',()=>bulkDeleteUndoneBySeries(btn.dataset.seriesDel));
-  });
-}
-
-function openSeriesBulkEdit(seriesId){
-  const series = seriesSummary().find(s=>s.seriesId===seriesId);
-  if(!series){ alert('シリーズが見つかりません'); return; }
-
-  openCalModal({
-    title: '🧩 未完了を一括修正',
-    bodyHtml: `
-      <div class="help" style="margin-bottom:10px;">
-        対象：<b>${escapeHtml(series.seriesName)}</b><br>
-        未完了（planned）の予定だけをまとめて変更します。
-      </div>
-      <div class="plan-grid">
-        <div class="form-group full">
-          <label>新しいタイトル（空なら変更しない）</label>
-          <input type="text" id="bulk-title" placeholder="例：理論暗記（45分）など">
-        </div>
-        <div class="form-group">
-          <label>新しい開始時刻（空なら変更しない）</label>
-          <input type="time" id="bulk-startTime">
-        </div>
-        <div class="form-group">
-          <label>新しい予定時間（分）（空なら変更しない）</label>
-          <input type="number" id="bulk-minutes" min="1" step="1" placeholder="例：45">
-        </div>
-        <div class="form-group full">
-          <label>新しいメモ（空なら変更しない）</label>
-          <input type="text" id="bulk-note" placeholder="補足メモ...">
-        </div>
-      </div>
-    `,
-    onSave: async ()=>{
-      const newTitle=document.getElementById('bulk-title').value.trim();
-      const newStartTime=document.getElementById('bulk-startTime').value || null;
-      const newMinutesStr=document.getElementById('bulk-minutes').value;
-      const newMinutes=newMinutesStr?parseInt(newMinutesStr,10):null;
-      const newNote=document.getElementById('bulk-note').value.trim();
-
-      if(newMinutes!==null && (!newMinutes || newMinutes<1)){
-        alert('予定時間（分）が不正です'); return;
-      }
-
-      await bulkUpdateUndoneBySeries(seriesId,{newTitle,newStartTime,newMinutes,newNote});
-      closeCalModal();
-      alert('未完了一括修正が完了しました');
-    }
-  });
-}
-
-async function bulkUpdateUndoneBySeries(seriesId, {newTitle,newStartTime,newMinutes,newNote}){
-  const u=auth.currentUser; if(!u) return;
-  const targets = appData.plans.filter(p=>p.seriesId===seriesId && p.status==='planned');
-  if(!targets.length){ alert('未完了の予定がありません'); return; }
-  if(!confirm(`未完了 ${targets.length}件を更新します。よろしいですか？`)) return;
-
-  const chunks=[];
-  for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
-
-  for(const chunk of chunks){
-    const batch=writeBatch(db);
-    for(const p of chunk){
-      const upd={...p, updatedAt:new Date().toISOString()};
-      if(newTitle) { upd.title=newTitle; }
-      if(newStartTime!==null && newStartTime!=='') { upd.startTime=newStartTime; }
-      if(newMinutes!==null) { upd.minutes=newMinutes; }
-      if(newNote) { upd.note=newNote; }
-
-      // seriesNameも更新（タイトルが変わるなら分かりやすさのため）
-      if(newTitle){
-        const weekdaySet=new Set(); // seriesName再計算は repeatType に応じる（weeklyなら曜日保持してる想定だが、保存時に曜日は入れてないので簡略）
-        // weeklyの曜日は各planの日付から推測できるが重い。ここは seriesName の「タイトル部分」だけ差し替える簡易版。
-        upd.seriesName = (p.seriesName||'').replace(`｜${p.title}｜`, `｜${newTitle}｜`);
-      }
-      batch.set(doc(db,'users',u.uid,'plans',p.id), upd);
-    }
-    await batch.commit();
-  }
-  showSync();
-}
-
-async function bulkDeleteUndoneBySeries(seriesId){
-  const u=auth.currentUser; if(!u) return;
-  const targets = appData.plans.filter(p=>p.seriesId===seriesId && p.status==='planned');
-  if(!targets.length){ alert('未完了の予定がありません'); return; }
-  if(!confirm(`未完了 ${targets.length}件を削除します。よろしいですか？`)) return;
-
-  const chunks=[];
-  for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
-
-  for(const chunk of chunks){
-    const batch=writeBatch(db);
-    for(const p of chunk){
-      batch.delete(doc(db,'users',u.uid,'plans',p.id));
-    }
-    await batch.commit();
-  }
-  showSync();
-  alert('未完了分を削除しました');
-}
-
-/* ===== Calendar ===== */
-function changeMonth(d){
-  calMonth+=d;
-  if(calMonth>11){calMonth=0;calYear++;}
-  if(calMonth<0){calMonth=11;calYear--;}
-  renderCalendar();
-}
-function renderCalendar(){
-  document.getElementById('cal-title').textContent=`${calYear}年 ${calMonth+1}月`;
-
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const lastDate=new Date(calYear,calMonth+1,0).getDate();
-  const prevLast=new Date(calYear,calMonth,0).getDate();
-  const today=new Date();
-
-  const dayMap={}; // day -> {plans:[], records:[]}
-  for(const p of filteredPlans()){
-    const d=new Date(p.date+'T00:00:00');
-    if(d.getFullYear()===calYear && d.getMonth()===calMonth){
-      const k=d.getDate();
-      if(!dayMap[k]) dayMap[k]={plans:[],records:[]};
-      dayMap[k].plans.push(p);
-    }
-  }
-  for(const r of filteredRecords()){
-    const d=new Date(r.date);
-    if(d.getFullYear()===calYear && d.getMonth()===calMonth){
-      const k=d.getDate();
-      if(!dayMap[k]) dayMap[k]={plans:[],records:[]};
-      dayMap[k].records.push(r);
-    }
-  }
-
-  const grid=document.getElementById('cal-days');
-  grid.innerHTML='';
-
-  for(let i=firstDay-1;i>=0;i--){
-    grid.appendChild(createDayCell(prevLast-i,true,null,false));
-  }
-  for(let d=1;d<=lastDate;d++){
-    const isToday=(today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d);
-    const payload=dayMap[d]||{plans:[],records:[]};
-    const cell=createDayCell(d,false,payload,isToday);
-    cell.addEventListener('click',()=>showCalDetail(d,payload.plans,payload.records));
-    grid.appendChild(cell);
-  }
-  const remain=(firstDay+lastDate)%7;
-  if(remain) for(let d=1;d<=7-remain;d++) grid.appendChild(createDayCell(d,true,null,false));
-
-  document.getElementById('cal-detail').style.display='none';
-}
-
-function createDayCell(day,otherMonth,payload,isToday){
-  const cell=document.createElement('div');
-  cell.className='cal-day'+(otherMonth?' other-month':'')+(isToday?' today':'');
-  const num=document.createElement('div');
-  num.className='cal-day-num';
-  num.textContent=day;
-  cell.appendChild(num);
-
-  if(payload){
-    const plans=payload.plans||[];
-    const records=payload.records||[];
-    if(plans.length || records.length){
-      const evDiv=document.createElement('div');
-      evDiv.className='cal-events';
-
-      // plan summary
-      if(plans.length){
-        const undone=plans.filter(p=>p.status==='planned').length;
-        const done=plans.filter(p=>p.status==='done').length;
-        const ev=document.createElement('div');
-        ev.className='cal-event cal-ev-plan';
-        ev.textContent=`予定 ${plans.length}（未${undone}/済${done}）`;
-        evDiv.appendChild(ev);
-      }
-      // record summary (show up to 1)
-      if(records.length){
-        const ev=document.createElement('div');
-        const any=records[0];
-        const cls = any.score==null ? 'cal-ev-record-none' : any.score>=80?'cal-ev-record-high':any.score>=50?'cal-ev-record-mid':'cal-ev-record-low';
-        ev.className='cal-event '+cls;
-        ev.textContent = any.score==null ? `実績 ${records.length}` : `実績 ${records.length}（例:${any.score}%）`;
-        evDiv.appendChild(ev);
-      }
-      cell.appendChild(evDiv);
-    }
-  }
-  return cell;
-}
-
-function showCalDetail(day, plans, records){
-  const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-  calSelectedDate = dateStr;
-
-  document.getElementById('cal-detail-title').textContent=`${calYear}年${calMonth+1}月${day}日`;
-  const list=document.getElementById('cal-detail-list');
-
-  plans=[...(plans||[])].sort((a,b)=>(a.startTime||'').localeCompare(b.startTime||''));
-  records=[...(records||[])].sort((a,b)=>b.date.localeCompare(a.date));
-
-  let html='';
-
-  html += `<div class="cal-section-title">予定（plans）</div>`;
-  if(!plans.length){
-    html += `<div style="color:#aaa;font-size:0.86rem;margin-bottom:8px;">予定がありません</div>`;
-  }else{
-    html += plans.map(p=>{
-      const done = p.status==='done';
-      const time = p.startTime ? `🕒 ${escapeHtml(p.startTime)}` : '';
-      const mins = p.minutes ? `⏱ ${p.minutes}分` : '';
-      const link = p.itemId ? `🔗 理論` : '';
-      const badge = done ? `<span class="badge badge-done">完了</span>` : `<span class="badge badge-plan">予定</span>`;
-      return `
-        <div class="cal-detail-item plan ${done?'done':''}">
-          <div class="left">
-            <div class="title">${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</div>
-            <div class="meta">
-              ${badge}
-              ${time?`<span>${time}</span>`:''}
-              ${mins?`<span>${mins}</span>`:''}
-              ${link?`<span>${link}</span>`:''}
-              ${p.note?`<span>📝 ${escapeHtml(p.note)}</span>`:''}
-              ${p.seriesName?`<span>🧩 ${escapeHtml(p.seriesName)}</span>`:''}
-            </div>
-          </div>
-          <div class="right">
-            ${done?``:`<button class="btn-small btn-success" data-do-plan="${escapeHtml(p.id)}">実行</button>`}
-            ${done?``:`<button class="btn-small btn-danger" data-del-plan="${escapeHtml(p.id)}">削除</button>`}
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  html += `<div class="cal-section-title">実績（records）</div>`;
-  if(!records.length){
-    html += `<div style="color:#aaa;font-size:0.86rem;">実績がありません</div>`;
-  }else{
-    html += records.map(r=>{
-      const score = (r.score==null) ? '' : `${r.score}%`;
-      const cls = (r.score==null) ? 'score-none' : (r.score>=80?'score-high':r.score>=50?'score-mid':'score-low');
-      const mins = r.minutes?`⏱ ${r.minutes}分`:'';
-      return `
-        <div class="cal-detail-item record">
-          <div class="left">
-            <div class="title">${escapeHtml(r.subject)}｜${escapeHtml(r.title)}</div>
-            <div class="meta">
-              <span class="badge badge-record">${escapeHtml(r.recordType||'activity')}</span>
-              <span>📅 ${escapeHtml(formatDateTime(r.date))}</span>
-              ${mins?`<span>${mins}</span>`:''}
-              ${r.planId?`<span>🔗 計画紐付け</span>`:''}
-            </div>
-          </div>
-          <div class="right">
-            ${score?`<span class="history-score-badge ${cls}">${score}</span>`:''}
-            <button class="btn-small btn-danger" data-del-rec="${escapeHtml(r.id)}">削除</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  list.innerHTML=html;
-  document.getElementById('cal-detail').style.display='block';
-
-  // bind actions
-  list.querySelectorAll('[data-do-plan]').forEach(btn=>{
-    btn.addEventListener('click',()=>openRecordFromPlan(btn.dataset.doPlan));
-  });
-  list.querySelectorAll('[data-del-plan]').forEach(btn=>{
-    btn.addEventListener('click',()=>deletePlanHandler(btn.dataset.delPlan));
-  });
-  list.querySelectorAll('[data-del-rec]').forEach(btn=>{
-    btn.addEventListener('click',()=>deleteRecordHandler(btn.dataset.delRec));
-  });
-
-  // bind add buttons
-  document.getElementById('cal-add-plan-btn').onclick=()=>openAddPlanFromCalendar(dateStr);
-  document.getElementById('cal-add-record-btn').onclick=()=>openAddRecordNoPlan(dateStr);
-}
-
-async function deletePlanHandler(planId){
-  const p=appData.plans.find(x=>x.id===planId);
-  if(!p) return;
-  if(!confirm('この予定を削除しますか？（未完了のみ削除推奨）')) return;
-  await delPlan(planId);
-}
-
-async function deleteRecordHandler(id){
-  if(!confirm('この実績を削除しますか？')) return;
-  await delRec(id);
-}
-
-/* ===== Calendar modal helper ===== */
-let calModalOnSave=null;
-function openCalModal({title, bodyHtml, onSave}){
-  calModalOnSave = onSave;
-  document.getElementById('cal-modal-title').textContent=title;
-  document.getElementById('cal-modal-body').innerHTML=bodyHtml;
-  document.getElementById('cal-modal').classList.add('open');
-}
-function closeCalModal(){
-  document.getElementById('cal-modal').classList.remove('open');
-  calModalOnSave=null;
-}
-
-/* ===== Add plan from calendar (single) ===== */
-function openAddPlanFromCalendar(dateStr){
-  const subjects=allSubjectsFromData();
-  openCalModal({
-    title: '＋ 予定（単発）',
-    bodyHtml: `
-      <div class="plan-grid">
-        <div class="form-group">
-          <label>科目（必須）</label>
-          <select id="m-plan-subject">
-            <option value="">選択してください</option>
-            ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>開始時刻（任意）</label>
-          <input type="time" id="m-plan-time">
-        </div>
-        <div class="form-group full">
-          <label>タイトル</label>
-          <input type="text" id="m-plan-title" placeholder="例：理論暗記">
-        </div>
-        <div class="form-group">
-          <label>実施日</label>
-          <input type="date" id="m-plan-date" value="${escapeHtml(dateStr)}">
-        </div>
-        <div class="form-group">
-          <label>予定時間（分）</label>
-          <input type="number" id="m-plan-minutes" min="1" step="1" value="30">
-        </div>
-        <div class="form-group full">
-          <label>メモ</label>
-          <input type="text" id="m-plan-note" placeholder="補足メモ...">
-        </div>
-      </div>
-    `,
-    onSave: async ()=>{
-      const subject=document.getElementById('m-plan-subject').value;
-      const title=document.getElementById('m-plan-title').value.trim();
-      const date=document.getElementById('m-plan-date').value;
-      const startTime=document.getElementById('m-plan-time').value||null;
-      const minutes=parseInt(document.getElementById('m-plan-minutes').value,10);
-      const note=document.getElementById('m-plan-note').value.trim();
-      if(!subject){alert('科目は必須です');return;}
-      if(!title){alert('タイトルを入力してください');return;}
-      if(!date){alert('実施日を入力してください');return;}
-      if(!minutes||minutes<1){alert('予定時間（分）が不正です');return;}
-      await savePlan({
-        id: genId(),
-        title, subject,
-        itemId:null,
-        date,
-        startTime,
-        minutes,
-        note,
-        status:'planned',
-        recordId:null,
-        seriesId:null,
-        createdAt:new Date().toISOString(),
-        updatedAt:new Date().toISOString()
-      });
-      closeCalModal();
-    }
-  });
-}
-
-/* ===== Create record from plan ===== */
-function openRecordFromPlan(planId){
-  const p=appData.plans.find(x=>x.id===planId);
-  if(!p) return;
-
-  const now=new Date();
-  const defaultIso = new Date(`${p.date}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:00`).toISOString();
-
-  openCalModal({
-    title: '✅ 実績登録（計画から）',
-    bodyHtml: `
-      <div class="help" style="margin-bottom:10px;">
-        計画：<b>${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</b><br>
-        実績を保存すると、計画は「完了」になります。
-      </div>
-      <div class="plan-grid">
-        <div class="form-group">
-          <label>実施日時</label>
-          <input type="datetime-local" id="m-rec-dt" value="${escapeHtml(defaultIso.slice(0,16))}">
-        </div>
-        <div class="form-group">
-          <label>実施時間（分）</label>
-          <input type="number" id="m-rec-minutes" min="1" step="1" value="${escapeHtml(String(p.minutes||30))}">
-        </div>
-        <div class="form-group full">
-          <label>メモ（任意）</label>
-          <input type="text" id="m-rec-note" placeholder="補足メモ...">
-        </div>
-      </div>
-    `,
-    onSave: async ()=>{
-      const dt=document.getElementById('m-rec-dt').value;
-      const minutes=parseInt(document.getElementById('m-rec-minutes').value,10);
-      const note=document.getElementById('m-rec-note').value.trim();
-      if(!dt){alert('実施日時を入力してください');return;}
-      if(!minutes||minutes<1){alert('実施時間（分）が不正です');return;}
-
-      const recId=genId();
-      const rec={
-        id: recId,
-        recordType:'activity',
-        planId:p.id,
-        subject:p.subject,
-        itemId:p.itemId||null,
-        title:p.title,
-        date: new Date(dt).toISOString(),
-        minutes,
-        score: null,
-        note
-      };
-      await saveRec(rec);
-
-      const upd={...p, status:'done', recordId:recId, updatedAt:new Date().toISOString()};
-      await savePlan(upd);
-
-      closeCalModal();
-    }
-  });
-}
-
-/* ===== Add record without plan ===== */
-function openAddRecordNoPlan(dateStr){
-  const subjects=allSubjectsFromData();
-  const now=new Date();
-  const defaultIso = new Date(`${dateStr}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:00`).toISOString();
-
-  openCalModal({
-    title: '＋ 実績（計画なし）',
-    bodyHtml: `
-      <div class="plan-grid">
-        <div class="form-group">
-          <label>科目（必須）</label>
-          <select id="m-rec-subject">
-            <option value="">選択してください</option>
-            ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>実施時間（分）</label>
-          <input type="number" id="m-rec-minutes2" min="1" step="1" value="30">
-        </div>
-        <div class="form-group full">
-          <label>タイトル</label>
-          <input type="text" id="m-rec-title" placeholder="例：理論暗記 / 講義受講 / 復習など">
-        </div>
-        <div class="form-group full">
-          <label>実施日時</label>
-          <input type="datetime-local" id="m-rec-dt2" value="${escapeHtml(defaultIso.slice(0,16))}">
-        </div>
-        <div class="form-group full">
-          <label>メモ（任意）</label>
-          <input type="text" id="m-rec-note2" placeholder="補足メモ...">
-        </div>
-      </div>
-    `,
-    onSave: async ()=>{
-      const subject=document.getElementById('m-rec-subject').value;
-      const minutes=parseInt(document.getElementById('m-rec-minutes2').value,10);
-      const title=document.getElementById('m-rec-title').value.trim();
-      const dt=document.getElementById('m-rec-dt2').value;
-      const note=document.getElementById('m-rec-note2').value.trim();
-      if(!subject){alert('科目は必須です');return;}
-      if(!title){alert('タイトルを入力してください');return;}
-      if(!dt){alert('実施日時を入力してください');return;}
-      if(!minutes||minutes<1){alert('実施時間（分）が不正です');return;}
-
-      const rec={
-        id: genId(),
-        recordType:'activity',
-        planId:null,
-        subject,
-        itemId:null,
-        title,
-        date:new Date(dt).toISOString(),
-        minutes,
-        score:null,
-        note
-      };
-      await saveRec(rec);
-      closeCalModal();
-    }
-  });
-}
-
-document.getElementById('cal-modal-cancel-btn').addEventListener('click',closeCalModal);
-document.getElementById('cal-modal-save-btn').addEventListener('click',async ()=>{
-  if(calModalOnSave) await calModalOnSave();
-});
-
-/* ===== History ===== */
-function updateHistoryFilter(){
-  const sel=document.getElementById('hist-subject-filter');
-  const cur=sel.value;
-  const subjects = uniq(allSubjectsFromData()).filter(s=>subjectAllowed(s) || (appData.settings.subjectViewMode==='all'));
-  // 表示モードに応じて候補も絞る
-  sel.innerHTML = '<option value="">すべて</option>' + subjects.map(s=>`<option value="${escapeHtml(s)}"${s===cur?' selected':''}>${escapeHtml(s)}</option>`).join('');
-}
-function clearHistoryFilter(){
-  document.getElementById('hist-subject-filter').value='';
-  document.getElementById('hist-date-from').value='';
-  document.getElementById('hist-date-to').value='';
-  renderHistory();
-}
-function renderHistory(){
-  const subj=document.getElementById('hist-subject-filter').value;
-  const from=document.getElementById('hist-date-from').value;
-  const to=document.getElementById('hist-date-to').value;
-
-  let filtered=[...filteredRecords()];
-  if(subj) filtered=filtered.filter(r=>r.subject===subj);
-  if(from) filtered=filtered.filter(r=>r.date>=from);
-  if(to) filtered=filtered.filter(r=>r.date<=to+'T23:59:59');
-
-  filtered.sort((a,b)=>b.date.localeCompare(a.date));
-  const list=document.getElementById('history-list');
-  if(!filtered.length){
-    list.innerHTML='<div class="empty-state"><div class="icon">📊</div>記録がありません</div>';
-    return;
-  }
-  list.innerHTML=filtered.map(r=>{
-    const cls = (r.score==null) ? 'score-none' : (r.score>=80?'score-high':r.score>=50?'score-mid':'score-low');
-    const scoreText = (r.score==null) ? '' : `${r.score}%`;
-    const minutesText = r.minutes ? `⏱ ${r.minutes}分` : '';
-    const typeText = r.recordType ? `🧾 ${r.recordType}` : '';
-    return `
-      <div class="history-card">
-        <div class="history-info">
-          <div class="history-path">${escapeHtml(r.subject)}${r.chapter?` > ${escapeHtml(r.chapter)}`:''}</div>
-          <div class="history-title">${escapeHtml(r.title)} ${minutesText?`<span style="color:#888;font-weight:600;">${minutesText}</span>`:''}</div>
-          <div class="history-date">📅 ${escapeHtml(formatDateTime(r.date))} ${typeText}</div>
-        </div>
-        ${scoreText?`<div class="history-score-badge ${cls}">${scoreText}</div>`:''}
-        <button class="btn-small btn-danger" data-recid="${escapeHtml(r.id)}">削除</button>
-      </div>
-    `;
-  }).join('');
-  list.querySelectorAll('[data-recid]').forEach(btn=>btn.addEventListener('click',()=>deleteRecordHandler(btn.dataset.recid)));
-}
-
-/* ===== Manage list / tree / selectors (filtered) ===== */
+/* ===== Manage list / tree / selectors (same as v2.0 minimal) ===== */
 function getSortedList(){
   return [...filteredData()].sort((a,b)=>{
     const sc=a.subject.localeCompare(b.subject,'ja'); if(sc) return sc;
@@ -1982,11 +1161,6 @@ function getBestScore(id){
   const r=appData.records.filter(r=>r.itemId===id && r.score!=null);
   return r.length ? Math.max(...r.map(r=>r.score)) : null;
 }
-function getLastDate(id){
-  const r=appData.records.filter(r=>r.itemId===id);
-  return r.length ? r.sort((a,b)=>b.date.localeCompare(a.date))[0].date : null;
-}
-
 function renderTree(){
   const tree=document.getElementById('tree');
   const subjects={};
@@ -2041,13 +1215,42 @@ function renderTree(){
   });
 }
 
+function renderContentSelect(){
+  const subjects=uniq(filteredData().map(d=>d.subject)).sort((a,b)=>a.localeCompare(b,'ja'));
+  const selSubj=document.getElementById('sel-subject');
+  const prev=selSubj.value;
+  selSubj.innerHTML='<option value="">科目</option>'+subjects.map(s=>`<option value="${escapeHtml(s)}"${s===prev?' selected':''}>${escapeHtml(s)}</option>`).join('');
+  onSubjectChange();
+
+  const lf=document.getElementById('list-subject-filter');
+  const prevLf=lf.value;
+  lf.innerHTML='<option value="">すべての科目</option>'+subjects.map(s=>`<option value="${escapeHtml(s)}"${s===prevLf?' selected':''}>${escapeHtml(s)}</option>`).join('');
+}
+function onSubjectChange(){
+  const subj=document.getElementById('sel-subject').value;
+  const chapters=uniq(filteredData().filter(d=>d.subject===subj).map(d=>d.chapter)).sort((a,b)=>a.localeCompare(b,'ja'));
+  document.getElementById('sel-chapter').innerHTML='<option value="">章</option>'+chapters.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  document.getElementById('sel-item').innerHTML='<option value="">問題を選択</option>';
+}
+function onChapterChange(){
+  const subj=document.getElementById('sel-subject').value;
+  const chap=document.getElementById('sel-chapter').value;
+  const items=filteredData().filter(d=>d.subject===subj&&d.chapter===chap).sort((a,b)=>a.no.localeCompare(b.no,'ja',{numeric:true}));
+  document.getElementById('sel-item').innerHTML='<option value="">問題を選択</option>'+items.map(d=>`<option value="${escapeHtml(d.id)}">${escapeHtml(d.no)} ${escapeHtml(d.title)}</option>`).join('');
+}
+function confirmContentSelect(){
+  const id=document.getElementById('sel-item').value;
+  if(!id){ alert('問題を選択してください'); return; }
+  selectItem(id);
+  switchTab('study',document.querySelector('[data-tab="study"]'));
+}
 function renderManageList(){
   const wrap=document.getElementById('manage-list-wrap');
   const subjF=document.getElementById('list-subject-filter').value;
   const rankF=document.getElementById('list-rank-filter').value;
   const sortM=document.getElementById('list-sort').value;
 
-  let items=filteredData().map(item=>({...item,_best:getBestScore(item.id),_last:getLastDate(item.id)}));
+  let items=filteredData().map(item=>({...item,_best:getBestScore(item.id)}));
   if(subjF) items=items.filter(d=>d.subject===subjF);
   if(rankF) items=items.filter(d=>d.rank===rankF);
 
@@ -2081,38 +1284,7 @@ function renderManageList(){
   wrap.querySelectorAll('tr[data-id]').forEach(tr=>tr.addEventListener('click',()=>selectItem(tr.dataset.id)));
 }
 
-function renderContentSelect(){
-  const subjects=uniq(filteredData().map(d=>d.subject)).sort((a,b)=>a.localeCompare(b,'ja'));
-  const selSubj=document.getElementById('sel-subject');
-  const prev=selSubj.value;
-  selSubj.innerHTML='<option value="">科目</option>'+subjects.map(s=>`<option value="${escapeHtml(s)}"${s===prev?' selected':''}>${escapeHtml(s)}</option>`).join('');
-  onSubjectChange();
-
-  const lf=document.getElementById('list-subject-filter');
-  const prevLf=lf.value;
-  lf.innerHTML='<option value="">すべての科目</option>'+subjects.map(s=>`<option value="${escapeHtml(s)}"${s===prevLf?' selected':''}>${escapeHtml(s)}</option>`).join('');
-}
-
-function onSubjectChange(){
-  const subj=document.getElementById('sel-subject').value;
-  const chapters=uniq(filteredData().filter(d=>d.subject===subj).map(d=>d.chapter)).sort((a,b)=>a.localeCompare(b,'ja'));
-  document.getElementById('sel-chapter').innerHTML='<option value="">章</option>'+chapters.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-  document.getElementById('sel-item').innerHTML='<option value="">問題を選択</option>';
-}
-function onChapterChange(){
-  const subj=document.getElementById('sel-subject').value;
-  const chap=document.getElementById('sel-chapter').value;
-  const items=filteredData().filter(d=>d.subject===subj&&d.chapter===chap).sort((a,b)=>a.no.localeCompare(b.no,'ja',{numeric:true}));
-  document.getElementById('sel-item').innerHTML='<option value="">問題を選択</option>'+items.map(d=>`<option value="${escapeHtml(d.id)}">${escapeHtml(d.no)} ${escapeHtml(d.title)}</option>`).join('');
-}
-function confirmContentSelect(){
-  const id=document.getElementById('sel-item').value;
-  if(!id){ alert('問題を選択してください'); return; }
-  selectItem(id);
-  switchTab('study',document.querySelector('[data-tab="study"]'));
-}
-
-/* ===== Select item ===== */
+/* ===== Select item & manage save/delete & add modal (kept minimal) ===== */
 function selectItem(id){
   appData.selectedId=id;
   const item=appData.data.find(d=>d.id===id);
@@ -2131,22 +1303,21 @@ function selectItem(id){
   renderBlockEditor();
   updateLivePreview();
   updateStudyView(item);
-  syncSelectBoxes(item);
+
+  // sync selector boxes
+  const selSubj=document.getElementById('sel-subject');
+  if(selSubj.value!==item.subject){ selSubj.value=item.subject; onSubjectChange(); }
+  const selChap=document.getElementById('sel-chapter');
+  if(selChap.value!==item.chapter){ selChap.value=item.chapter; onChapterChange(); }
+  document.getElementById('sel-item').value=item.id;
+
   updateNavButtons();
   renderTree();
   renderManageList();
   clearTyping();
   clearPillar();
 }
-function syncSelectBoxes(item){
-  const selSubj=document.getElementById('sel-subject');
-  if(selSubj.value!==item.subject){ selSubj.value=item.subject; onSubjectChange(); }
-  const selChap=document.getElementById('sel-chapter');
-  if(selChap.value!==item.chapter){ selChap.value=item.chapter; onChapterChange(); }
-  document.getElementById('sel-item').value=item.id;
-}
 
-/* ===== Manage save/delete ===== */
 function saveItemHandler(){
   const id=appData.selectedId; if(!id) return;
   const item=appData.data.find(d=>d.id===id); if(!item) return;
@@ -2169,7 +1340,6 @@ function deleteItemHandler(){
   const id=appData.selectedId;
   if(!id||!confirm('この理論を削除しますか？')) return;
   delItem(id);
-  // recordsも削除（itemId一致）
   appData.records.filter(r=>r.itemId===id).forEach(r=>delRec(r.id));
   appData.data=appData.data.filter(d=>d.id!==id);
   appData.records=appData.records.filter(r=>r.itemId!==id);
@@ -2179,7 +1349,6 @@ function deleteItemHandler(){
   renderAll();
 }
 
-/* ===== Add modal ===== */
 function openAddModal(){ refreshModalSubjects(); document.getElementById('add-modal').classList.add('open'); }
 function closeModal(){ document.getElementById('add-modal').classList.remove('open'); }
 function refreshModalSubjects(){
@@ -2197,9 +1366,7 @@ function onNewSubjectSelChange(){
   document.getElementById('new-chapter-sel').innerHTML='<option value="">-- 新規入力 --</option>'+chapters.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
   document.getElementById('new-chapter').value='';
 }
-function onNewChapterSelChange(){
-  document.getElementById('new-chapter').value=document.getElementById('new-chapter-sel').value;
-}
+function onNewChapterSelChange(){ document.getElementById('new-chapter').value=document.getElementById('new-chapter-sel').value; }
 function addItemHandler(){
   const subject=document.getElementById('new-subject').value.trim();
   const chapter=document.getElementById('new-chapter').value.trim();
@@ -2254,7 +1421,7 @@ function setMode(mode){
   if(item) updateStudyView(item);
 }
 
-/* ===== Color mark logic (from original, unchanged core) ===== */
+/* ===== Color mark / theory render (same as before, included minimal) ===== */
 function initColorPopup(){
   const swatches=document.getElementById('color-swatches');
   swatches.innerHTML='';
@@ -2284,22 +1451,14 @@ function showColorPopup(x,y,hasExisting){
   popup.style.left=left+'px';popup.style.top=top+'px';
 }
 function hideColorPopup(){document.getElementById('color-popup').classList.remove('show');pendingMark=null;}
-
 function getPlainTextOffset(containerEl,targetNode,targetOffset){
   let offset=0;
   function walk(node){
     if(node===targetNode){ offset+=targetOffset; return true; }
-    if(node.nodeType===3){
-      offset+=node.textContent.length;
-      return false;
-    }
-    for(const child of node.childNodes){
-      if(walk(child)) return true;
-    }
+    if(node.nodeType===3){ offset+=node.textContent.length; return false; }
+    for(const child of node.childNodes){ if(walk(child)) return true; }
     return false;
   }
-  // ここは anchorNode==text node の場合も想定しているが、walkが短絡するのでOK
-  // 正確性は元コード踏襲
   walk(containerEl);
   return offset;
 }
@@ -2330,14 +1489,11 @@ function onLivePreviewSelect(){
   const block=editBlocks.find(b=>b.id===blockId); if(!block) return;
   const fieldEl=findFieldEl(sel.anchorNode); if(!fieldEl) return;
   const fieldKey=fieldEl.dataset.field;
-
   const range=sel.getRangeAt(0);
   const start=getPlainTextOffset(fieldEl,range.startContainer,range.startOffset);
   const end=getPlainTextOffset(fieldEl,range.endContainer,range.endOffset);
-
   const sourceText=getSourceText(block,fieldKey);
   if(start<0||end>sourceText.length||start>=end){ sel.removeAllRanges(); return; }
-
   const marks=(block.marks||[]).filter(m=>m.fieldKey===fieldKey);
   const overlapping=marks.find(m=>!(end<=m.start||start>=m.end));
   pendingMark={blockId,fieldKey,start,end,existingMark:overlapping||null};
@@ -2488,24 +1644,6 @@ function updateStudyView(item){
 /* ===== Block editor ===== */
 const BLOCK_LABELS={section:'【】セクション',item1:'(1) 大項目',item2:'① 小項目',item3:'(イ) 細項目',text:'本文'};
 function addBlock(type){ editBlocks.push({id:genId(),type,title:'',body:'',law:'',rank:'A',marks:[]}); renderBlockEditor(); updateLivePreview(); }
-function buildBlockFields(block,i){
-  if(block.type==='section'){
-    return `<div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <input type="text" data-i="${i}" data-f="title" value="${escapeHtml(block.title||'')}" placeholder="セクションタイトル" style="flex:1;min-width:180px;">
-      <input type="text" data-i="${i}" data-f="law" value="${escapeHtml(block.law||'')}" placeholder="根拠条文" style="flex:0.8;min-width:140px;">
-      <select data-i="${i}" data-f="rank" style="flex:0.4;min-width:80px;border:1px solid #dde3ea;border-radius:7px;padding:7px 8px;font-size:0.84rem;outline:none;font-family:inherit;">
-        <option value="A"${block.rank==='A'?' selected':''}>A</option>
-        <option value="B"${block.rank==='B'?' selected':''}>B</option>
-        <option value="C"${block.rank==='C'?' selected':''}>C</option>
-      </select>
-    </div>`;
-  }
-  if(block.type==='item1'){
-    return `<input type="text" data-i="${i}" data-f="title" value="${escapeHtml(block.title||'')}" placeholder="項目タイトル">
-      <textarea data-i="${i}" data-f="body" placeholder="本文（任意）">${escapeHtml(block.body||'')}</textarea>`;
-  }
-  return `<textarea data-i="${i}" data-f="body" placeholder="本文">${escapeHtml(block.body||'')}</textarea>`;
-}
 function renderBlockEditor(){
   const editor=document.getElementById('block-editor');
   editor.innerHTML='';
@@ -2515,7 +1653,6 @@ function renderBlockEditor(){
   }
   editBlocks.forEach((block,i)=>{
     const el=document.createElement('div');
-    el.className=`block-item block-${block.type}`;
     el.style.border='1px solid #dde3ea';
     el.style.borderRadius='10px';
     el.style.padding='10px 12px';
@@ -2526,6 +1663,7 @@ function renderBlockEditor(){
     if(block.type==='item3'){ el.style.borderLeft='4px solid #a8d4f0'; el.style.marginLeft='32px'; }
     if(block.type==='text'){ el.style.borderLeft='4px solid #dde3ea'; }
 
+    const fields = buildBlockFields(block,i);
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
         <span style="font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;background:#e0e7ef;color:#555;">
@@ -2537,7 +1675,7 @@ function renderBlockEditor(){
           <button class="block-ctrl-btn" data-action="del" data-i="${i}" style="color:#c0392b;">✕</button>
         </div>
       </div>
-      <div class="block-fields">${buildBlockFields(block,i)}</div>
+      <div>${fields}</div>
     `;
     editor.appendChild(el);
   });
@@ -2549,7 +1687,7 @@ function renderBlockEditor(){
     btn.style.padding='3px 7px';
     btn.style.cursor='pointer';
     btn.style.fontSize='0.75rem';
-    btn.style.color='#666';
+    btn.style.color=btn.style.color||'#666';
     btn.addEventListener('click',()=>{
       const i=parseInt(btn.dataset.i,10);
       if(btn.dataset.action==='up') [editBlocks[i-1],editBlocks[i]]=[editBlocks[i],editBlocks[i-1]];
@@ -2565,6 +1703,24 @@ function renderBlockEditor(){
     el.addEventListener('change',syncBlockFromDOM);
   });
 }
+function buildBlockFields(block,i){
+  if(block.type==='section'){
+    return `<div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="text" data-i="${i}" data-f="title" value="${escapeHtml(block.title||'')}" placeholder="セクションタイトル" style="flex:1;min-width:180px;border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;">
+      <input type="text" data-i="${i}" data-f="law" value="${escapeHtml(block.law||'')}" placeholder="根拠条文" style="flex:0.8;min-width:140px;border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;">
+      <select data-i="${i}" data-f="rank" style="flex:0.4;min-width:80px;border:1px solid #dde3ea;border-radius:7px;padding:7px 8px;font-size:0.84rem;outline:none;font-family:inherit;">
+        <option value="A"${block.rank==='A'?' selected':''}>A</option>
+        <option value="B"${block.rank==='B'?' selected':''}>B</option>
+        <option value="C"${block.rank==='C'?' selected':''}>C</option>
+      </select>
+    </div>`;
+  }
+  if(block.type==='item1'){
+    return `<input type="text" data-i="${i}" data-f="title" value="${escapeHtml(block.title||'')}" placeholder="項目タイトル" style="border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;width:100%;margin-bottom:6px;">
+      <textarea data-i="${i}" data-f="body" placeholder="本文（任意）" style="border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;width:100%;min-height:60px;">${escapeHtml(block.body||'')}</textarea>`;
+  }
+  return `<textarea data-i="${i}" data-f="body" placeholder="本文" style="border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;width:100%;min-height:60px;">${escapeHtml(block.body||'')}</textarea>`;
+}
 function syncBlockFromDOM(){
   document.querySelectorAll('#block-editor [data-i]').forEach(el=>{
     const i=parseInt(el.dataset.i,10);
@@ -2574,7 +1730,7 @@ function syncBlockFromDOM(){
   updateLivePreview();
 }
 
-/* ===== Typing / pillar scoring (same as original, plus recordType, subject required already via item) ===== */
+/* ===== Typing / pillar scoring (kept) ===== */
 function extractPillarText(item){
   if(!item||!item.blocks) return '';
   return item.blocks.filter(b=>b.type==='section'||b.type==='item1').map(b=>b.title||'').join('');
@@ -2723,6 +1879,715 @@ function saveRecordHandler(){
   saveRec(rec).then(()=>{ renderAll(); alert(`保存しました！ スコア: ${score}%`); });
 }
 
+/* ===== Calendar rendering & logic ===== */
+function changeMonth(delta){
+  calMonth += delta;
+  if(calMonth>11){calMonth=0; calYear++;}
+  if(calMonth<0){calMonth=11; calYear--;}
+  renderCalendar();
+  renderSummary();
+}
+function monthRange(){
+  const first=ymd(new Date(calYear,calMonth,1));
+  const last=ymd(new Date(calYear,calMonth+1,0));
+  return {first,last};
+}
+function yearRange(){
+  const first=`${calYear}-01-01`;
+  const last=`${calYear}-12-31`;
+  return {first,last};
+}
+
+function renderCalendar(){
+  document.getElementById('cal-title').textContent=`${calYear}年 ${calMonth+1}月`;
+
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const lastDate=new Date(calYear,calMonth+1,0).getDate();
+  const prevLast=new Date(calYear,calMonth,0).getDate();
+  const today=new Date();
+
+  const dayMap={}; // day -> {plans:[], records:[]}
+  for(const p of filteredPlans()){
+    // 未完了のみカレンダー側の「予定」扱いにする（完了は消える）
+    if(p.status!=='planned') continue;
+    const d=new Date(p.date+'T00:00:00');
+    if(d.getFullYear()===calYear && d.getMonth()===calMonth){
+      const k=d.getDate();
+      if(!dayMap[k]) dayMap[k]={plans:[],records:[]};
+      dayMap[k].plans.push(p);
+    }
+  }
+  for(const r of filteredRecords()){
+    const d=new Date(r.date);
+    if(d.getFullYear()===calYear && d.getMonth()===calMonth){
+      const k=d.getDate();
+      if(!dayMap[k]) dayMap[k]={plans:[],records:[]};
+      dayMap[k].records.push(r);
+    }
+  }
+
+  const grid=document.getElementById('cal-days');
+  grid.innerHTML='';
+
+  function appendCell(day,otherMonth){
+    const isToday = !otherMonth && today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===day;
+    const dateStr = otherMonth ? null : `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const selected = (dateStr && calSelectedDate===dateStr);
+    const payload = otherMonth ? null : (dayMap[day]||{plans:[],records:[]});
+    const cell=createDayCell(day,otherMonth,payload,isToday,selected);
+    if(!otherMonth){
+      cell.addEventListener('click',()=>{
+        calSelectedDate=dateStr;
+        calSelectedDayNum=day;
+        renderCalendar();
+        renderDayPanel();
+        renderSummary();
+      });
+    }
+    grid.appendChild(cell);
+  }
+
+  for(let i=firstDay-1;i>=0;i--) appendCell(prevLast-i,true);
+  for(let d=1;d<=lastDate;d++) appendCell(d,false);
+  const remain=(firstDay+lastDate)%7;
+  if(remain) for(let d=1;d<=7-remain;d++) appendCell(d,true);
+
+  // default selected: if selected date is not in this month, keep it but highlight none
+}
+function createDayCell(day,otherMonth,payload,isToday,isSelected){
+  const cell=document.createElement('div');
+  cell.className='cal-day'+(otherMonth?' other-month':'')+(isToday?' today':'')+(isSelected?' selected':'');
+  const num=document.createElement('div');
+  num.className='cal-day-num';
+  num.textContent=day;
+  cell.appendChild(num);
+
+  if(payload){
+    const plans=payload.plans||[];
+    const records=payload.records||[];
+    if(plans.length || records.length){
+      const evDiv=document.createElement('div');
+      evDiv.className='cal-events';
+
+      if(plans.length){
+        const ev=document.createElement('div');
+        ev.className='cal-event cal-ev-plan';
+        ev.textContent=`予定 ${plans.length}`;
+        evDiv.appendChild(ev);
+      }
+      if(records.length){
+        const ev=document.createElement('div');
+        const any=records[0];
+        const cls = any.score==null ? 'cal-ev-record-none' : any.score>=80?'cal-ev-record-high':any.score>=50?'cal-ev-record-mid':'cal-ev-record-low';
+        ev.className='cal-event '+cls;
+        ev.textContent = any.score==null ? `実績 ${records.length}` : `実績 ${records.length}（例:${any.score}%）`;
+        evDiv.appendChild(ev);
+      }
+      cell.appendChild(evDiv);
+    }
+  }
+  return cell;
+}
+
+function plansForSelectedDate(){
+  if(!calSelectedDate) return [];
+  return filteredPlans().filter(p=>p.status==='planned' && p.date===calSelectedDate)
+    .sort((a,b)=>(a.startTime||'').localeCompare(b.startTime||''));
+}
+function recordsForSelectedDate(){
+  if(!calSelectedDate) return [];
+  const start=calSelectedDate+'T00:00:00';
+  const end=calSelectedDate+'T23:59:59';
+  return filteredRecords()
+    .filter(r=>r.date>=start && r.date<=end)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+function renderDayPanel(){
+  const title=document.getElementById('day-title');
+  const detail=document.getElementById('day-detail');
+  if(!calSelectedDate){
+    title.textContent='📅 選択日：-';
+    detail.innerHTML='<div class="help">左のカレンダーから日付を選択してください。</div>';
+    return;
+  }
+  title.textContent=`📅 選択日：${calSelectedDate}`;
+
+  const plans=plansForSelectedDate();
+  const records=recordsForSelectedDate();
+
+  let html='';
+
+  html += `<div class="cal-section-title">予定（未完了のみ）</div>`;
+  if(!plans.length){
+    html += `<div class="help" style="margin-bottom:8px;">予定がありません</div>`;
+  }else{
+    html += plans.map(p=>{
+      const hm=p.startTime||'';
+      const range = hm ? formatRangeHM(hm, p.minutes) : '';
+      const minsLabel = minutesToLabel(p.minutes);
+      const timeLabel = range ? `🕒 ${escapeHtml(range)}` : (hm ? `🕒 ${escapeHtml(hm)}` : '');
+      return `
+        <div class="cal-detail-item plan">
+          <div class="left">
+            <div class="title">${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</div>
+            <div class="meta">
+              <span class="badge badge-plan">予定</span>
+              ${timeLabel?`<span>${timeLabel}</span>`:''}
+              <span>⏱ ${escapeHtml(minsLabel)}（${p.minutes}分）</span>
+              ${p.note?`<span>📝 ${escapeHtml(p.note)}</span>`:''}
+              ${p.seriesName?`<span>🧩 ${escapeHtml(p.seriesName)}</span>`:''}
+            </div>
+          </div>
+          <div class="right">
+            <button class="btn-small btn-success" data-do-plan="${escapeHtml(p.id)}">実行</button>
+            <button class="btn-small btn-danger" data-del-plan="${escapeHtml(p.id)}">削除</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  html += `<div class="cal-section-title">実績</div>`;
+  if(!records.length){
+    html += `<div class="help">実績がありません</div>`;
+  }else{
+    html += records.map(r=>{
+      const score = (r.score==null) ? '' : `${r.score}%`;
+      const hm = formatHMFromISO(r.date);
+      const range = (r.minutes!=null) ? formatRangeHM(hm, r.minutes) : hm;
+      const cls = (r.score==null) ? 'score-none' : (r.score>=80?'score-high':r.score>=50?'score-mid':'score-low');
+      const minsLabel = (r.minutes!=null) ? minutesToLabel(r.minutes) : '';
+      return `
+        <div class="cal-detail-item record">
+          <div class="left">
+            <div class="title">${escapeHtml(r.subject)}｜${escapeHtml(r.title)}</div>
+            <div class="meta">
+              <span class="badge badge-record">${escapeHtml(r.recordType||'activity')}</span>
+              <span>🕒 ${escapeHtml(range)}</span>
+              ${r.minutes!=null?`<span>⏱ ${escapeHtml(minsLabel)}（${r.minutes}分）</span>`:''}
+              ${r.note?`<span>📝 ${escapeHtml(r.note)}</span>`:''}
+              ${r.planId?`<span>🔗 計画紐付け</span>`:''}
+            </div>
+          </div>
+          <div class="right">
+            ${score?`<span class="score-badge ${cls}" style="padding:6px 10px;border-radius:14px;font-size:0.82rem;">${score}</span>`:''}
+            <button class="btn-small btn-danger" data-del-rec="${escapeHtml(r.id)}">削除</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  detail.innerHTML=html;
+
+  // bind actions
+  detail.querySelectorAll('[data-do-plan]').forEach(btn=>btn.addEventListener('click',()=>openRecordFromPlan(btn.dataset.doPlan)));
+  detail.querySelectorAll('[data-del-plan]').forEach(btn=>btn.addEventListener('click',()=>deletePlanHandler(btn.dataset.delPlan)));
+  detail.querySelectorAll('[data-del-rec]').forEach(btn=>btn.addEventListener('click',()=>deleteRecordHandler(btn.dataset.delRec)));
+}
+
+/* ===== Summary (year/month/day & subject) ===== */
+function renderSummary(){
+  const scope=document.getElementById('sum-scope').value;
+  const subj=document.getElementById('sum-subject').value;
+
+  let from,to,label;
+
+  if(scope==='day'){
+    if(!calSelectedDate){
+      document.getElementById('sum-range-badge').textContent='-';
+      document.getElementById('sum-min').textContent='0分';
+      document.getElementById('sum-hm').textContent='0時間0分';
+      document.getElementById('sum-count').textContent='0';
+      return;
+    }
+    from=calSelectedDate+'T00:00:00';
+    to=calSelectedDate+'T23:59:59';
+    label=calSelectedDate;
+  }else if(scope==='month'){
+    const r=monthRange();
+    from=r.first+'T00:00:00';
+    to=r.last+'T23:59:59';
+    label=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  }else{
+    const r=yearRange();
+    from=r.first+'T00:00:00';
+    to=r.last+'T23:59:59';
+    label=`${calYear}`;
+  }
+
+  let recs=filteredRecords().filter(r=>r.date>=from && r.date<=to);
+  if(subj!=='__all__') recs=recs.filter(r=>r.subject===subj);
+
+  // minutesがある実績のみ集計
+  const recsWithMin=recs.filter(r=>r.minutes!=null && !Number.isNaN(parseInt(r.minutes,10)));
+  const totalMin=recsWithMin.reduce((sum,r)=>sum+parseInt(r.minutes,10),0);
+
+  document.getElementById('sum-range-badge').textContent=label;
+  document.getElementById('sum-min').textContent=`${totalMin}分`;
+  document.getElementById('sum-hm').textContent=minutesToLabel(totalMin);
+  document.getElementById('sum-count').textContent=String(recsWithMin.length);
+}
+
+/* ===== Calendar actions (plans/records) ===== */
+async function deletePlanHandler(planId){
+  const p=appData.plans.find(x=>x.id===planId);
+  if(!p) return;
+  if(!confirm('この予定（未完了）を削除しますか？')) return;
+  await delPlan(planId);
+}
+async function deleteRecordHandler(id){
+  if(!confirm('この実績を削除しますか？')) return;
+  await delRec(id);
+}
+
+/* ===== Modal helper ===== */
+let calModalOnSave=null;
+function openCalModal({title, bodyHtml, onSave}){
+  calModalOnSave = onSave;
+  document.getElementById('cal-modal-title').textContent=title;
+  document.getElementById('cal-modal-body').innerHTML=bodyHtml;
+  document.getElementById('cal-modal').classList.add('open');
+}
+function closeCalModal(){
+  document.getElementById('cal-modal').classList.remove('open');
+  calModalOnSave=null;
+}
+
+/* ===== Duration widget binding ===== */
+function bindDurationWidget(prefix){
+  // prefix: element id prefix, expects:
+  //  - ${prefix}-dur-hm (time: "HH:MM" where HH is hours, MM is minutes)
+  //  - ${prefix}-dur-min (number)
+  //  - ${prefix}-dur-label (span)
+  const hmEl=document.getElementById(prefix+'-dur-hm');
+  const minEl=document.getElementById(prefix+'-dur-min');
+  const labEl=document.getElementById(prefix+'-dur-label');
+
+  function syncFromHM(){
+    const m=hmToMinutes(hmEl.value);
+    minEl.value = String(m);
+    labEl.textContent = minutesToLabel(m);
+  }
+  function syncFromMin(){
+    const m=parseInt(minEl.value||'0',10);
+    hmEl.value = minutesToHM(m);
+    labEl.textContent = minutesToLabel(m);
+  }
+
+  hmEl.addEventListener('change',syncFromHM);
+  hmEl.addEventListener('input',syncFromHM);
+  minEl.addEventListener('change',syncFromMin);
+  minEl.addEventListener('input',syncFromMin);
+
+  // init
+  syncFromMin();
+}
+
+/* ===== Add plan (single) ===== */
+function allSubjectsFromData(){ return uniq(appData.data.map(d=>d.subject).filter(Boolean)).sort((a,b)=>a.localeCompare(b,'ja')); }
+
+function openAddPlan(){
+  const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
+  if(!calSelectedDate){
+    alert('日付を選択してください'); return;
+  }
+  openCalModal({
+    title: '＋ 予定（単発）',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">科目必須。予定時間は「時分」入力できます（例：02:30=2時間30分）。</div>
+      <div class="plan-grid">
+        <div class="form-group">
+          <label>科目（必須）</label>
+          <select id="m-plan-subject">
+            <option value="">選択してください</option>
+            ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>開始時刻（任意）</label>
+          <input type="time" id="m-plan-time">
+        </div>
+        <div class="form-group full">
+          <label>タイトル</label>
+          <input type="text" id="m-plan-title" placeholder="例：理論暗記 / 講義1 など">
+        </div>
+        <div class="form-group">
+          <label>実施日</label>
+          <input type="date" id="m-plan-date" value="${escapeHtml(calSelectedDate)}">
+        </div>
+
+        <div class="form-group full">
+          <label>予定時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-plan-dur-hm" value="00:30" step="60">
+            <input type="number" id="m-plan-dur-min" min="1" step="1" value="30" style="display:none;">
+            <span class="hint">= <span id="m-plan-dur-label">30分</span></span>
+          </div>
+          <div class="help">※内部は分で保存します（minutes）。</div>
+        </div>
+
+        <div class="form-group full">
+          <label>メモ</label>
+          <input type="text" id="m-plan-note" placeholder="補足メモ...">
+        </div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const subject=document.getElementById('m-plan-subject').value;
+      const title=document.getElementById('m-plan-title').value.trim();
+      const date=document.getElementById('m-plan-date').value;
+      const startTime=document.getElementById('m-plan-time').value||null;
+      const minutes=parseInt(document.getElementById('m-plan-dur-min').value,10);
+      const note=document.getElementById('m-plan-note').value.trim();
+      if(!subject){alert('科目は必須です');return;}
+      if(!title){alert('タイトルを入力してください');return;}
+      if(!date){alert('実施日を入力してください');return;}
+      if(!minutes||minutes<1){alert('予定時間が不正です');return;}
+
+      await savePlan({
+        id: genId(),
+        title, subject,
+        itemId:null,
+        date,
+        startTime,
+        minutes,
+        note,
+        status:'planned',
+        recordId:null,
+        seriesId:null,
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      });
+      closeCalModal();
+    }
+  });
+  bindDurationWidget('m-plan');
+}
+
+/* ===== Create record from plan ===== */
+function openRecordFromPlan(planId){
+  const p=appData.plans.find(x=>x.id===planId);
+  if(!p) return;
+
+  const now=new Date();
+  const defaultIso = new Date(`${p.date}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:00`).toISOString();
+
+  openCalModal({
+    title: '✅ 実績登録（計画から）',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">
+        計画：<b>${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</b><br>
+        保存すると、計画は完了になり「予定」から消えます。
+      </div>
+      <div class="plan-grid">
+        <div class="form-group full">
+          <label>実施日時</label>
+          <input type="datetime-local" id="m-rec-dt" value="${escapeHtml(defaultIso.slice(0,16))}">
+        </div>
+
+        <div class="form-group full">
+          <label>実施時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-rec-dur-hm" value="${escapeHtml(minutesToHM(p.minutes||30))}" step="60">
+            <input type="number" id="m-rec-dur-min" min="1" step="1" value="${escapeHtml(String(p.minutes||30))}" style="display:none;">
+            <span class="hint">= <span id="m-rec-dur-label">${escapeHtml(minutesToLabel(p.minutes||30))}</span></span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>メモ（任意）</label>
+          <input type="text" id="m-rec-note" placeholder="補足メモ...">
+        </div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const dt=document.getElementById('m-rec-dt').value;
+      const minutes=parseInt(document.getElementById('m-rec-dur-min').value,10);
+      const note=document.getElementById('m-rec-note').value.trim();
+      if(!dt){alert('実施日時を入力してください');return;}
+      if(!minutes||minutes<1){alert('実施時間が不正です');return;}
+
+      const recId=genId();
+      const rec={
+        id: recId,
+        recordType:'activity',
+        planId:p.id,
+        subject:p.subject,
+        itemId:p.itemId||null,
+        title:p.title,
+        date: new Date(dt).toISOString(),
+        minutes,
+        score: null,
+        note
+      };
+      await saveRec(rec);
+
+      // planをdoneにする（表示対象はplannedのみなので予定から消える）
+      const upd={...p, status:'done', recordId:recId, updatedAt:new Date().toISOString()};
+      await savePlan(upd);
+
+      closeCalModal();
+    }
+  });
+  bindDurationWidget('m-rec');
+}
+
+/* ===== Add record without plan ===== */
+function openAddRecordNoPlan(){
+  if(!calSelectedDate){ alert('日付を選択してください'); return; }
+  const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
+  const now=new Date();
+  const defaultIso = new Date(`${calSelectedDate}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:00`).toISOString();
+
+  openCalModal({
+    title: '＋ 実績（計画なし）',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">科目必須。実施時間は「時分」入力できます。</div>
+      <div class="plan-grid">
+        <div class="form-group">
+          <label>科目（必須）</label>
+          <select id="m-rec2-subject">
+            <option value="">選択してください</option>
+            ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label>タイトル</label>
+          <input type="text" id="m-rec2-title" placeholder="例：理論暗記 / 講義受講 / 復習など">
+        </div>
+
+        <div class="form-group full">
+          <label>実施日時</label>
+          <input type="datetime-local" id="m-rec2-dt" value="${escapeHtml(defaultIso.slice(0,16))}">
+        </div>
+
+        <div class="form-group full">
+          <label>実施時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-rec2-dur-hm" value="00:30" step="60">
+            <input type="number" id="m-rec2-dur-min" min="1" step="1" value="30" style="display:none;">
+            <span class="hint">= <span id="m-rec2-dur-label">30分</span></span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>メモ（任意）</label>
+          <input type="text" id="m-rec2-note" placeholder="補足メモ...">
+        </div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const subject=document.getElementById('m-rec2-subject').value;
+      const title=document.getElementById('m-rec2-title').value.trim();
+      const dt=document.getElementById('m-rec2-dt').value;
+      const minutes=parseInt(document.getElementById('m-rec2-dur-min').value,10);
+      const note=document.getElementById('m-rec2-note').value.trim();
+
+      if(!subject){alert('科目は必須です');return;}
+      if(!title){alert('タイトルを入力してください');return;}
+      if(!dt){alert('実施日時を入力してください');return;}
+      if(!minutes||minutes<1){alert('実施時間が不正です');return;}
+
+      const rec={
+        id: genId(),
+        recordType:'activity',
+        planId:null,
+        subject,
+        itemId:null,
+        title,
+        date:new Date(dt).toISOString(),
+        minutes,
+        score:null,
+        note
+      };
+      await saveRec(rec);
+      closeCalModal();
+    }
+  });
+  bindDurationWidget('m-rec2');
+}
+
+/* ===== Series management: simplified (bulk edit/delete planned by seriesId) ===== */
+function seriesSummary(){
+  const plans=filteredPlans();
+  const map=new Map();
+  for(const p of plans){
+    if(!p.seriesId) continue;
+    const key=p.seriesId;
+    if(!map.has(key)){
+      map.set(key,{
+        seriesId:key,
+        seriesName: p.seriesName || '(series)',
+        total:0, planned:0, done:0
+      });
+    }
+    const s=map.get(key);
+    s.total++;
+    if(p.status==='planned') s.planned++;
+    if(p.status==='done') s.done++;
+  }
+  return [...map.values()].sort((a,b)=>(a.seriesName||'').localeCompare(b.seriesName||''));
+}
+
+function openSeriesManager(){
+  const arr=seriesSummary();
+  if(!arr.length){
+    alert('シリーズがありません（seriesId付きの予定がありません）');
+    return;
+  }
+  openCalModal({
+    title: '🧩 シリーズ管理（未完了のみ）',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">
+        未完了（planned）の予定だけを一括修正・一括削除できます。<br>
+        ※タイトルが被っても、シリーズ名で識別できます。
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${arr.map(s=>`
+          <div style="background:#f7f9fc;border:1px solid #dde3ea;border-radius:12px;padding:10px;">
+            <div style="font-weight:800;color:#1a2a4a;">${escapeHtml(s.seriesName)}</div>
+            <div class="help" style="margin-top:4px;">総数:${s.total} / 未完了:${s.planned} / 完了:${s.done} / seriesId:${escapeHtml(s.seriesId)}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px;">
+              <button class="btn-small btn-warning" data-series-edit="${escapeHtml(s.seriesId)}">未完了一括修正</button>
+              <button class="btn-small btn-danger" data-series-del="${escapeHtml(s.seriesId)}">未完了一括削除</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `,
+    onSave: async ()=>{
+      // このモーダル自体は保存ボタン不要（閉じる）
+      closeCalModal();
+    }
+  });
+
+  // saveボタンを「閉じる」に見せるためラベルを変える
+  document.getElementById('cal-modal-save-btn').textContent='閉じる';
+
+  // bind
+  document.getElementById('cal-modal-body').querySelectorAll('[data-series-edit]').forEach(btn=>{
+    btn.addEventListener('click',()=>openSeriesBulkEdit(btn.dataset.seriesEdit));
+  });
+  document.getElementById('cal-modal-body').querySelectorAll('[data-series-del]').forEach(btn=>{
+    btn.addEventListener('click',()=>bulkDeleteUndoneBySeries(btn.dataset.seriesDel));
+  });
+}
+
+function openSeriesBulkEdit(seriesId){
+  const series = seriesSummary().find(s=>s.seriesId===seriesId);
+  if(!series){ alert('シリーズが見つかりません'); return; }
+
+  openCalModal({
+    title: '🧩 未完了を一括修正',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">
+        対象：<b>${escapeHtml(series.seriesName)}</b><br>
+        未完了（planned）の予定だけをまとめて変更します。
+      </div>
+      <div class="plan-grid">
+        <div class="form-group full">
+          <label>新しいタイトル（空なら変更しない）</label>
+          <input type="text" id="bulk-title" placeholder="例：理論暗記（45分）など">
+        </div>
+        <div class="form-group">
+          <label>新しい開始時刻（空なら変更しない）</label>
+          <input type="time" id="bulk-startTime">
+        </div>
+
+        <div class="form-group full">
+          <label>新しい予定時間（時分）（空なら変更しない）</label>
+          <div class="duration-row">
+            <input type="time" id="bulk-dur-hm" value="" step="60">
+            <input type="number" id="bulk-dur-min" value="" style="display:none;">
+            <span class="hint">（入力すると反映）</span>
+          </div>
+          <div class="help">例：02:30 → 150分</div>
+        </div>
+
+        <div class="form-group full">
+          <label>新しいメモ（空なら変更しない）</label>
+          <input type="text" id="bulk-note" placeholder="補足メモ...">
+        </div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const newTitle=document.getElementById('bulk-title').value.trim();
+      const newStartTime=document.getElementById('bulk-startTime').value || null;
+      const hm=document.getElementById('bulk-dur-hm').value;
+      const newMinutes = hm ? hmToMinutes(hm) : null;
+      const newNote=document.getElementById('bulk-note').value.trim();
+
+      if(newMinutes!==null && (!newMinutes || newMinutes<1)){
+        alert('予定時間が不正です'); return;
+      }
+
+      await bulkUpdateUndoneBySeries(seriesId,{newTitle,newStartTime,newMinutes,newNote});
+      closeCalModal();
+      alert('未完了一括修正が完了しました');
+    }
+  });
+
+  // saveボタンラベルを戻す
+  document.getElementById('cal-modal-save-btn').textContent='保存';
+}
+
+async function bulkUpdateUndoneBySeries(seriesId, {newTitle,newStartTime,newMinutes,newNote}){
+  const u=auth.currentUser; if(!u) return;
+  const targets = appData.plans.filter(p=>p.seriesId===seriesId && p.status==='planned');
+  if(!targets.length){ alert('未完了の予定がありません'); return; }
+  if(!confirm(`未完了 ${targets.length}件を更新します。よろしいですか？`)) return;
+
+  const chunks=[];
+  for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
+
+  for(const chunk of chunks){
+    const batch=writeBatch(db);
+    for(const p of chunk){
+      const upd={...p, updatedAt:new Date().toISOString()};
+      if(newTitle) { upd.title=newTitle; }
+      if(newStartTime!==null && newStartTime!=='') { upd.startTime=newStartTime; }
+      if(newMinutes!==null) { upd.minutes=newMinutes; }
+      if(newNote) { upd.note=newNote; }
+
+      if(newTitle && upd.seriesName){
+        upd.seriesName = (upd.seriesName||'').replace(`｜${p.title}｜`, `｜${newTitle}｜`);
+      }
+      batch.set(doc(db,'users',u.uid,'plans',p.id), upd);
+    }
+    await batch.commit();
+  }
+  showSync();
+}
+
+async function bulkDeleteUndoneBySeries(seriesId){
+  const u=auth.currentUser; if(!u) return;
+  const targets = appData.plans.filter(p=>p.seriesId===seriesId && p.status==='planned');
+  if(!targets.length){ alert('未完了の予定がありません'); return; }
+  if(!confirm(`未完了 ${targets.length}件を削除します。よろしいですか？`)) return;
+
+  const chunks=[];
+  for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
+  for(const chunk of chunks){
+    const batch=writeBatch(db);
+    for(const p of chunk) batch.delete(doc(db,'users',u.uid,'plans',p.id));
+    await batch.commit();
+  }
+  showSync();
+  alert('未完了分を削除しました');
+}
+
+/* ===== Calendar modal buttons ===== */
+document.getElementById('cal-modal-cancel-btn').addEventListener('click',()=>{
+  closeCalModal();
+  document.getElementById('cal-modal-save-btn').textContent='保存';
+});
+document.getElementById('cal-modal-save-btn').addEventListener('click',async ()=>{
+  if(calModalOnSave) await calModalOnSave();
+});
+
 /* ===== Admin user list (kept) ===== */
 async function addUserHandler(){
   if(currentUserRole!=='admin') return;
@@ -2754,7 +2619,7 @@ async function addUserHandler(){
 async function renderUserList(){
   if(currentUserRole!=='admin') return;
   const listEl=document.getElementById('user-list');
-  listEl.innerHTML='<div style="color:#aaa;font-size:0.86rem;padding:8px;">読み込み中...</div>';
+  listEl.innerHTML='<div class="help">読み込み中...</div>';
   try{
     const snap=await getDocs(collection(db,'userProfiles'));
     const users=snap.docs.map(d=>d.data()).sort((a,b)=>a.email.localeCompare(b.email));
@@ -2763,17 +2628,16 @@ async function renderUserList(){
       return;
     }
     listEl.innerHTML=users.map(u=>{
-      const roleCls=u.role==='admin'?'role-admin':'role-user';
       const roleLabel=u.role==='admin'?'👑 管理者':'👤 一般';
       const isSelf=auth.currentUser && auth.currentUser.uid===u.uid;
       return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f7f9fc;border-radius:8px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
             <div style="font-size:0.86rem;font-weight:600;color:#1a2a4a;">${escapeHtml(u.displayName||u.email)}</div>
-            <div style="font-size:0.72rem;color:#aaa;">${escapeHtml(u.email)}</div>
+            <div class="help">${escapeHtml(u.email)}</div>
           </div>
-          <span style="font-size:0.72rem;padding:2px 7px;border-radius:8px;font-weight:700;" class="${roleCls}">${roleLabel}</span>
-          ${!isSelf?`<button class="btn-small btn-danger" data-deluid="${escapeHtml(u.uid)}" data-delemail="${escapeHtml(u.email)}">削除</button>`:'<span style="font-size:0.72rem;color:#aaa;">（自分）</span>'}
+          <span class="badge badge-record">${roleLabel}</span>
+          ${!isSelf?`<button class="btn-small btn-danger" data-deluid="${escapeHtml(u.uid)}" data-delemail="${escapeHtml(u.email)}">削除</button>`:'<span class="help">（自分）</span>'}
         </div>
       `;
     }).join('');
@@ -2788,7 +2652,7 @@ async function deleteUserHandler(uid,email){
   catch(e){ alert('削除エラー: '+e.message); }
 }
 
-/* ===== Init / bind ===== */
+/* ===== Bind events & init ===== */
 function switchRightTab(rtab,btn){
   document.querySelectorAll('.manage-right-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -2803,7 +2667,6 @@ function bindEvents(){
   document.getElementById('settings-close-btn').addEventListener('click',closeSettings);
 
   document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab,btn)));
-
   document.querySelectorAll('.manage-right-tab').forEach(btn=>btn.addEventListener('click',()=>switchRightTab(btn.dataset.rtab,btn)));
 
   document.getElementById('manage-add-btn').addEventListener('click',openAddModal);
@@ -2821,7 +2684,6 @@ function bindEvents(){
   document.getElementById('modal-cancel-btn').addEventListener('click',closeModal);
   document.getElementById('modal-add-btn').addEventListener('click',addItemHandler);
   document.getElementById('add-modal').addEventListener('click',e=>{ if(e.target===document.getElementById('add-modal')) closeModal(); });
-
   document.getElementById('new-subject-sel').addEventListener('change',onNewSubjectSelChange);
   document.getElementById('new-chapter-sel').addEventListener('change',onNewChapterSelChange);
 
@@ -2850,55 +2712,70 @@ function bindEvents(){
   document.getElementById('show-pillar-diff-btn').addEventListener('click',showPillarDiff);
   document.getElementById('clear-pillar-btn').addEventListener('click',clearPillar);
 
-  document.getElementById('hist-subject-filter').addEventListener('change',renderHistory);
-  document.getElementById('hist-date-from').addEventListener('change',renderHistory);
-  document.getElementById('hist-date-to').addEventListener('change',renderHistory);
-  document.getElementById('history-reset-btn').addEventListener('click',clearHistoryFilter);
-
-  document.getElementById('cal-prev-btn').addEventListener('click',()=>changeMonth(-1));
-  document.getElementById('cal-next-btn').addEventListener('click',()=>changeMonth(1));
-
-  document.querySelectorAll('.add-block-btn').forEach(btn=>btn.addEventListener('click',()=>addBlock(btn.dataset.type)));
+  // block add buttons
+  document.querySelectorAll('[data-type]').forEach(btn=>{
+    if(btn.id?.startsWith('add-block-')){
+      btn.addEventListener('click',()=>addBlock(btn.dataset.type));
+    }
+  });
   document.getElementById('block-live-preview').addEventListener('mouseup',onLivePreviewSelect);
-  document.getElementById('block-live-preview').addEventListener('touchend',onLivePreviewSelect);
-
-  // plan tab
-  document.getElementById('plan-kind').addEventListener('change',updatePlanKindUI);
-  document.getElementById('repeat-type').addEventListener('change',updateWeekdayUI);
-  document.getElementById('plan-subject').addEventListener('change',()=>{ refreshPlanItemSelect(); });
-  document.getElementById('add-plan-btn').addEventListener('click',createPlans);
 
   // settings
   document.getElementById('save-subject-settings-btn').addEventListener('click',saveSubjectSettingsHandler);
   document.getElementById('auto-fill-subjects-btn').addEventListener('click',autoFillSubjects);
 
+  // calendar controls
+  document.getElementById('cal-prev-btn').addEventListener('click',()=>changeMonth(-1));
+  document.getElementById('cal-next-btn').addEventListener('click',()=>changeMonth(1));
+  document.getElementById('cal-add-plan-btn').addEventListener('click',openAddPlan);
+  document.getElementById('cal-add-record-btn').addEventListener('click',openAddRecordNoPlan);
+  document.getElementById('cal-open-series-btn').addEventListener('click',openSeriesManager);
+
+  document.getElementById('sum-scope').addEventListener('change',renderSummary);
+  document.getElementById('sum-subject').addEventListener('change',renderSummary);
+
   // admin
   document.getElementById('add-user-btn').addEventListener('click',addUserHandler);
+}
+
+function refreshSummarySubjectOptions(){
+  const sel=document.getElementById('sum-subject');
+  const cur=sel.value;
+  const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
+  sel.innerHTML = `<option value="__all__">全科目</option>` + subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+  sel.value = (cur && (cur==='__all__' || subjects.includes(cur))) ? cur : '__all__';
 }
 
 function renderAll(){
   renderTree();
   renderContentSelect();
   renderManageList();
-  updateHistoryFilter();
-  renderHistory();
-  renderCalendar();
-  renderSeriesList();
   updateNavButtons();
+
+  // calendar side
+  refreshSummarySubjectOptions();
+  if(!calSelectedDate){
+    const today=ymd(new Date());
+    calSelectedDate=today;
+    const d=new Date(today+'T00:00:00');
+    calYear=d.getFullYear(); calMonth=d.getMonth();
+  }
+  renderCalendar();
+  renderDayPanel();
+  renderSummary();
 }
 
 function init(){
   const now=new Date();
   calYear=now.getFullYear();
   calMonth=now.getMonth();
+  calSelectedDate=ymd(now);
+
   initColorPopup();
   initAllResizers();
   bindEvents();
-  updatePlanKindUI();
-  updateWeekdayUI();
   renderAll();
 }
-
 init();
 </script>
 </body>
