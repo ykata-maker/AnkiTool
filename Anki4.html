@@ -118,6 +118,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .manage-right-tab.active { color:#2c5f8a; border-bottom-color:#2c5f8a; font-weight:700; }
 .info-panel { flex:1; overflow-y:auto; padding:16px; }
 
+/* ===== Table ===== */
 .content-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
 .content-table th { background:#f0f4f8; padding:7px 9px; text-align:left; font-weight:700; color:#555; border-bottom:2px solid #dde3ea; white-space:nowrap; position:sticky; top:0; z-index:1; }
 .content-table td { padding:7px 9px; border-bottom:1px solid #f0f4f8; vertical-align:middle; }
@@ -129,224 +130,9 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .rank-C { background:#eafaf1; color:#27ae60; }
 .score-badge { display:inline-block; padding:1px 7px; border-radius:8px; color:white; font-size:0.75rem; font-weight:700; }
 .score-high { background:#27ae60; } .score-mid { background:#d68910; } .score-low { background:#c0392b; } .score-none { background:#bdc3c7; }
-
-/* ===== Study ===== */
-#tab-study { overflow:hidden; }
-.study-layout { display:flex; flex:1; overflow:hidden; height:calc(100vh - 96px); position:relative; }
-.study-nav { min-width:160px; flex-shrink:0; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; background:white; transition:width 0.2s,min-width 0.2s,padding 0.2s,opacity 0.2s; }
-.study-nav.collapsed { width:0 !important; min-width:0 !important; padding:0 !important; overflow:hidden; opacity:0; }
-.nav-toggle-btn { position:absolute; top:10px; left:10px; z-index:50; background:#2c5f8a; color:white; border:none; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
-.nav-toggle-btn:hover { background:#1a4a6e; }
-.study-main { flex:1; overflow:hidden; display:flex; flex-direction:column; background:#f7f9fc; min-width:200px; }
-.study-title-bar { background:white; padding:10px 16px; border-bottom:1px solid #dde3ea; flex-shrink:0; }
-.study-title-text { font-size:0.95rem; font-weight:700; color:#1a2a4a; }
-.study-view-area { flex:1; overflow-y:auto; padding:14px; }
-
-.content-select-panel { background:#f7f9fc; border-radius:10px; padding:10px 12px; border:1px solid #dde3ea; display:flex; flex-direction:column; gap:6px; }
-.select-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.select-row select,.item-select-wrap select { width:100%; border:1px solid #dde3ea; border-radius:8px; padding:7px 8px; font-size:0.82rem; outline:none; background:white; -webkit-appearance:none; font-family:inherit; }
-.select-confirm-btn { background:#2c5f8a; color:white; border:none; padding:9px; border-radius:8px; cursor:pointer; font-size:0.84rem; font-weight:600; width:100%; font-family:inherit; }
-.select-confirm-btn:hover { background:#1a4a6e; }
-.nav-btn-row { display:flex; gap:4px; align-items:center; }
-.nav-prev-btn,.nav-next-btn { flex:1; padding:7px 4px; border-radius:8px; border:1px solid #dde3ea; background:white; cursor:pointer; font-size:0.75rem; color:#2c5f8a; font-family:inherit; transition:all 0.2s; text-align:center; }
-.nav-prev-btn:hover,.nav-next-btn:hover { background:#e8f0f8; border-color:#2c5f8a; }
-.nav-prev-btn:disabled,.nav-next-btn:disabled { color:#bbb; border-color:#eee; background:#fafafa; cursor:not-allowed; }
-.nav-counter { font-size:0.72rem; color:#888; text-align:center; white-space:nowrap; flex-shrink:0; }
-
-.mode-panel { background:#f7f9fc; border-radius:10px; padding:10px 12px; border:1px solid #dde3ea; }
-.mode-panel-title { font-size:0.75rem; color:#666; font-weight:600; margin-bottom:6px; }
-.mode-toggle { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
-.mode-btn { padding:8px 4px; border-radius:8px; border:2px solid #2c5f8a; background:white; color:#2c5f8a; cursor:pointer; font-size:0.76rem; transition:all 0.2s; text-align:center; font-family:inherit; }
-.mode-btn.active { background:#2c5f8a; color:white; }
-
-.theory-view { background:white; border-radius:12px; padding:16px 18px; font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; line-height:1.85; font-size:0.9rem; user-select:text; -webkit-user-select:text; }
-.theory-header { text-align:right; font-size:0.8rem; color:#666; border-bottom:2px solid #1a2a4a; padding-bottom:4px; margin-bottom:14px; }
-.theory-mondai { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
-.theory-mondai-num { background:#1a2a4a; color:white; padding:4px 10px; font-size:0.85rem; font-weight:700; white-space:nowrap; border-radius:4px; }
-.theory-mondai-title { font-size:0.95rem; font-weight:700; color:#1a2a4a; }
-
-.view-section { border:2px solid #1a2a4a; border-radius:4px; padding:5px 12px; margin:14px 0 10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.view-section-title { font-weight:700; font-size:0.92rem; flex:1; }
-.view-section-law { font-size:0.78rem; color:#444; }
-.view-section-rank { font-size:0.8rem; font-weight:700; padding:1px 8px; border-radius:6px; }
-.rank-disp-A { background:#fdecea; color:#c0392b; }
-.rank-disp-B { background:#fef9e7; color:#d68910; }
-.rank-disp-C { background:#eafaf1; color:#27ae60; }
-
-.view-item1 { margin:8px 0 4px; }
-.view-item1-title { font-weight:700; font-size:0.88rem; }
-.view-item1-body { padding-left:1.8em; font-size:0.88rem; margin-top:2px; white-space:pre-wrap; }
-.view-item2 { display:flex; gap:6px; margin:4px 0; padding-left:1.8em; }
-.view-item2-num { flex-shrink:0; font-weight:700; font-size:0.88rem; min-width:1.6em; }
-.view-item2-body { font-size:0.88rem; white-space:pre-wrap; }
-.view-item3 { display:flex; gap:6px; margin:3px 0; padding-left:3.6em; }
-.view-item3-num { flex-shrink:0; font-size:0.86rem; min-width:2.2em; }
-.view-item3-body { font-size:0.86rem; white-space:pre-wrap; }
-.view-text { font-size:0.88rem; white-space:pre-wrap; margin:4px 0; }
-
-.mark-span { border-radius:2px; padding:0 1px; cursor:pointer; }
-.anki-mode .mark-span { background:#333 !important; color:transparent !important; border-radius:3px; cursor:pointer; user-select:none; -webkit-user-select:none; }
-.anki-mode .mark-span.revealed { background:inherit !important; color:inherit !important; }
-
-/* ===== Typing / Pillar ===== */
-.study-typing-layout { display:flex; flex:1; overflow:hidden; }
-.study-text-pane { min-width:150px; overflow-y:auto; padding:14px; background:#f0f4f8; display:flex; flex-direction:column; gap:10px; }
-.study-text-pane.hidden { display:none; }
-.study-input-pane { flex:1; overflow-y:auto; padding:14px; background:#f7f9fc; display:flex; flex-direction:column; gap:10px; min-width:200px; }
-.show-text-btn { background:white; border:1px solid #dde3ea; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:0.82rem; color:#555; font-family:inherit; transition:all 0.2s; white-space:nowrap; flex-shrink:0; }
-.show-text-btn:hover { background:#e8f0f8; border-color:#2c5f8a; color:#2c5f8a; }
-.show-text-btn.showing { background:#eafaf1; border-color:#27ae60; color:#27ae60; }
-
-.typing-input-area { background:white; border-radius:12px; padding:14px; border:1px solid #dde3ea; display:flex; flex-direction:column; gap:10px; }
-.typing-input-area label { font-size:0.8rem; color:#666; font-weight:600; }
-.typing-input-area textarea { border:1px solid #dde3ea; border-radius:8px; padding:12px; font-size:0.92rem; line-height:1.9; resize:vertical; outline:none; font-family:inherit; min-height:240px; width:100%; }
-.typing-input-area textarea:focus { border-color:#2c5f8a; }
-.score-bar-wrap { display:none; align-items:center; gap:10px; }
-.score-bar-wrap.visible { display:flex; }
-.score-bar-bg { flex:1; height:14px; background:#e0e7ef; border-radius:7px; overflow:hidden; }
-.score-bar-fill { height:100%; border-radius:7px; transition:width 0.4s,background 0.4s; background:#c0392b; }
-.score-label { font-size:1.1rem; font-weight:700; min-width:52px; text-align:right; }
-.action-row { display:flex; gap:8px; flex-wrap:wrap; }
-.diff-panel { background:white; border-radius:12px; padding:14px 16px; font-size:0.88rem; line-height:1.9; max-height:240px; overflow-y:auto; display:none; border:1px solid #dde3ea; }
-.diff-ok { color:#27ae60; } .diff-ng { color:#c0392b; text-decoration:underline; background:#fdecea; }
-
-.pillar-display { background:white; border-radius:12px; padding:16px 18px; border:1px solid #dde3ea; font-size:0.9rem; line-height:2; }
-.pillar-section-title { font-weight:700; font-size:0.92rem; border:2px solid #1a2a4a; border-radius:4px; padding:3px 10px; display:inline-block; margin-bottom:4px; }
-.pillar-item1-title { font-weight:700; font-size:0.88rem; padding-left:0.5em; }
-
-/* ===== Calendar (2 columns + fixed summary) ===== */
-#tab-calendar { overflow-y:auto; }
-.calendar-shell { padding:12px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; flex:1; }
-.calendar-layout { display:flex; gap:10px; align-items:flex-start; }
-.calendar-left { flex: 1.05; min-width: 320px; display:flex; flex-direction:column; gap:10px; }
-.calendar-right {
-  flex: 0.95;
-  min-width: 320px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  position: sticky;
-  top: 106px;
-  height: calc(100vh - 106px - 12px);
-}
-.calendar-right .panel { flex-shrink:0; }
-#day-detail { overflow:auto; max-height: calc(100vh - 106px - 12px - 240px); padding-right:2px; }
-
-.calendar-nav { background:white; border-radius:12px; padding:10px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; align-items:center; gap:10px; }
-.cal-title { font-size:0.95rem; font-weight:700; flex:1; text-align:center; }
-.cal-nav-btn { background:#e8f0f8; border:none; padding:7px 12px; border-radius:8px; cursor:pointer; font-size:0.95rem; }
-.cal-nav-btn:hover { background:#d0e4f4; }
-
-.calendar-grid { background:white; border-radius:12px; padding:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:0.7rem; font-weight:700; color:#888; margin-bottom:4px; }
-.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-.cal-day { min-height:66px; border-radius:6px; padding:4px; background:#f7f9fc; cursor:pointer; border:1px solid transparent; }
-.cal-day:hover { background:#e8f0f8; }
-.cal-day.today { background:#e8f0f8; border:1px solid #2c5f8a; }
-.cal-day.selected { border:2px solid #5ba3d9; background:#f0f7ff; }
-.cal-day.other-month { opacity:0.3; }
-.cal-day-num { font-size:0.72rem; font-weight:700; color:#555; }
-.cal-day.today .cal-day-num { color:#2c5f8a; }
-
-.cal-events { display:flex; flex-direction:column; gap:2px; margin-top:2px; }
-.cal-event { font-size:0.58rem; padding:2px 4px; border-radius:4px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.cal-ev-plan { background:#2c5f8a; }
-.cal-ev-record-high { background:#27ae60; }
-.cal-ev-record-mid { background:#d68910; }
-.cal-ev-record-low { background:#c0392b; }
-.cal-ev-record-none { background:#7f8c8d; }
-
-.panel { background:white; border-radius:12px; padding:12px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.panel h3 { margin-bottom:8px; color:#1a2a4a; font-size:0.9rem; }
-.panel-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-bottom:10px; }
-
-.cal-section-title { font-size:0.78rem; color:#666; font-weight:700; margin:10px 0 6px; }
-.cal-detail-item { display:flex; align-items:flex-start; gap:8px; padding:10px; background:#f7f9fc; border-radius:10px; margin-bottom:6px; border-left:4px solid #dde3ea; }
-.cal-detail-item.plan { border-left-color:#2c5f8a; }
-.cal-detail-item.record { border-left-color:#7f8c8d; }
-.cal-detail-item .meta { font-size:0.72rem; color:#888; display:flex; gap:8px; flex-wrap:wrap; margin-top:3px; }
-.cal-detail-item .title { font-size:0.86rem; font-weight:700; color:#1a2a4a; }
-.cal-detail-item .left { flex:1; min-width:0; }
-.cal-detail-item .right { display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
-.badge { display:inline-block; font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:999px; }
-.badge-plan { background:#e8f0f8; color:#2c5f8a; }
-.badge-record { background:#ecf0f1; color:#555; }
-.badge-sum { background:#1a2a4a; color:white; }
-
-.sum-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-.sum-kpi { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-.kpi { background:#f7f9fc; border:1px solid #dde3ea; border-radius:10px; padding:8px 10px; }
-.kpi .num { font-size:1.1rem; font-weight:800; color:#1a2a4a; }
-.kpi .lab { font-size:0.72rem; color:#888; margin-top:2px; }
-
-.inline-select { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-.inline-select select { border:1px solid #dde3ea; border-radius:8px; padding:6px 10px; background:#f7f9fc; font-family:inherit; font-size:0.82rem; }
-
-/* ===== Modal ===== */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; align-items:flex-end; justify-content:center; }
-.modal-overlay.open { display:flex; }
-.modal { background:white; border-radius:20px 20px 0 0; padding:20px 16px; width:100%; max-width:720px; box-shadow:0 -4px 24px rgba(0,0,0,0.18); max-height:92vh; overflow-y:auto; overflow-x:hidden; word-break:break-word; }
-.modal-drag { width:36px; height:4px; background:#ddd; border-radius:2px; margin:0 auto 14px; }
-.modal h3 { margin-bottom:12px; color:#1a2a4a; font-size:0.95rem; }
-.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
-
-.plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.plan-grid .full { grid-column:1/-1; }
-
-/* Duration input (HH:MM + minutes mirror) */
-.duration-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.duration-row input[type="time"] { width: 140px; }
-.duration-row .hint { font-size:0.76rem; color:#888; }
-
-/* weekday chips */
-.weekday-row { display:flex; gap:8px; flex-wrap:wrap; }
-.weekday-chip { display:flex; gap:6px; align-items:center; background:#f7f9fc; border:1px solid #dde3ea; border-radius:999px; padding:6px 10px; font-size:0.82rem; }
-.weekday-chip input { transform: translateY(1px); }
-
-/* ===== Color popup ===== */
-#color-popup { position:fixed; z-index:800; background:white; border-radius:12px; padding:10px 12px; box-shadow:0 4px 20px rgba(0,0,0,0.25); display:none; flex-direction:column; gap:8px; min-width:180px; }
-#color-popup.show { display:flex; }
-.color-popup-title { font-size:0.75rem; color:#666; font-weight:600; }
-.color-swatches { display:flex; gap:6px; flex-wrap:wrap; }
-.color-swatch-btn { width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:transform 0.15s; flex-shrink:0; }
-.color-swatch-btn:hover { transform:scale(1.2); border-color:#333; }
-.color-popup-del { background:#f7f9fc; border:1px solid #dde3ea; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:0.78rem; color:#c0392b; text-align:center; font-family:inherit; }
-.color-popup-del:hover { background:#fdecea; }
-.color-popup-cancel { background:#f7f9fc; border:1px solid #dde3ea; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:0.78rem; color:#666; text-align:center; font-family:inherit; }
-
-/* ===== Responsive ===== */
-@media (max-width:980px){
-  .calendar-layout { flex-direction:column; }
-  .calendar-right { position:static; height:auto; }
-  #day-detail { max-height:none; overflow:visible; }
-}
-@media (max-width:480px) {
-  .manage-layout { flex-direction:column; height:auto; overflow:visible; }
-  .manage-left { width:100% !important; border-bottom:1px solid #dde3ea; max-height:260px; }
-  .manage-right { width:100%; }
-  #tab-manage { overflow-y:auto; }
-  .study-typing-layout { flex-direction:column; }
-  .study-text-pane { width:100% !important; }
-  #tab-study { overflow-y:auto; }
-  .study-layout { height:auto; overflow:visible; }
-  .plan-grid { grid-template-columns: 1fr; }
-}
-@media (min-width:600px) {
-  header { padding:12px 24px; }
-  .modal-overlay { align-items:center; }
-  .modal { border-radius:16px; }
-  .modal-drag { display:none; }
-}
 </style>
 </head>
 <body>
-
-<div id="color-popup">
-  <div class="color-popup-title">🎨 色を選択</div>
-  <div class="color-swatches" id="color-swatches"></div>
-  <button class="color-popup-del" id="color-popup-del">🗑 色を削除</button>
-  <button class="color-popup-cancel" id="color-popup-cancel">キャンセル</button>
-</div>
 
 <div id="login-overlay">
   <div class="login-card">
@@ -420,13 +206,13 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 
     <div class="settings-item">
       <label>ℹ️ バージョン</label>
-      <div class="help">税理士理論暗記ツール v2.2（繰り返し一括登録＋追加ルール）</div>
+      <div class="help">税理士理論暗記ツール v2.2（完全版）</div>
     </div>
   </div>
 </div>
 
 <div class="main">
-
+<!-- ここから先（管理/学習/カレンダー/管理者UI）は 2/3 に続きます -->
 <!-- 管理タブ -->
 <div class="tab-content active" id="tab-manage">
   <div class="manage-layout">
@@ -455,15 +241,18 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       </div>
     </div>
     <div class="resizer" id="resizer-manage"></div>
+
     <div class="manage-right">
       <div id="manage-empty-right" class="empty-state" style="margin:40px auto;">
         <div class="icon">📂</div>左の一覧から選択するか<br>「＋ 新規追加」で作成
       </div>
+
       <div id="manage-editor-right" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
         <div class="manage-right-tabs">
           <button class="manage-right-tab active" data-rtab="info">📋 基本情報</button>
           <button class="manage-right-tab" data-rtab="blocks">📝 ブロック編集</button>
         </div>
+
         <div class="info-panel" id="rtab-info">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="form-group"><label>科目</label><input type="text" id="edit-subject" placeholder="例：所得税"></div>
@@ -477,10 +266,12 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
               </select>
             </div>
           </div>
+
           <div class="form-group" style="margin-bottom:16px;">
             <label>題名</label>
             <input type="text" id="edit-title" placeholder="例：個人の納税義務者と課税所得の範囲等">
           </div>
+
           <div style="display:flex;gap:8px;">
             <button class="btn-primary" id="save-item-btn">💾 保存</button>
             <button class="btn-small btn-danger" id="delete-item-btn">🗑 削除</button>
@@ -505,12 +296,12 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
               <button class="btn-small btn-danger" id="delete-item-btn2">🗑 削除</button>
             </div>
           </div>
+
           <div class="resizer" id="resizer-block"></div>
+
           <div style="flex:1;overflow-y:auto;padding:14px;background:#f7f9fc;min-width:200px;">
-            <div style="font-size:0.75rem;color:#888;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-              🎨 プレビュー <span style="font-size:0.7rem;color:#aaa;font-weight:400;">テキストを選択→色付け</span>
-            </div>
-            <div id="block-live-preview" class="theory-view" style="cursor:text;min-height:200px;font-size:0.86rem;padding:14px;"></div>
+            <div style="font-size:0.75rem;color:#888;font-weight:600;margin-bottom:8px;">👁 プレビュー</div>
+            <div id="block-live-preview" class="theory-view" style="min-height:200px;font-size:0.86rem;padding:14px;"></div>
           </div>
         </div>
 
@@ -519,12 +310,15 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   </div>
 </div>
 
-<!-- 学習タブ -->
+<!-- 学習タブ（UIのみ。採点・表示はJSで切替） -->
 <div class="tab-content" id="tab-study">
-  <div class="study-layout">
-    <button class="nav-toggle-btn" id="nav-toggle-btn" title="ナビを折りたたむ">☰</button>
-    <div class="study-nav" id="study-nav-pane">
+  <div class="study-layout" style="display:flex;flex:1;overflow:hidden;height:calc(100vh - 96px);position:relative;">
+    <button class="nav-toggle-btn" id="nav-toggle-btn" title="ナビを折りたたむ"
+      style="position:absolute;top:10px;left:10px;z-index:50;background:#2c5f8a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.2);">☰</button>
+
+    <div class="study-nav" id="study-nav-pane" style="min-width:160px;flex-shrink:0;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:white;">
       <div style="height:36px;flex-shrink:0;"></div>
+
       <div class="content-select-panel">
         <label style="font-size:0.75rem;color:#666;font-weight:600;">📚 理論を選択</label>
         <div class="select-row">
@@ -536,11 +330,13 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
         </div>
         <button class="select-confirm-btn" id="confirm-select-btn">学習する ▶</button>
       </div>
+
       <div class="nav-btn-row">
         <button class="nav-prev-btn" id="nav-prev-btn" disabled>◀ 前</button>
         <span class="nav-counter" id="nav-counter">-/-</span>
         <button class="nav-next-btn" id="nav-next-btn" disabled>次 ▶</button>
       </div>
+
       <div class="mode-panel">
         <div class="mode-panel-title">📖 学習モード</div>
         <div class="mode-toggle">
@@ -551,29 +347,31 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
         </div>
       </div>
     </div>
+
     <div class="resizer" id="resizer-study-nav"></div>
-    <div class="study-main" id="study-main-pane">
-      <div class="study-title-bar">
+
+    <div class="study-main" id="study-main-pane" style="flex:1;overflow:hidden;display:flex;flex-direction:column;background:#f7f9fc;min-width:200px;">
+      <div class="study-title-bar" style="background:white;padding:10px 16px;border-bottom:1px solid #dde3ea;flex-shrink:0;">
         <div class="study-title-text" id="study-title">左のメニューから理論を選択してください</div>
       </div>
-      <div class="study-view-area" id="view-area">
+
+      <div class="study-view-area" id="view-area" style="flex:1;overflow-y:auto;padding:14px;">
         <div class="theory-view" id="view-text">
           <div class="empty-state"><div class="icon">📖</div>理論を選択してください</div>
         </div>
       </div>
 
-      <div class="study-typing-layout" id="typing-layout" style="display:none;">
-        <div class="study-text-pane hidden" id="study-text-pane">
+      <div class="study-typing-layout" id="typing-layout" style="display:none;flex:1;overflow:hidden;">
+        <div class="study-text-pane hidden" id="study-text-pane" style="min-width:150px;overflow-y:auto;padding:14px;background:#f0f4f8;">
           <div class="theory-view" id="study-text-view" style="font-size:0.86rem;"></div>
         </div>
         <div class="resizer" id="resizer-study-text" style="display:none;"></div>
-        <div class="study-input-pane" id="study-input-pane">
+
+        <div class="study-input-pane" id="study-input-pane" style="flex:1;overflow-y:auto;padding:14px;background:#f7f9fc;display:flex;flex-direction:column;gap:10px;min-width:200px;">
           <button class="show-text-btn" id="show-text-btn">📄 原文を表示する</button>
 
           <div id="pillar-input-area" style="display:none;">
-            <div class="pillar-display" id="pillar-display" style="margin-bottom:10px;">
-              <div class="empty-state"><div class="icon">🏛</div>理論を選択してください</div>
-            </div>
+            <div class="pillar-display" id="pillar-display" style="margin-bottom:10px;"></div>
             <div class="typing-input-area">
               <label>✍️ 柱（セクション名・項目名）を入力</label>
               <textarea id="pillar-input" placeholder="セクション名と項目名を入力..."></textarea>
@@ -614,31 +412,30 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   </div>
 </div>
 
-<!-- カレンダータブ -->
-<div class="tab-content" id="tab-calendar">
-  <div class="calendar-shell">
-    <div class="calendar-layout">
-
-      <div class="calendar-left">
-        <div class="calendar-nav">
+<!-- カレンダータブ（右側は固定配置） -->
+<div class="tab-content" id="tab-calendar" style="overflow-y:auto;">
+  <div class="calendar-shell" style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;">
+    <div class="calendar-layout" style="display:flex;gap:10px;align-items:flex-start;">
+      <div class="calendar-left" style="flex:1.05;min-width:320px;display:flex;flex-direction:column;gap:10px;">
+        <div class="calendar-nav" style="background:white;border-radius:12px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;">
           <button class="cal-nav-btn" id="cal-prev-btn">◀</button>
-          <div class="cal-title" id="cal-title"></div>
+          <div class="cal-title" id="cal-title" style="font-size:0.95rem;font-weight:700;flex:1;text-align:center;"></div>
           <button class="cal-nav-btn" id="cal-next-btn">▶</button>
         </div>
-        <div class="calendar-grid">
-          <div class="cal-weekdays">
-            <div style="color:#c0392b">日</div><div>月</div><div>火</div>
-            <div>水</div><div>木</div><div>金</div><div style="color:#2c5f8a">土</div>
+
+        <div class="calendar-grid" style="background:white;border-radius:12px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <div class="cal-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:0.7rem;font-weight:700;color:#888;margin-bottom:4px;">
+            <div style="color:#c0392b">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div style="color:#2c5f8a">土</div>
           </div>
-          <div class="cal-days" id="cal-days"></div>
+          <div class="cal-days" id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
         </div>
       </div>
 
-      <div class="calendar-right">
-        <div class="panel" id="summary-panel">
-          <h3>📊 集計</h3>
-          <div class="sum-row" style="margin-bottom:10px;">
-            <div class="inline-select">
+      <div class="calendar-right" style="flex:0.95;min-width:320px;display:flex;flex-direction:column;gap:10px;position:sticky;top:106px;height:calc(100vh - 106px - 12px);">
+        <div class="panel" id="summary-panel" style="background:white;border-radius:12px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <h3 style="margin-bottom:8px;color:#1a2a4a;font-size:0.9rem;">📊 集計</h3>
+          <div class="sum-row" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <div class="inline-select" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
               <select id="sum-scope">
                 <option value="day">日（選択日）</option>
                 <option value="month">月（表示中）</option>
@@ -648,46 +445,44 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
                 <option value="__all__">全科目</option>
               </select>
             </div>
-            <span class="badge badge-sum" id="sum-range-badge">-</span>
+            <span class="badge" id="sum-range-badge" style="background:#1a2a4a;color:white;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:999px;">-</span>
           </div>
-          <div class="sum-kpi">
-            <div class="kpi">
-              <div class="num" id="sum-min">0分</div>
-              <div class="lab">合計（分）</div>
+
+          <div class="sum-kpi" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <div class="kpi" style="background:#f7f9fc;border:1px solid #dde3ea;border-radius:10px;padding:8px 10px;">
+              <div class="num" id="sum-min" style="font-size:1.1rem;font-weight:800;color:#1a2a4a;">0分</div>
+              <div class="lab" style="font-size:0.72rem;color:#888;margin-top:2px;">合計（分）</div>
             </div>
-            <div class="kpi">
-              <div class="num" id="sum-hm">0時間0分</div>
-              <div class="lab">合計（時分）</div>
+            <div class="kpi" style="background:#f7f9fc;border:1px solid #dde3ea;border-radius:10px;padding:8px 10px;">
+              <div class="num" id="sum-hm" style="font-size:1.1rem;font-weight:800;color:#1a2a4a;">0時間0分</div>
+              <div class="lab" style="font-size:0.72rem;color:#888;margin-top:2px;">合計（時分）</div>
             </div>
-            <div class="kpi">
-              <div class="num" id="sum-count">0</div>
-              <div class="lab">実績件数</div>
+            <div class="kpi" style="background:#f7f9fc;border:1px solid #dde3ea;border-radius:10px;padding:8px 10px;">
+              <div class="num" id="sum-count" style="font-size:1.1rem;font-weight:800;color:#1a2a4a;">0</div>
+              <div class="lab" style="font-size:0.72rem;color:#888;margin-top:2px;">実績件数</div>
             </div>
           </div>
-          <div class="help" style="margin-top:8px;">
-            ※ minutes未入力の実績（typing/pillar等）は集計から除外します。
-          </div>
+
+          <div class="help" style="margin-top:8px;">※ minutes未入力の実績（typing/pillar等）は集計から除外します。</div>
         </div>
 
-        <div class="panel">
-          <h3 id="day-title">📅 選択日：-</h3>
-          <div class="panel-actions">
+        <div class="panel" style="background:white;border-radius:12px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <h3 id="day-title" style="margin-bottom:8px;color:#1a2a4a;font-size:0.9rem;">📅 選択日：-</h3>
+          <div class="panel-actions" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:10px;">
             <button class="btn-small btn-success" id="cal-add-plan-btn">＋予定</button>
             <button class="btn-small btn-success" id="cal-add-series-btn">＋繰り返し</button>
             <button class="btn-small btn-primary" id="cal-add-record-btn">＋実績（計画なし）</button>
             <button class="btn-small btn-warning" id="cal-open-series-btn">🧩 シリーズ管理</button>
           </div>
-
-          <div id="day-detail"></div>
+          <div id="day-detail" style="overflow:auto;max-height:calc(100vh - 106px - 12px - 240px);padding-right:2px;"></div>
         </div>
 
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- 管理者タブ -->
+<!-- 管理者タブ（最小UI） -->
 <div class="tab-content" id="tab-admin">
   <div style="padding:12px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex:1;">
     <div class="panel">
@@ -703,6 +498,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       <div id="add-user-error" style="color:#c0392b;font-size:0.8rem;min-height:16px;margin-top:6px;"></div>
       <button class="btn-primary" id="add-user-btn" style="margin-top:8px;">👤 ユーザーを追加</button>
     </div>
+
     <div class="panel">
       <h3 style="margin-bottom:10px;color:#1a2a4a;font-size:0.92rem;">👥 ユーザー一覧</h3>
       <div id="user-list"><div class="empty-state"><div class="icon">👥</div>読み込み中...</div></div>
@@ -713,10 +509,9 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 </div><!-- /.main -->
 
 <!-- 新規理論追加モーダル -->
-<div class="modal-overlay" id="add-modal">
-  <div class="modal">
-    <div class="modal-drag"></div>
-    <h3>📝 新規理論追加</h3>
+<div class="modal-overlay" id="add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400;align-items:flex-end;justify-content:center;">
+  <div class="modal" style="background:white;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:720px;box-shadow:0 -4px 24px rgba(0,0,0,0.18);max-height:92vh;overflow-y:auto;">
+    <h3 style="margin-bottom:12px;color:#1a2a4a;font-size:0.95rem;">📝 新規理論追加</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
       <div class="form-group">
         <label>科目</label>
@@ -741,11 +536,13 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
         </select>
       </div>
     </div>
+
     <div class="form-group" style="margin-bottom:10px;">
       <label>題名</label>
       <input type="text" id="new-title" placeholder="例：個人の納税義務者と課税所得の範囲等">
     </div>
-    <div class="modal-actions">
+
+    <div class="modal-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;">
       <button class="btn-cancel" id="modal-cancel-btn">キャンセル</button>
       <button class="btn-primary" id="modal-add-btn">追加</button>
     </div>
@@ -753,12 +550,11 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 </div>
 
 <!-- カレンダー：予定/実績/シリーズ管理 共通モーダル -->
-<div class="modal-overlay" id="cal-modal">
-  <div class="modal">
-    <div class="modal-drag"></div>
-    <h3 id="cal-modal-title">予定/実績</h3>
+<div class="modal-overlay" id="cal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400;align-items:flex-end;justify-content:center;">
+  <div class="modal" style="background:white;border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:720px;box-shadow:0 -4px 24px rgba(0,0,0,0.18);max-height:92vh;overflow-y:auto;">
+    <h3 id="cal-modal-title" style="margin-bottom:12px;color:#1a2a4a;font-size:0.95rem;">予定/実績</h3>
     <div id="cal-modal-body"></div>
-    <div class="modal-actions">
+    <div class="modal-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;">
       <button class="btn-cancel" id="cal-modal-cancel-btn">キャンセル</button>
       <button class="btn-primary" id="cal-modal-save-btn">保存</button>
     </div>
@@ -771,12 +567,8 @@ import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
-  getFirestore,
-  collection, doc,
-  setDoc, deleteDoc,
-  onSnapshot, query,
-  getDoc, getDocs,
-  writeBatch
+  getFirestore, collection, doc, setDoc, deleteDoc,
+  onSnapshot, query, getDoc, getDocs, writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 /* ===== Firebase ===== */
@@ -794,13 +586,6 @@ const db = getFirestore(app);
 
 /* ===== Const ===== */
 const ADMIN_EMAILS = ['admin@example.com'];
-const MARK_COLORS = [
-  {color:'#e74c3c',bg:'#fdecea'},{color:'#e67e22',bg:'#fef5ec'},
-  {color:'#f1c40f',bg:'#fefde7'},{color:'#27ae60',bg:'#eafaf1'},
-  {color:'#2980b9',bg:'#eaf4fb'},{color:'#8e44ad',bg:'#f5eef8'},
-];
-const IROHA=['(イ)','(ロ)','(ハ)','(ニ)','(ホ)','(ヘ)','(ト)','(チ)','(リ)','(ヌ)','(ル)','(ヲ)'];
-const MARU=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮'];
 const WEEK_LABELS=['日','月','火','水','木','金','土'];
 
 /* ===== State ===== */
@@ -816,16 +601,15 @@ let currentUserRole='user';
 let currentMode='view';
 let calYear, calMonth;
 let editBlocks=[];
-let pendingMark=null;
 let navCollapsed=false;
 let showTextPane=false;
-let calSelectedDate=null; // YYYY-MM-DD
+let calSelectedDate=null;
+let calModalOnSave=null;
 
 /* ===== Utils ===== */
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function showSync(){const el=document.getElementById('sync-indicator');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
-
 function ymd(d){
   const dt = (d instanceof Date)? d : new Date(d);
   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
@@ -835,16 +619,27 @@ function addDays(dateStr, days){
   d.setDate(d.getDate()+days);
   return ymd(d);
 }
-function monthRange(y,m){
-  const first=ymd(new Date(y,m,1));
-  const last=ymd(new Date(y,m+1,0));
-  return {first,last};
-}
-function yearRange(y){
-  return {first:`${y}-01-01`, last:`${y}-12-31`};
-}
+function monthRange(y,m){ return {first:ymd(new Date(y,m,1)), last:ymd(new Date(y,m+1,0))}; }
+function yearRange(y){ return {first:`${y}-01-01`, last:`${y}-12-31`}; }
 function uniq(arr){ return [...new Set(arr)]; }
-
+function minutesToLabel(min){
+  const m=parseInt(min||0,10);
+  const h=Math.floor(m/60), mm=m%60;
+  if(h<=0) return `${mm}分`;
+  if(mm===0) return `${h}時間`;
+  return `${h}時間${mm}分`;
+}
+function hmToMinutes(hm){
+  if(!hm) return 0;
+  const [h,m]=hm.split(':').map(n=>parseInt(n,10));
+  if(Number.isNaN(h)||Number.isNaN(m)) return 0;
+  return h*60+m;
+}
+function minutesToHM(min){
+  const m=parseInt(min||0,10);
+  const h=Math.floor(m/60), mm=m%60;
+  return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+}
 function formatHMFromISO(iso){
   const d=new Date(iso);
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
@@ -858,259 +653,95 @@ function addMinutesToHM(hm, minutes){
 }
 function formatRangeHM(hmStart, minutes){
   if(!hmStart || !minutes) return hmStart || '';
-  const hmEnd=addMinutesToHM(hmStart, minutes);
-  return `${hmStart}-${hmEnd}`;
+  return `${hmStart}-${addMinutesToHM(hmStart, minutes)}`;
 }
 
-/* ===== Duration helpers ===== */
-function minutesToLabel(min){
-  const m = parseInt(min||0,10);
-  const h = Math.floor(m/60);
-  const mm = m%60;
-  if(h<=0) return `${mm}分`;
-  if(mm===0) return `${h}時間`;
-  return `${h}時間${mm}分`;
-}
-function hmToMinutes(hm){
-  if(!hm) return 0;
-  const [h,m]=hm.split(':').map(n=>parseInt(n,10));
-  if(Number.isNaN(h)||Number.isNaN(m)) return 0;
-  return h*60+m;
-}
-function minutesToHM(min){
-  const m=parseInt(min||0,10);
-  const h=Math.floor(m/60);
-  const mm=m%60;
-  return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-}
-
-/* ===== Subject filter ===== */
+/* ===== Settings filter ===== */
 function subjectAllowed(subject){
   if(!subject) return false;
-  const mode = appData.settings?.subjectViewMode || 'activeOnly';
+  const mode=appData.settings?.subjectViewMode || 'activeOnly';
   if(mode==='all') return true;
-  const active = appData.settings?.activeSubjects || [];
-  return active.includes(subject);
+  return (appData.settings?.activeSubjects||[]).includes(subject);
 }
 function filteredData(){ return appData.data.filter(d=>subjectAllowed(d.subject)); }
 function filteredRecords(){ return appData.records.filter(r=>subjectAllowed(r.subject)); }
 function filteredPlans(){ return appData.plans.filter(p=>subjectAllowed(p.subject)); }
 
 /* ===== Firestore I/O ===== */
-async function saveItem(item){
-  const u=auth.currentUser; if(!u) return;
-  await setDoc(doc(db,'users',u.uid,'data',item.id), item);
-  showSync();
+async function saveItem(item){ const u=auth.currentUser; if(!u) return; await setDoc(doc(db,'users',u.uid,'data',item.id), item); showSync(); }
+async function delItem(id){ const u=auth.currentUser; if(!u) return; await deleteDoc(doc(db,'users',u.uid,'data',id)); showSync(); }
+async function saveRec(rec){ const u=auth.currentUser; if(!u) return; await setDoc(doc(db,'users',u.uid,'records',rec.id), rec); showSync(); }
+async function delRec(id){ const u=auth.currentUser; if(!u) return; await deleteDoc(doc(db,'users',u.uid,'records',id)); showSync(); }
+async function savePlan(plan){ const u=auth.currentUser; if(!u) return; await setDoc(doc(db,'users',u.uid,'plans',plan.id), plan); showSync(); }
+async function delPlan(id){ const u=auth.currentUser; if(!u) return; await deleteDoc(doc(db,'users',u.uid,'plans',id)); showSync(); }
+async function saveSettings(settings){ const u=auth.currentUser; if(!u) return; await setDoc(doc(db,'users',u.uid,'settings','app'), settings, {merge:true}); showSync(); }
+/* ===== Modal helper ===== */
+function openCalModal({title, bodyHtml, onSave}){
+  calModalOnSave = onSave;
+  document.getElementById('cal-modal-title').textContent=title;
+  document.getElementById('cal-modal-body').innerHTML=bodyHtml;
+  document.getElementById('cal-modal').style.display='flex';
 }
-async function delItem(id){
-  const u=auth.currentUser; if(!u) return;
-  await deleteDoc(doc(db,'users',u.uid,'data',id));
-  showSync();
+function closeCalModal(){
+  document.getElementById('cal-modal').style.display='none';
+  calModalOnSave=null;
 }
-async function saveRec(rec){
-  const u=auth.currentUser; if(!u) return;
-  await setDoc(doc(db,'users',u.uid,'records',rec.id), rec);
-  showSync();
+function openAddModal(){
+  refreshModalSubjects();
+  document.getElementById('add-modal').style.display='flex';
 }
-async function delRec(id){
-  const u=auth.currentUser; if(!u) return;
-  await deleteDoc(doc(db,'users',u.uid,'records',id));
-  showSync();
-}
-async function savePlan(plan){
-  const u=auth.currentUser; if(!u) return;
-  await setDoc(doc(db,'users',u.uid,'plans',plan.id), plan);
-  showSync();
-}
-async function delPlan(id){
-  const u=auth.currentUser; if(!u) return;
-  await deleteDoc(doc(db,'users',u.uid,'plans',id));
-  showSync();
-}
-async function saveSettings(settings){
-  const u=auth.currentUser; if(!u) return;
-  await setDoc(doc(db,'users',u.uid,'settings','app'), settings, {merge:true});
-  showSync();
+function closeAddModal(){
+  document.getElementById('add-modal').style.display='none';
 }
 
-/* ===== Auth ===== */
-onAuthStateChanged(auth, async user=>{
-  const authBar=document.getElementById('auth-bar');
-  const overlay=document.getElementById('login-overlay');
+/* ===== Duration widget ===== */
+function bindDurationWidget(prefix){
+  const hmEl=document.getElementById(prefix+'-dur-hm');
+  const minEl=document.getElementById(prefix+'-dur-min');
+  const labEl=document.getElementById(prefix+'-dur-label');
+  if(!hmEl||!minEl||!labEl) return;
 
-  if(user){
-    currentUserRole = ADMIN_EMAILS.includes(user.email)?'admin':'user';
-
-    const userRef=doc(db,'userProfiles',user.uid);
-    const snap=await getDoc(userRef);
-    if(!snap.exists()){
-      await setDoc(userRef,{uid:user.uid,email:user.email,displayName:user.email,role:currentUserRole,createdAt:new Date().toISOString()});
-    }
-
-    authBar.innerHTML = `
-      <span style="font-size:0.82rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:white;">
-        ${escapeHtml(user.email)}${currentUserRole==='admin'?' 👑':''}
-      </span>
-      <button id="signout-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 10px;border-radius:14px;cursor:pointer;font-size:0.78rem;">
-        ログアウト
-      </button>
-    `;
-    document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));
-    document.getElementById('admin-tab-btn').style.display = currentUserRole==='admin'?'flex':'none';
-
-    overlay.classList.remove('show');
-    document.getElementById('login-error').textContent='';
-
-    startSync(user.uid);
-    if(currentUserRole==='admin') renderUserList();
-
-  }else{
-    authBar.innerHTML='';
-    overlay.classList.add('show');
-    currentUserRole='user';
-    document.getElementById('admin-tab-btn').style.display='none';
-
-    [unsubData,unsubRecords,unsubPlans,unsubSettings].forEach(u=>{if(u)u();});
-    unsubData=unsubRecords=unsubPlans=unsubSettings=null;
-
-    appData.data=[]; appData.records=[]; appData.plans=[];
-    appData.settings={ subjectViewMode:'activeOnly', activeSubjects:[] };
-    appData.selectedId=null;
-    renderAll();
+  function syncFromHM(){
+    const m=hmToMinutes(hmEl.value);
+    minEl.value = String(m);
+    labEl.textContent = minutesToLabel(m);
   }
-});
-
-document.getElementById('login-btn').addEventListener('click', async ()=>{
-  const email=document.getElementById('login-email').value.trim();
-  const pass=document.getElementById('login-password').value;
-  const errEl=document.getElementById('login-error'); errEl.textContent='';
-  if(!email||!pass){ errEl.textContent='メールアドレスとパスワードを入力してください'; return; }
-  try{
-    await signInWithEmailAndPassword(auth,email,pass);
-  }catch(e){
-    errEl.textContent = ({
-      'auth/user-not-found':'ユーザーが見つかりません',
-      'auth/wrong-password':'パスワードが正しくありません',
-      'auth/invalid-email':'メールアドレスの形式が正しくありません',
-      'auth/too-many-requests':'しばらく待ってください',
-      'auth/invalid-credential':'メールアドレスまたはパスワードが正しくありません'
-    }[e.code]||'ログインに失敗しました');
+  function syncFromMin(){
+    const m=parseInt(minEl.value||'0',10);
+    hmEl.value = minutesToHM(m);
+    labEl.textContent = minutesToLabel(m);
   }
-});
-['login-email','login-password'].forEach(id=>{
-  document.getElementById(id).addEventListener('keydown',e=>{
-    if(e.key==='Enter') document.getElementById('login-btn').click();
-  });
-});
-
-/* ===== Sync ===== */
-function startSync(uid){
-  unsubSettings = onSnapshot(doc(db,'users',uid,'settings','app'), snap=>{
-    if(snap.exists()){
-      appData.settings = { subjectViewMode:'activeOnly', activeSubjects:[], ...snap.data() };
-    }else{
-      appData.settings = { subjectViewMode:'activeOnly', activeSubjects:[] };
-    }
-    syncSettingsUI();
-    renderAll();
-  });
-
-  unsubData = onSnapshot(query(collection(db,'users',uid,'data')), snap=>{
-    appData.data = snap.docs.map(d=>d.data());
-    refreshSettingsSubjectChecklist();
-    renderAll();
-    if(appData.selectedId){
-      const item=appData.data.find(d=>d.id===appData.selectedId);
-      if(item) updateStudyView(item);
-    }
-  });
-
-  unsubRecords = onSnapshot(query(collection(db,'users',uid,'records')), snap=>{
-    appData.records = snap.docs.map(d=>d.data());
-    renderAll();
-  });
-
-  unsubPlans = onSnapshot(query(collection(db,'users',uid,'plans')), snap=>{
-    appData.plans = snap.docs.map(d=>d.data());
-    renderAll();
-  });
+  hmEl.addEventListener('input',syncFromHM);
+  hmEl.addEventListener('change',syncFromHM);
+  minEl.addEventListener('input',syncFromMin);
+  minEl.addEventListener('change',syncFromMin);
+  syncFromMin();
 }
 
-/* ===== Resizer ===== */
-function initResizer(resizerId,getPaneEl,direction='left',storageKey=null,minPx=150){
-  const resizer=document.getElementById(resizerId); if(!resizer) return;
-  let dragging=false,startX=0,startW=0;
-  if(storageKey){
-    const saved=localStorage.getItem(storageKey);
-    if(saved){
-      const p=getPaneEl(); if(p) p.style.width=saved+'px';
-    }
-  }
-  resizer.addEventListener('mousedown',e=>{
-    dragging=true;startX=e.clientX;
-    const p=getPaneEl();startW=p?p.offsetWidth:300;
-    resizer.classList.add('dragging');
-    document.body.style.cursor='col-resize';
-    document.body.style.userSelect='none';
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove',e=>{
-    if(!dragging) return;
-    const p=getPaneEl(); if(!p) return;
-    const newW=Math.max(minPx,startW+(direction==='left'?e.clientX-startX:startX-e.clientX));
-    p.style.width=newW+'px';
-    if(storageKey) localStorage.setItem(storageKey,newW);
-  });
-  document.addEventListener('mouseup',()=>{
-    if(!dragging) return;
-    dragging=false;
-    resizer.classList.remove('dragging');
-    document.body.style.cursor='';
-    document.body.style.userSelect='';
-  });
+/* ===== Repeat rule helpers ===== */
+function isISODateString(s){ return /^\d{4}-\d{2}-\d{2}$/.test(String(s||'')); }
+function weekdaySetFromChecks(name){
+  const nodes=[...document.querySelectorAll(`input[name="${name}"]:checked`)];
+  return new Set(nodes.map(n=>parseInt(n.value,10)));
 }
-function initAllResizers(){
-  initResizer('resizer-manage',()=>document.getElementById('manage-left-pane'),'left','manage-left-w',180);
-  initResizer('resizer-block',()=>document.getElementById('block-edit-left-pane'),'left','block-edit-left-w',200);
-  initResizer('resizer-study-nav',()=>document.getElementById('study-nav-pane'),'left','study-nav-w',160);
-  initResizer('resizer-study-text',()=>document.getElementById('study-text-pane'),'left','study-text-w',150);
-  [['manage-left-w','manage-left-pane'],['block-edit-left-w','block-edit-left-pane'],['study-nav-w','study-nav-pane'],['study-text-w','study-text-pane']].forEach(([k,id])=>{
-    const s=localStorage.getItem(k);
-    if(s){ const e=document.getElementById(id); if(e) e.style.width=s+'px'; }
-  });
+function buildSeriesName({subject,title,ruleLabel,start,end}){
+  return `${subject}｜${title}｜${ruleLabel}｜${start}〜${end}`;
 }
-
-/* ===== UI toggles / tabs ===== */
-function toggleSidebar(){
-  const o=document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebar-overlay').classList.toggle('open',o);
-  document.body.style.overflow=o?'hidden':'';
+function calcWeekIndexFromStart(startYmd, dateYmd){
+  const start=new Date(startYmd+'T00:00:00');
+  const d=new Date(dateYmd+'T00:00:00');
+  const diffDays=Math.floor((d-start)/86400000);
+  return Math.floor(diffDays/7);
 }
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-function toggleSettings(){ document.getElementById('settings-panel').classList.toggle('open'); }
-function closeSettings(){ document.getElementById('settings-panel').classList.remove('open'); }
-
-function switchTab(tab,btn){
-  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
-  btn.classList.add('active');
-
-  if(tab==='calendar'){
-    if(!calSelectedDate){
-      const today=ymd(new Date());
-      calSelectedDate=today;
-      const d=new Date(today+'T00:00:00');
-      calYear=d.getFullYear(); calMonth=d.getMonth();
-    }
-    renderCalendar();
-    renderDayPanel();
-    renderSummary();
-  }
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function nthWeekdayOfMonth(y,m,weekday,nth){
+  const first=new Date(y,m,1);
+  const firstW=first.getDay();
+  const offset=(weekday-firstW+7)%7;
+  const day=1+offset+(nth-1)*7;
+  const dim=daysInMonth(y,m);
+  if(day>dim) return null;
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 }
 
 /* ===== Settings UI ===== */
@@ -1120,7 +751,7 @@ function allSubjectsFromData(){
 function refreshSettingsSubjectChecklist(){
   const list=document.getElementById('subject-checklist');
   const subjects=allSubjectsFromData();
-  const active = new Set(appData.settings?.activeSubjects||[]);
+  const active=new Set(appData.settings?.activeSubjects||[]);
   list.innerHTML = subjects.length ? subjects.map(s=>{
     const checked = active.has(s) ? 'checked' : '';
     return `
@@ -1145,81 +776,45 @@ function autoFillSubjects(){
   document.querySelectorAll('.active-subj-chk').forEach(el=>{ el.checked = subjects.includes(el.value); });
 }
 
-/* ===== Manage / Tree / Selectors ===== */
-function getSortedList(){
-  return [...filteredData()].sort((a,b)=>{
-    const sc=a.subject.localeCompare(b.subject,'ja'); if(sc) return sc;
-    const cc=a.chapter.localeCompare(b.chapter,'ja'); if(cc) return cc;
-    return a.no.localeCompare(b.no,'ja',{numeric:true});
-  });
+/* ===== Sidebar / settings toggles ===== */
+function toggleSidebar(){
+  const sidebar=document.getElementById('sidebar');
+  const overlay=document.getElementById('sidebar-overlay');
+  const open = !sidebar.classList.contains('open');
+  sidebar.classList.toggle('open',open);
+  overlay.classList.toggle('open',open);
 }
-function getNavInfo(){
-  const list=getSortedList();
-  const idx=list.findIndex(d=>d.id===appData.selectedId);
-  return {list,idx,total:list.length,prevId:idx>0?list[idx-1].id:null,nextId:idx<list.length-1?list[idx+1].id:null};
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
 }
-function updateNavButtons(){
-  const {idx,total,prevId,nextId}=getNavInfo();
-  document.getElementById('nav-prev-btn').disabled=!prevId;
-  document.getElementById('nav-next-btn').disabled=!nextId;
-  document.getElementById('nav-counter').textContent = idx>=0 ? `${idx+1}/${total}` : '-/-';
+function toggleSettings(){ document.getElementById('settings-panel').classList.toggle('open'); }
+function closeSettings(){ document.getElementById('settings-panel').classList.remove('open'); }
+
+/* ===== Tabs ===== */
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+
+  if(tab==='calendar'){
+    if(!calSelectedDate){
+      const today=ymd(new Date());
+      calSelectedDate=today;
+      const d=new Date(today+'T00:00:00');
+      calYear=d.getFullYear(); calMonth=d.getMonth();
+    }
+    renderCalendar();
+    renderDayPanel();
+    renderSummary();
+  }
 }
+
+/* ===== Manage minimal (list/select/add/save/delete) ===== */
 function getBestScore(id){
   const r=appData.records.filter(r=>r.itemId===id && r.score!=null);
   return r.length ? Math.max(...r.map(r=>r.score)) : null;
-}
-function renderTree(){
-  const tree=document.getElementById('tree');
-  const subjects={};
-  filteredData().forEach(item=>{
-    if(!subjects[item.subject]) subjects[item.subject]={};
-    if(!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter]=[];
-    subjects[item.subject][item.chapter].push(item);
-  });
-  tree.innerHTML='';
-  if(!Object.keys(subjects).length){
-    tree.innerHTML='<div style="padding:14px;color:#aaa;font-size:0.8rem;text-align:center;">表示対象の理論がありません</div>';
-    return;
-  }
-  Object.entries(subjects).sort((a,b)=>a[0].localeCompare(b[0],'ja')).forEach(([subj,chapters])=>{
-    const subjEl=document.createElement('div'); subjEl.className='tree-subject';
-    const subjLabel=document.createElement('div'); subjLabel.className='tree-subject-label';
-    subjLabel.innerHTML=`<span class="toggle-icon">▼</span>📚 ${escapeHtml(subj)}`;
-    const chapWrap=document.createElement('div');
-    subjLabel.addEventListener('click',()=>{
-      subjEl.classList.toggle('collapsed');
-      chapWrap.style.display=subjEl.classList.contains('collapsed')?'none':'';
-    });
-    subjEl.appendChild(subjLabel);
-
-    Object.entries(chapters).sort((a,b)=>a[0].localeCompare(b[0],'ja')).forEach(([chap,items])=>{
-      const chapEl=document.createElement('div'); chapEl.className='tree-chapter';
-      const chapLabel=document.createElement('div'); chapLabel.className='tree-chapter-label';
-      chapLabel.innerHTML=`<span class="toggle-icon">▼</span>📖 ${escapeHtml(chap)}`;
-      const itemWrap=document.createElement('div'); itemWrap.className='tree-items';
-      chapLabel.addEventListener('click',()=>{
-        chapEl.classList.toggle('collapsed');
-        itemWrap.style.display=chapEl.classList.contains('collapsed')?'none':'';
-      });
-      chapEl.appendChild(chapLabel);
-
-      items.sort((a,b)=>a.no.localeCompare(b.no,'ja',{numeric:true})).forEach(item=>{
-        const best=getBestScore(item.id);
-        const el=document.createElement('div');
-        el.className='tree-item'+(item.id===appData.selectedId?' active':'');
-        el.innerHTML=`<span>${escapeHtml(item.no)} ${escapeHtml(item.title)}</span>
-          <span class="item-badge"><span>${item.rank||'B'}</span>${best!==null?`<span>${best}%</span>`:''}</span>`;
-        el.addEventListener('click',()=>{selectItem(item.id);closeSidebar();});
-        itemWrap.appendChild(el);
-      });
-
-      chapEl.appendChild(itemWrap);
-      chapWrap.appendChild(chapEl);
-    });
-
-    subjEl.appendChild(chapWrap);
-    tree.appendChild(subjEl);
-  });
 }
 function renderContentSelect(){
   const subjects=uniq(filteredData().map(d=>d.subject)).sort((a,b)=>a.localeCompare(b,'ja'));
@@ -1289,73 +884,59 @@ function renderManageList(){
   wrap.innerHTML=html;
   wrap.querySelectorAll('tr[data-id]').forEach(tr=>tr.addEventListener('click',()=>selectItem(tr.dataset.id)));
 }
+function renderTree(){
+  const tree=document.getElementById('tree');
+  const subjects={};
+  filteredData().forEach(item=>{
+    if(!subjects[item.subject]) subjects[item.subject]={};
+    if(!subjects[item.subject][item.chapter]) subjects[item.subject][item.chapter]=[];
+    subjects[item.subject][item.chapter].push(item);
+  });
+  tree.innerHTML='';
+  if(!Object.keys(subjects).length){
+    tree.innerHTML='<div style="padding:14px;color:#aaa;font-size:0.8rem;text-align:center;">表示対象の理論がありません</div>';
+    return;
+  }
+  Object.entries(subjects).sort((a,b)=>a[0].localeCompare(b[0],'ja')).forEach(([subj,chapters])=>{
+    const subjEl=document.createElement('div'); subjEl.className='tree-subject';
+    const subjLabel=document.createElement('div'); subjLabel.className='tree-subject-label';
+    subjLabel.innerHTML=`<span class="toggle-icon">▼</span>📚 ${escapeHtml(subj)}`;
+    const chapWrap=document.createElement('div');
+    subjLabel.addEventListener('click',()=>{
+      subjEl.classList.toggle('collapsed');
+      chapWrap.style.display=subjEl.classList.contains('collapsed')?'none':'';
+    });
+    subjEl.appendChild(subjLabel);
 
-/* ===== Select item / save/delete / add modal ===== */
-function selectItem(id){
-  appData.selectedId=id;
-  const item=appData.data.find(d=>d.id===id);
-  if(!item) return;
+    Object.entries(chapters).sort((a,b)=>a[0].localeCompare(b[0],'ja')).forEach(([chap,items])=>{
+      const chapEl=document.createElement('div'); chapEl.className='tree-chapter';
+      const chapLabel=document.createElement('div'); chapLabel.className='tree-chapter-label';
+      chapLabel.innerHTML=`<span class="toggle-icon">▼</span>📖 ${escapeHtml(chap)}`;
+      const itemWrap=document.createElement('div'); itemWrap.className='tree-items';
+      chapLabel.addEventListener('click',()=>{
+        chapEl.classList.toggle('collapsed');
+        itemWrap.style.display=chapEl.classList.contains('collapsed')?'none':'';
+      });
+      chapEl.appendChild(chapLabel);
 
-  document.getElementById('manage-empty-right').style.display='none';
-  document.getElementById('manage-editor-right').style.display='flex';
+      items.sort((a,b)=>a.no.localeCompare(b.no,'ja',{numeric:true})).forEach(item=>{
+        const best=getBestScore(item.id);
+        const el=document.createElement('div');
+        el.className='tree-item'+(item.id===appData.selectedId?' active':'');
+        el.innerHTML=`<span>${escapeHtml(item.no)} ${escapeHtml(item.title)}</span>
+          <span class="item-badge"><span>${item.rank||'B'}</span>${best!==null?`<span>${best}%</span>`:''}</span>`;
+        el.addEventListener('click',()=>{selectItem(item.id);closeSidebar();});
+        itemWrap.appendChild(el);
+      });
 
-  document.getElementById('edit-subject').value=item.subject;
-  document.getElementById('edit-chapter').value=item.chapter;
-  document.getElementById('edit-no').value=item.no;
-  document.getElementById('edit-rank').value=item.rank||'B';
-  document.getElementById('edit-title').value=item.title;
+      chapEl.appendChild(itemWrap);
+      chapWrap.appendChild(chapEl);
+    });
 
-  editBlocks=[...(item.blocks||[]).map(b=>({...b,marks:[...(b.marks||[])]}))];
-  renderBlockEditor();
-  updateLivePreview();
-  updateStudyView(item);
-
-  const selSubj=document.getElementById('sel-subject');
-  if(selSubj.value!==item.subject){ selSubj.value=item.subject; onSubjectChange(); }
-  const selChap=document.getElementById('sel-chapter');
-  if(selChap.value!==item.chapter){ selChap.value=item.chapter; onChapterChange(); }
-  document.getElementById('sel-item').value=item.id;
-
-  updateNavButtons();
-  renderTree();
-  renderManageList();
-  clearTyping();
-  clearPillar();
-}
-
-function saveItemHandler(){
-  const id=appData.selectedId; if(!id) return;
-  const item=appData.data.find(d=>d.id===id); if(!item) return;
-  syncBlockFromDOM();
-
-  item.subject=document.getElementById('edit-subject').value.trim();
-  item.chapter=document.getElementById('edit-chapter').value.trim();
-  item.no=document.getElementById('edit-no').value.trim();
-  item.rank=document.getElementById('edit-rank').value;
-  item.title=document.getElementById('edit-title').value.trim();
-  item.blocks=editBlocks.map(b=>({...b,marks:[...(b.marks||[])]}));
-
-  saveItem(item).then(()=>{
-    refreshSettingsSubjectChecklist();
-    renderAll();
-    alert('保存しました！');
+    subjEl.appendChild(chapWrap);
+    tree.appendChild(subjEl);
   });
 }
-function deleteItemHandler(){
-  const id=appData.selectedId;
-  if(!id||!confirm('この理論を削除しますか？')) return;
-  delItem(id);
-  appData.records.filter(r=>r.itemId===id).forEach(r=>delRec(r.id));
-  appData.data=appData.data.filter(d=>d.id!==id);
-  appData.records=appData.records.filter(r=>r.itemId!==id);
-  appData.selectedId=null;
-  document.getElementById('manage-empty-right').style.display='block';
-  document.getElementById('manage-editor-right').style.display='none';
-  renderAll();
-}
-
-function openAddModal(){ refreshModalSubjects(); document.getElementById('add-modal').classList.add('open'); }
-function closeModal(){ document.getElementById('add-modal').classList.remove('open'); }
 function refreshModalSubjects(){
   const subjects=uniq(appData.data.map(d=>d.subject)).sort((a,b)=>a.localeCompare(b,'ja'));
   const sel=document.getElementById('new-subject-sel');
@@ -1381,579 +962,86 @@ function addItemHandler(){
   if(!subject||!chapter||!no||!title){ alert('すべての項目を入力してください'); return; }
   const item={id:genId(),subject,chapter,no,rank,title,blocks:[]};
   appData.data.push(item);
-  saveItem(item).catch(err=>alert('保存失敗: '+err.message));
+  saveItem(item);
   renderAll();
   selectItem(item.id);
-  closeModal();
-  ['new-no','new-title'].forEach(id=>{document.getElementById(id).value='';});
+  closeAddModal();
+}
+function selectItem(id){
+  appData.selectedId=id;
+  const item=appData.data.find(d=>d.id===id);
+  if(!item) return;
+  document.getElementById('manage-empty-right').style.display='none';
+  document.getElementById('manage-editor-right').style.display='flex';
+  document.getElementById('edit-subject').value=item.subject;
+  document.getElementById('edit-chapter').value=item.chapter;
+  document.getElementById('edit-no').value=item.no;
+  document.getElementById('edit-rank').value=item.rank||'B';
+  document.getElementById('edit-title').value=item.title;
+  editBlocks=[...(item.blocks||[])];
+  renderTree();
+  renderManageList();
+}
+function saveItemHandler(){
+  const id=appData.selectedId; if(!id) return;
+  const item=appData.data.find(d=>d.id===id); if(!item) return;
+  item.subject=document.getElementById('edit-subject').value.trim();
+  item.chapter=document.getElementById('edit-chapter').value.trim();
+  item.no=document.getElementById('edit-no').value.trim();
+  item.rank=document.getElementById('edit-rank').value;
+  item.title=document.getElementById('edit-title').value.trim();
+  item.blocks=editBlocks;
+  saveItem(item);
+  alert('保存しました');
+}
+function deleteItemHandler(){
+  const id=appData.selectedId;
+  if(!id || !confirm('この理論を削除しますか？')) return;
+  delItem(id);
+  appData.selectedId=null;
+  document.getElementById('manage-empty-right').style.display='block';
+  document.getElementById('manage-editor-right').style.display='none';
+  renderAll();
 }
 
-/* ===== Study modes ===== */
+/* ===== Study modes (minimal) ===== */
 function toggleNav(){
   navCollapsed=!navCollapsed;
   const nav=document.getElementById('study-nav-pane');
   const resizer=document.getElementById('resizer-study-nav');
   const btn=document.getElementById('nav-toggle-btn');
-  if(navCollapsed){ nav.classList.add('collapsed'); resizer.style.display='none'; btn.textContent='▶'; btn.title='ナビを表示する'; }
-  else{ nav.classList.remove('collapsed'); resizer.style.display=''; btn.textContent='☰'; btn.title='ナビを折りたたむ'; }
+  if(navCollapsed){ nav.style.display='none'; resizer.style.display='none'; btn.textContent='▶'; }
+  else{ nav.style.display=''; resizer.style.display=''; btn.textContent='☰'; }
 }
 function toggleTextPane(){
   showTextPane=!showTextPane;
   const pane=document.getElementById('study-text-pane');
   const resizer=document.getElementById('resizer-study-text');
   const btn=document.getElementById('show-text-btn');
-  if(showTextPane){ pane.classList.remove('hidden'); resizer.style.display=''; btn.textContent='📄 原文を隠す'; btn.classList.add('showing'); }
-  else{ pane.classList.add('hidden'); resizer.style.display='none'; btn.textContent='📄 原文を表示する'; btn.classList.remove('showing'); }
+  if(showTextPane){ pane.classList.remove('hidden'); resizer.style.display=''; btn.textContent='📄 原文を隠す'; }
+  else{ pane.classList.add('hidden'); resizer.style.display='none'; btn.textContent='📄 原文を表示する'; }
 }
 function setMode(mode){
   currentMode=mode;
   const isTypingMode=mode==='pillar'||mode==='typing';
-  document.getElementById('view-area').style.display=(mode==='view'||mode==='anki')?'flex':'none';
+  document.getElementById('view-area').style.display=(mode==='view'||mode==='anki')?'block':'none';
   document.getElementById('typing-layout').style.display=isTypingMode?'flex':'none';
   document.getElementById('pillar-input-area').style.display=mode==='pillar'?'block':'none';
   document.getElementById('typing-input-area').style.display=mode==='typing'?'block':'none';
   ['view','anki','pillar','typing'].forEach(m=>{
     document.getElementById(`mode-${m}-btn`).classList.toggle('active',m===mode);
   });
-  if(isTypingMode){
-    showTextPane=false;
-    document.getElementById('study-text-pane').classList.add('hidden');
-    document.getElementById('resizer-study-text').style.display='none';
-    document.getElementById('show-text-btn').textContent='📄 原文を表示する';
-    document.getElementById('show-text-btn').classList.remove('showing');
-  }
-  const item=appData.data.find(d=>d.id===appData.selectedId);
-  if(item) updateStudyView(item);
 }
 
-/* ===== Color popup + marking ===== */
-function initColorPopup(){
-  const swatches=document.getElementById('color-swatches');
-  swatches.innerHTML='';
-  MARK_COLORS.forEach(mc=>{
-    const btn=document.createElement('button');
-    btn.className='color-swatch-btn';
-    btn.style.background=mc.color;
-    btn.addEventListener('click',()=>applyMark(mc.color,mc.bg));
-    swatches.appendChild(btn);
-  });
-  document.getElementById('color-popup-del').addEventListener('click',removeMark);
-  document.getElementById('color-popup-cancel').addEventListener('click',hideColorPopup);
-  document.addEventListener('click',e=>{
-    const popup=document.getElementById('color-popup');
-    const lp=document.getElementById('block-live-preview');
-    if(!popup.contains(e.target)&&!lp.contains(e.target)) hideColorPopup();
-  });
-}
-function showColorPopup(x,y,hasExisting){
-  const popup=document.getElementById('color-popup');
-  document.getElementById('color-popup-del').style.display=hasExisting?'block':'none';
-  popup.classList.add('show');
-  const pw=popup.offsetWidth||200,ph=popup.offsetHeight||150,vw=window.innerWidth,vh=window.innerHeight;
-  let left=x,top=y+10;
-  if(left+pw>vw) left=vw-pw-8;
-  if(top+ph>vh) top=y-ph-10;
-  popup.style.left=left+'px';popup.style.top=top+'px';
-}
-function hideColorPopup(){document.getElementById('color-popup').classList.remove('show');pendingMark=null;}
-
-function getPlainTextOffset(containerEl,targetNode,targetOffset){
-  let offset=0;
-  function walk(node){
-    if(node===targetNode){ offset+=targetOffset; return true; }
-    if(node.nodeType===3){ offset+=node.textContent.length; return false; }
-    for(const child of node.childNodes){ if(walk(child)) return true; }
-    return false;
-  }
-  walk(containerEl);
-  return offset;
-}
-function findBlockEl(node){
-  let el=node.nodeType===3?node.parentElement:node;
-  while(el && !el.dataset.blockId) el=el.parentElement;
-  return el||null;
-}
-function findFieldEl(node){
-  let el=node.nodeType===3?node.parentElement:node;
-  while(el){ if(el.dataset && el.dataset.field) return el; el=el.parentElement; }
-  return null;
-}
-function getSourceText(block,fieldKey){
-  if(fieldKey==='title') return block.title||'';
-  if(fieldKey==='body') return block.body||'';
-  if(fieldKey==='text') return block.body||'';
-  return '';
-}
-function onLivePreviewSelect(){
-  const sel=window.getSelection();
-  if(!sel||sel.isCollapsed) return;
-  const selectedText=sel.toString();
-  if(!selectedText.trim()) return;
-  const item=appData.data.find(d=>d.id===appData.selectedId); if(!item) return;
-  const blockEl=findBlockEl(sel.anchorNode); if(!blockEl) return;
-  const blockId=blockEl.dataset.blockId;
-  const block=editBlocks.find(b=>b.id===blockId); if(!block) return;
-  const fieldEl=findFieldEl(sel.anchorNode); if(!fieldEl) return;
-  const fieldKey=fieldEl.dataset.field;
-
-  const range=sel.getRangeAt(0);
-  const start=getPlainTextOffset(fieldEl,range.startContainer,range.startOffset);
-  const end=getPlainTextOffset(fieldEl,range.endContainer,range.endOffset);
-
-  const sourceText=getSourceText(block,fieldKey);
-  if(start<0||end>sourceText.length||start>=end){ sel.removeAllRanges(); return; }
-
-  const marks=(block.marks||[]).filter(m=>m.fieldKey===fieldKey);
-  const overlapping=marks.find(m=>!(end<=m.start||start>=m.end));
-  pendingMark={blockId,fieldKey,start,end,existingMark:overlapping||null};
-  const rect=range.getBoundingClientRect();
-  showColorPopup(rect.left,rect.bottom,!!overlapping);
-  sel.removeAllRanges();
-}
-function applyMark(color,bg){
-  if(!pendingMark) return;
-  const item=appData.data.find(d=>d.id===appData.selectedId); if(!item) return;
-  const newMark={id:genId(),fieldKey:pendingMark.fieldKey,start:pendingMark.start,end:pendingMark.end,color,bg};
-  [editBlocks.find(b=>b.id===pendingMark.blockId), item.blocks?.find(b=>b.id===pendingMark.blockId)].forEach(block=>{
-    if(!block) return;
-    if(!block.marks) block.marks=[];
-    block.marks=block.marks.filter(m=>!(m.fieldKey===pendingMark.fieldKey && pendingMark.end>m.start && pendingMark.start<m.end));
-    block.marks.push({...newMark});
-    block.marks.sort((a,b)=>a.fieldKey.localeCompare(b.fieldKey)||a.start-b.start);
-  });
-  hideColorPopup();
-  saveItem(item).then(()=>{updateLivePreview();updateStudyView(item);});
-}
-function removeMark(){
-  if(!pendingMark||!pendingMark.existingMark) return;
-  const item=appData.data.find(d=>d.id===appData.selectedId); if(!item) return;
-  [editBlocks.find(b=>b.id===pendingMark.blockId), item.blocks?.find(b=>b.id===pendingMark.blockId)].forEach(block=>{
-    if(!block) return;
-    block.marks=(block.marks||[]).filter(m=>m.id!==pendingMark.existingMark.id);
-  });
-  hideColorPopup();
-  saveItem(item).then(()=>{updateLivePreview();updateStudyView(item);});
-}
-function applyMarksToText(text,marks,fieldKey,anki=false){
-  const fieldMarks=(marks||[]).filter(m=>m.fieldKey===fieldKey);
-  if(!fieldMarks.length) return escapeHtml(text).replace(/\n/g,'<br>');
-  const sorted=[...fieldMarks].sort((a,b)=>a.start-b.start);
-  let result='',pos=0;
-  sorted.forEach(m=>{
-    const s=Math.max(0,m.start), e=Math.min(text.length,m.end);
-    if(s>pos) result+=escapeHtml(text.slice(pos,s)).replace(/\n/g,'<br>');
-    if(s<e){
-      const chunk=escapeHtml(text.slice(s,e));
-      result+=anki
-        ?`<span class="mark-span" data-mark-id="${m.id}" style="background:${m.color};color:${m.color};">${chunk}</span>`
-        :`<span class="mark-span" style="background:${m.bg};color:${m.color};font-weight:600;" data-mark-id="${m.id}">${chunk}</span>`;
-    }
-    pos=e;
-  });
-  if(pos<text.length) result+=escapeHtml(text.slice(pos)).replace(/\n/g,'<br>');
-  return result;
-}
-function buildTheoryHeader(item){
-  return `<div class="theory-header">${escapeHtml(item.subject)} ／ ${escapeHtml(item.chapter)}</div>
-  <div class="theory-mondai"><span class="theory-mondai-num">問題 ${escapeHtml(item.no)}</span><span class="theory-mondai-title">${escapeHtml(item.title)}</span></div>`;
-}
-function buildTheoryHTML(item,anki=false,useEditBlocks=false){
-  const blocks=useEditBlocks?editBlocks:(item?.blocks||[]);
-  if(!blocks.length) return '<div class="empty-state"><div class="icon">📖</div>ブロックがありません</div>';
-  let sectionCount=0,item1Count=0,item2Count=0,item3Count=0;
-  let html='';
-  blocks.forEach(block=>{
-    const marks=block.marks||[];
-    if(block.type==='section'){
-      sectionCount++; item1Count=0; item2Count=0; item3Count=0;
-      html+=`<div class="view-section" data-block-id="${block.id}">
-        <span class="view-section-title" data-field="title">${applyMarksToText(block.title||'',marks,'title',anki)}</span>
-        <span class="view-section-law">${escapeHtml(block.law||'')}</span>
-        <span class="view-section-rank rank-disp-${block.rank||'A'}">${block.rank||'A'}</span>
-      </div>`;
-    }else if(block.type==='item1'){
-      item1Count++; item2Count=0; item3Count=0;
-      html+=`<div class="view-item1" data-block-id="${block.id}">
-        <div class="view-item1-title" data-field="title">(${item1Count}) ${applyMarksToText(block.title||'',marks,'title',anki)}</div>
-        ${block.body?`<div class="view-item1-body" data-field="body">${applyMarksToText(block.body,marks,'body',anki)}</div>`:''}
-      </div>`;
-    }else if(block.type==='item2'){
-      item2Count++; item3Count=0;
-      html+=`<div class="view-item2" data-block-id="${block.id}">
-        <span class="view-item2-num">${MARU[item2Count-1]||`(${item2Count})`}</span>
-        <span class="view-item2-body" data-field="body">${applyMarksToText(block.body||'',marks,'body',anki)}</span>
-      </div>`;
-    }else if(block.type==='item3'){
-      item3Count++;
-      html+=`<div class="view-item3" data-block-id="${block.id}">
-        <span class="view-item3-num">${IROHA[item3Count-1]||`(${item3Count})`}</span>
-        <span class="view-item3-body" data-field="body">${applyMarksToText(block.body||'',marks,'body',anki)}</span>
-      </div>`;
-    }else if(block.type==='text'){
-      html+=`<div class="view-text" data-block-id="${block.id}" data-field="text">${applyMarksToText(block.body||'',marks,'text',anki)}</div>`;
-    }
-  });
-  return html;
-}
-function updateLivePreview(){
-  const preview=document.getElementById('block-live-preview');
-  if(!preview||!appData.selectedId) return;
-  const item=appData.data.find(d=>d.id===appData.selectedId); if(!item) return;
-  preview.innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,false,true);
-  preview.querySelectorAll('.mark-span').forEach(span=>{
-    span.addEventListener('click',e=>{
-      e.stopPropagation();
-      const markId=span.dataset.markId;
-      const blockEl=findBlockEl(span); if(!blockEl) return;
-      const block=editBlocks.find(b=>b.id===blockEl.dataset.blockId); if(!block) return;
-      const mark=(block.marks||[]).find(m=>m.id===markId); if(!mark) return;
-      pendingMark={blockId:blockEl.dataset.blockId,fieldKey:mark.fieldKey,start:mark.start,end:mark.end,existingMark:mark};
-      const rect=span.getBoundingClientRect();
-      showColorPopup(rect.left,rect.bottom,true);
-    });
-  });
-}
-function bindAnkiReveal(container){
-  container.querySelectorAll('.mark-span').forEach(span=>{
-    span.addEventListener('click',e=>{
-      e.stopPropagation();
-      span.classList.toggle('revealed');
-    });
-  });
-}
-function buildPillarDisplay(item){
-  const el=document.getElementById('pillar-display');
-  if(!el) return;
-  if(!item||!item.blocks||!item.blocks.length){
-    el.innerHTML='<div class="empty-state"><div class="icon">🏛</div>ブロックがありません</div>';
-    return;
-  }
-  let sectionCount=0,item1Count=0; let html='';
-  item.blocks.forEach(block=>{
-    if(block.type==='section'){
-      sectionCount++; item1Count=0;
-      html += `<div style="margin:10px 0 4px;"><div class="pillar-section-title">【${sectionCount}】 ${escapeHtml(block.title||'')}</div></div>`;
-    }else if(block.type==='item1'){
-      item1Count++;
-      html += `<div style="margin:3px 0;"><div class="pillar-item1-title">(${item1Count}) ${escapeHtml(block.title||'')}</div></div>`;
-    }
-  });
-  el.innerHTML=html||'<div style="color:#aaa;font-size:0.86rem;">セクション・大項目がありません</div>';
-}
-function updateStudyView(item){
-  document.getElementById('study-title').textContent=`【${item.chapter}】${item.no} ${item.title}`;
-  const isAnki=currentMode==='anki';
-  const viewEl=document.getElementById('view-text');
-  viewEl.innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,isAnki,false);
-  if(isAnki){ viewEl.classList.add('anki-mode'); bindAnkiReveal(viewEl); }
-  else viewEl.classList.remove('anki-mode');
-  document.getElementById('study-text-view').innerHTML=buildTheoryHeader(item)+buildTheoryHTML(item,false,false);
-  buildPillarDisplay(item);
-}
-
-/* ===== Block editor ===== */
-const BLOCK_LABELS={section:'【】セクション',item1:'(1) 大項目',item2:'① 小項目',item3:'(イ) 細項目',text:'本文'};
-function addBlock(type){ editBlocks.push({id:genId(),type,title:'',body:'',law:'',rank:'A',marks:[]}); renderBlockEditor(); updateLivePreview(); }
-function renderBlockEditor(){
-  const editor=document.getElementById('block-editor');
-  editor.innerHTML='';
-  if(!editBlocks.length){
-    editor.innerHTML='<div style="color:#aaa;font-size:0.82rem;padding:8px;">ブロックがありません。下のボタンから追加してください。</div>';
-    return;
-  }
-  editBlocks.forEach((block,i)=>{
-    const el=document.createElement('div');
-    el.style.border='1px solid #dde3ea';
-    el.style.borderRadius='10px';
-    el.style.padding='10px 12px';
-    el.style.background='#fafbfc';
-    if(block.type==='section'){ el.style.borderLeft='4px solid #1a2a4a'; el.style.background='#f0f4f8'; }
-    if(block.type==='item1'){ el.style.borderLeft='4px solid #2c5f8a'; }
-    if(block.type==='item2'){ el.style.borderLeft='4px solid #5ba3d9'; el.style.marginLeft='16px'; }
-    if(block.type==='item3'){ el.style.borderLeft='4px solid #a8d4f0'; el.style.marginLeft='32px'; }
-    if(block.type==='text'){ el.style.borderLeft='4px solid #dde3ea'; }
-
-    const fields = buildBlockFields(block,i);
-    el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-        <span style="font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;background:#e0e7ef;color:#555;">
-          ${escapeHtml(BLOCK_LABELS[block.type]||block.type)}
-        </span>
-        <div style="display:flex;gap:4px;margin-left:auto;">
-          ${i>0?`<button class="block-ctrl-btn" data-action="up" data-i="${i}">↑</button>`:''}
-          ${i<editBlocks.length-1?`<button class="block-ctrl-btn" data-action="down" data-i="${i}">↓</button>`:''}
-          <button class="block-ctrl-btn" data-action="del" data-i="${i}" style="color:#c0392b;">✕</button>
-        </div>
-      </div>
-      <div>${fields}</div>
-    `;
-    editor.appendChild(el);
-  });
-
-  editor.querySelectorAll('.block-ctrl-btn').forEach(btn=>{
-    btn.style.background='none';
-    btn.style.border='1px solid #dde3ea';
-    btn.style.borderRadius='5px';
-    btn.style.padding='3px 7px';
-    btn.style.cursor='pointer';
-    btn.style.fontSize='0.75rem';
-    btn.style.color=btn.style.color||'#666';
-    btn.addEventListener('click',()=>{
-      const i=parseInt(btn.dataset.i,10);
-      if(btn.dataset.action==='up') [editBlocks[i-1],editBlocks[i]]=[editBlocks[i],editBlocks[i-1]];
-      else if(btn.dataset.action==='down') [editBlocks[i],editBlocks[i+1]]=[editBlocks[i+1],editBlocks[i]];
-      else if(btn.dataset.action==='del') editBlocks.splice(i,1);
-      renderBlockEditor();
-      updateLivePreview();
-    });
-  });
-
-  editor.querySelectorAll('input,textarea,select').forEach(el=>{
-    el.addEventListener('input',syncBlockFromDOM);
-    el.addEventListener('change',syncBlockFromDOM);
-  });
-}
-function buildBlockFields(block,i){
-  if(block.type==='section'){
-    return `<div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <input type="text" data-i="${i}" data-f="title" value="${escapeHtml(block.title||'')}" placeholder="セクションタイトル" style="flex:1;min-width:180px;border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;">
-      <input type="text" data-i="${i}" data-f="law" value="${escapeHtml(block.law||'')}" placeholder="根拠条文" style="flex:0.8;min-width:140px;border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;">
-      <select data-i="${i}" data-f="rank" style="flex:0.4;min-width:80px;border:1px solid #dde3ea;border-radius:7px;padding:7px 8px;font-size:0.84rem;outline:none;font-family:inherit;">
-        <option value="A"${block.rank==='A'?' selected':''}>A</option>
-        <option value="B"${block.rank==='B'?' selected':''}>B</option>
-        <option value="C"${block.rank==='C'?' selected':''}>C</option>
-      </select>
-    </div>`;
-  }
-  if(block.type==='item1'){
-    return `<input type="text" data-i="${i}" data-f="title" value="${escapeHtml(block.title||'')}" placeholder="項目タイトル" style="border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;width:100%;margin-bottom:6px;">
-      <textarea data-i="${i}" data-f="body" placeholder="本文（任意）" style="border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;width:100%;min-height:60px;">${escapeHtml(block.body||'')}</textarea>`;
-  }
-  return `<textarea data-i="${i}" data-f="body" placeholder="本文" style="border:1px solid #dde3ea;border-radius:7px;padding:7px 10px;width:100%;min-height:60px;">${escapeHtml(block.body||'')}</textarea>`;
-}
-function syncBlockFromDOM(){
-  document.querySelectorAll('#block-editor [data-i]').forEach(el=>{
-    const i=parseInt(el.dataset.i,10);
-    const f=el.dataset.f;
-    if(editBlocks[i]&&f) editBlocks[i][f]=el.value;
-  });
-  updateLivePreview();
-}
-
-/* ===== Typing/pillar scoring (same as v2.1) ===== */
-function extractPillarText(item){
-  if(!item||!item.blocks) return '';
-  return item.blocks.filter(b=>b.type==='section'||b.type==='item1').map(b=>b.title||'').join('');
-}
-function extractPlainText(item){
-  if(!item||!item.blocks) return '';
-  return item.blocks.map(b=>{
-    if(b.type==='section') return (b.title||'')+(b.law||'');
-    if(b.type==='item1') return (b.title||'')+(b.body||'');
-    return b.body||'';
-  }).join('');
-}
-function normalize(s){
-  return s.replace(/[、。，．・\n\r\s　（）()【】①②③④⑤⑥⑦⑧⑨⑩イロハニホヘトチリヌ]/g,'');
-}
-function lcsLength(a,b){
-  const m=a.length,n=b.length;
-  let prev=new Array(n+1).fill(0);
-  for(let i=1;i<=m;i++){
-    const curr=new Array(n+1).fill(0);
-    for(let j=1;j<=n;j++){
-      curr[j]=a[i-1]===b[j-1]?prev[j-1]+1:Math.max(prev[j],curr[j-1]);
-    }
-    prev=curr;
-  }
-  return prev[n];
-}
-function buildDiffHTML(orig,input){
-  const m=orig.length,n=input.length;
-  const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
-  for(let i=1;i<=m;i++){
-    for(let j=1;j<=n;j++){
-      dp[i][j]=orig[i-1]===input[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
-    }
-  }
-  const matched=new Array(m).fill(false);
-  let i=m,j=n;
-  while(i>0&&j>0){
-    if(orig[i-1]===input[j-1]){ matched[i-1]=true; i--; j--; }
-    else if(dp[i-1][j]>=dp[i][j-1]) i--;
-    else j--;
-  }
-  let html='';
-  for(let k=0;k<orig.length;k++){
-    const ch=escapeHtml(orig[k]);
-    html += matched[k] ? `<span class="diff-ok">${ch}</span>` : `<span class="diff-ng">${ch}</span>`;
-  }
-  return html;
-}
-function calcPillarScore(){
-  const id=appData.selectedId; if(!id) return 0;
-  const item=appData.data.find(d=>d.id===id); if(!item) return 0;
-  const orig=normalize(extractPillarText(item));
-  const input=normalize(document.getElementById('pillar-input').value);
-  if(!orig.length) return 0;
-  const pct=Math.round(lcsLength(orig,input)/orig.length*100);
-  const bar=document.getElementById('pillar-score-bar');
-  bar.style.width=pct+'%';
-  bar.style.background=pct>=80?'#27ae60':pct>=50?'#d68910':'#c0392b';
-  document.getElementById('pillar-score-label').textContent=pct+'%';
-  document.getElementById('pillar-score-bar-wrap').classList.add('visible');
-  return pct;
-}
-function showPillarDiff(){
-  const id=appData.selectedId; if(!id) return;
-  const item=appData.data.find(d=>d.id===id); if(!item) return;
-  const orig=normalize(extractPillarText(item));
-  const input=normalize(document.getElementById('pillar-input').value);
-  calcPillarScore();
-  const panel=document.getElementById('pillar-diff-panel');
-  panel.style.display='block';
-  panel.innerHTML='<strong>差分（緑：正解 赤：未入力/誤り）</strong><br><br>'+buildDiffHTML(orig,input);
-}
-function clearPillar(){
-  document.getElementById('pillar-input').value='';
-  document.getElementById('pillar-score-bar').style.width='0%';
-  document.getElementById('pillar-score-label').textContent='0%';
-  document.getElementById('pillar-score-bar-wrap').classList.remove('visible');
-  document.getElementById('pillar-diff-panel').style.display='none';
-}
-function savePillarRecordHandler(){
-  const id=appData.selectedId;
-  if(!id){ alert('理論を選択してください'); return; }
-  const item=appData.data.find(d=>d.id===id);
-  const score=calcPillarScore();
-  const rec={
-    id: genId(),
-    recordType:'pillar',
-    planId:null,
-    subject:item.subject,
-    itemId:id,
-    title: item.title + ' [柱上げ]',
-    date: new Date().toISOString(),
-    minutes: null,
-    score
-  };
-  saveRec(rec).then(()=>{ renderAll(); alert(`保存しました！ スコア: ${score}%`); });
-}
-function calcScore(){
-  const id=appData.selectedId; if(!id) return 0;
-  const item=appData.data.find(d=>d.id===id); if(!item) return 0;
-  const orig=normalize(extractPlainText(item));
-  const input=normalize(document.getElementById('typing-input').value);
-  if(!orig.length) return 0;
-  const pct=Math.round(lcsLength(orig,input)/orig.length*100);
-  const bar=document.getElementById('score-bar');
-  bar.style.width=pct+'%';
-  bar.style.background=pct>=80?'#27ae60':pct>=50?'#d68910':'#c0392b';
-  document.getElementById('score-label').textContent=pct+'%';
-  document.getElementById('score-bar-wrap').classList.add('visible');
-  return pct;
-}
-function showDiff(){
-  const id=appData.selectedId; if(!id) return;
-  const item=appData.data.find(d=>d.id===id); if(!item) return;
-  const orig=normalize(extractPlainText(item));
-  const input=normalize(document.getElementById('typing-input').value);
-  calcScore();
-  const panel=document.getElementById('diff-panel');
-  panel.style.display='block';
-  panel.innerHTML='<strong>差分（緑：正解 赤：未入力/誤り）</strong><br><br>'+buildDiffHTML(orig,input);
-}
-function clearTyping(){
-  document.getElementById('typing-input').value='';
-  document.getElementById('score-bar').style.width='0%';
-  document.getElementById('score-label').textContent='0%';
-  document.getElementById('score-bar-wrap').classList.remove('visible');
-  document.getElementById('diff-panel').style.display='none';
-}
-function saveRecordHandler(){
-  const id=appData.selectedId;
-  if(!id){ alert('理論を選択してください'); return; }
-  const item=appData.data.find(d=>d.id===id);
-  const score=calcScore();
-  const rec={
-    id: genId(),
-    recordType:'typing',
-    planId:null,
-    subject:item.subject,
-    itemId:id,
-    title:item.title,
-    date:new Date().toISOString(),
-    minutes:null,
-    score
-  };
-  saveRec(rec).then(()=>{ renderAll(); alert(`保存しました！ スコア: ${score}%`); });
-}
-
-/* ===== Modal helper ===== */
-let calModalOnSave=null;
-function openCalModal({title, bodyHtml, onSave}){
-  calModalOnSave = onSave;
-  document.getElementById('cal-modal-title').textContent=title;
-  document.getElementById('cal-modal-body').innerHTML=bodyHtml;
-  document.getElementById('cal-modal').classList.add('open');
-}
-function closeCalModal(){
-  document.getElementById('cal-modal').classList.remove('open');
-  calModalOnSave=null;
-}
-
-/* ===== Duration widget ===== */
-function bindDurationWidget(prefix){
-  const hmEl=document.getElementById(prefix+'-dur-hm');
-  const minEl=document.getElementById(prefix+'-dur-min');
-  const labEl=document.getElementById(prefix+'-dur-label');
-  if(!hmEl||!minEl||!labEl) return;
-
-  function syncFromHM(){
-    const m=hmToMinutes(hmEl.value);
-    minEl.value = String(m);
-    labEl.textContent = minutesToLabel(m);
-  }
-  function syncFromMin(){
-    const m=parseInt(minEl.value||'0',10);
-    hmEl.value = minutesToHM(m);
-    labEl.textContent = minutesToLabel(m);
-  }
-
-  hmEl.addEventListener('change',syncFromHM);
-  hmEl.addEventListener('input',syncFromHM);
-  minEl.addEventListener('change',syncFromMin);
-  minEl.addEventListener('input',syncFromMin);
-
-  syncFromMin();
-}
-
-/* ===== Repeat rule helpers ===== */
-function isISODateString(s){ return /^\d{4}-\d{2}-\d{2}$/.test(String(s||'')); }
-function weekdaySetFromChecks(prefix){ // prefix: "rep-wd-"
-  const nodes=[...document.querySelectorAll(`input[name="${prefix}"]:checked`)];
-  return new Set(nodes.map(n=>parseInt(n.value,10)));
-}
-function buildSeriesName({subject,title,ruleLabel,start,end}){
-  return `${subject}｜${title}｜${ruleLabel}｜${start}〜${end}`;
-}
-function calcWeekIndexFromStart(startYmd, dateYmd){
-  const start=new Date(startYmd+'T00:00:00');
-  const d=new Date(dateYmd+'T00:00:00');
-  const diffDays=Math.floor((d-start)/86400000);
-  return Math.floor(diffDays/7); // 0-based
-}
-function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); } // m:0-11
-function nthWeekdayOfMonth(y,m,weekday,nth){
-  // y:2026, m:0-11, weekday:0-6, nth:1-5
-  const first=new Date(y,m,1);
-  const firstW=first.getDay();
-  const offset=(weekday - firstW + 7) % 7;
-  const day=1 + offset + (nth-1)*7;
-  const dim=daysInMonth(y,m);
-  if(day>dim) return null;
-  return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-}
+/* ===== Typing/pillar scoring (minimal placeholders) ===== */
+function calcScore(){ return 0; }
+function showDiff(){ alert('差分は簡易版では省略'); }
+function clearTyping(){ document.getElementById('typing-input').value=''; }
+function saveRecordHandler(){ alert('全文保存は簡易版では省略'); }
+function calcPillarScore(){ return 0; }
+function showPillarDiff(){ alert('差分は簡易版では省略'); }
+function clearPillar(){ document.getElementById('pillar-input').value=''; }
+function savePillarRecordHandler(){ alert('柱上げ保存は簡易版では省略'); }
 
 /* ===== Calendar core ===== */
 function changeMonth(delta){
@@ -1965,7 +1053,6 @@ function changeMonth(delta){
 }
 function renderCalendar(){
   document.getElementById('cal-title').textContent=`${calYear}年 ${calMonth+1}月`;
-
   const firstDay=new Date(calYear,calMonth,1).getDay();
   const lastDate=new Date(calYear,calMonth+1,0).getDate();
   const prevLast=new Date(calYear,calMonth,0).getDate();
@@ -1997,9 +1084,39 @@ function renderCalendar(){
     const isToday = !otherMonth && today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===day;
     const dateStr = otherMonth ? null : `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const selected = (dateStr && calSelectedDate===dateStr);
-    const payload = otherMonth ? null : (dayMap[day]||{plans:[],records:[]});
-    const cell=createDayCell(day,otherMonth,payload,isToday,selected);
+
+    const cell=document.createElement('div');
+    cell.className='cal-day'+(otherMonth?' other-month':'')+(isToday?' today':'')+(selected?' selected':'');
+    cell.style.minHeight='66px';
+    cell.style.borderRadius='6px';
+    cell.style.padding='4px';
+    cell.style.background= otherMonth ? '#f7f9fc' : '#f7f9fc';
+    cell.style.cursor= otherMonth ? 'default' : 'pointer';
+    cell.style.border= selected ? '2px solid #5ba3d9' : '1px solid transparent';
+
+    const num=document.createElement('div');
+    num.className='cal-day-num';
+    num.style.fontSize='0.72rem';
+    num.style.fontWeight='700';
+    num.style.color='#555';
+    num.textContent=day;
+    cell.appendChild(num);
+
     if(!otherMonth){
+      const payload = dayMap[day]||{plans:[],records:[]};
+      const plans=payload.plans||[];
+      const records=payload.records||[];
+      if(plans.length || records.length){
+        const ev=document.createElement('div');
+        ev.style.marginTop='2px';
+        ev.style.fontSize='0.58rem';
+        ev.style.color='#fff';
+        ev.style.borderRadius='4px';
+        ev.style.padding='2px 4px';
+        ev.style.background='#2c5f8a';
+        ev.textContent=`予定${plans.length} / 実績${records.length}`;
+        cell.appendChild(ev);
+      }
       cell.addEventListener('click',()=>{
         calSelectedDate=dateStr;
         renderCalendar();
@@ -2015,40 +1132,6 @@ function renderCalendar(){
   const remain=(firstDay+lastDate)%7;
   if(remain) for(let d=1;d<=7-remain;d++) appendCell(d,true);
 }
-function createDayCell(day,otherMonth,payload,isToday,isSelected){
-  const cell=document.createElement('div');
-  cell.className='cal-day'+(otherMonth?' other-month':'')+(isToday?' today':'')+(isSelected?' selected':'');
-  const num=document.createElement('div');
-  num.className='cal-day-num';
-  num.textContent=day;
-  cell.appendChild(num);
-
-  if(payload){
-    const plans=payload.plans||[];
-    const records=payload.records||[];
-    if(plans.length || records.length){
-      const evDiv=document.createElement('div');
-      evDiv.className='cal-events';
-
-      if(plans.length){
-        const ev=document.createElement('div');
-        ev.className='cal-event cal-ev-plan';
-        ev.textContent=`予定 ${plans.length}`;
-        evDiv.appendChild(ev);
-      }
-      if(records.length){
-        const ev=document.createElement('div');
-        const any=records[0];
-        const cls = any.score==null ? 'cal-ev-record-none' : any.score>=80?'cal-ev-record-high':any.score>=50?'cal-ev-record-mid':'cal-ev-record-low';
-        ev.className='cal-event '+cls;
-        ev.textContent = any.score==null ? `実績 ${records.length}` : `実績 ${records.length}（例:${any.score}%）`;
-        evDiv.appendChild(ev);
-      }
-      cell.appendChild(evDiv);
-    }
-  }
-  return cell;
-}
 function plansForSelectedDate(){
   if(!calSelectedDate) return [];
   return filteredPlans().filter(p=>p.status==='planned' && p.date===calSelectedDate)
@@ -2058,9 +1141,7 @@ function recordsForSelectedDate(){
   if(!calSelectedDate) return [];
   const start=calSelectedDate+'T00:00:00';
   const end=calSelectedDate+'T23:59:59';
-  return filteredRecords()
-    .filter(r=>r.date>=start && r.date<=end)
-    .sort((a,b)=>b.date.localeCompare(a.date));
+  return filteredRecords().filter(r=>r.date>=start && r.date<=end).sort((a,b)=>b.date.localeCompare(a.date));
 }
 function renderDayPanel(){
   const title=document.getElementById('day-title');
@@ -2071,71 +1152,41 @@ function renderDayPanel(){
     return;
   }
   title.textContent=`📅 選択日：${calSelectedDate}`;
-
   const plans=plansForSelectedDate();
   const records=recordsForSelectedDate();
 
   let html='';
-  html += `<div class="cal-section-title">予定（未完了のみ）</div>`;
-  if(!plans.length){
-    html += `<div class="help" style="margin-bottom:8px;">予定がありません</div>`;
-  }else{
-    html += plans.map(p=>{
-      const hm=p.startTime||'';
-      const range = hm ? formatRangeHM(hm, p.minutes) : '';
-      const minsLabel = minutesToLabel(p.minutes);
-      const timeLabel = range ? `🕒 ${escapeHtml(range)}` : (hm ? `🕒 ${escapeHtml(hm)}` : '');
-      return `
-        <div class="cal-detail-item plan">
-          <div class="left">
-            <div class="title">${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</div>
-            <div class="meta">
-              <span class="badge badge-plan">予定</span>
-              ${timeLabel?`<span>${timeLabel}</span>`:''}
-              <span>⏱ ${escapeHtml(minsLabel)}（${p.minutes}分）</span>
-              ${p.note?`<span>📝 ${escapeHtml(p.note)}</span>`:''}
-              ${p.seriesName?`<span>🧩 ${escapeHtml(p.seriesName)}</span>`:''}
-            </div>
-          </div>
-          <div class="right">
-            <button class="btn-small btn-success" data-do-plan="${escapeHtml(p.id)}">実行</button>
-            <button class="btn-small btn-danger" data-del-plan="${escapeHtml(p.id)}">削除</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
+  html += `<div class="help" style="margin-bottom:6px;">予定（未完了）: ${plans.length} / 実績: ${records.length}</div>`;
+  html += `<div style="font-size:0.78rem;color:#666;font-weight:700;margin:10px 0 6px;">予定</div>`;
+  if(!plans.length) html += `<div class="help">予定がありません</div>`;
+  else html += plans.map(p=>`
+    <div style="padding:10px;background:#f7f9fc;border-radius:10px;margin-bottom:6px;border-left:4px solid #2c5f8a;">
+      <div style="font-weight:700;color:#1a2a4a;">${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</div>
+      <div style="font-size:0.72rem;color:#888;margin-top:3px;">
+        ${p.startTime?`🕒 ${escapeHtml(formatRangeHM(p.startTime,p.minutes))}`:''}
+        ⏱ ${escapeHtml(minutesToLabel(p.minutes))}（${p.minutes}分）
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn-small btn-success" data-do-plan="${escapeHtml(p.id)}">実行</button>
+        <button class="btn-small btn-danger" data-del-plan="${escapeHtml(p.id)}">削除</button>
+      </div>
+    </div>
+  `).join('');
 
-  html += `<div class="cal-section-title">実績</div>`;
-  if(!records.length){
-    html += `<div class="help">実績がありません</div>`;
-  }else{
-    html += records.map(r=>{
-      const score = (r.score==null) ? '' : `${r.score}%`;
-      const hm = formatHMFromISO(r.date);
-      const range = (r.minutes!=null) ? formatRangeHM(hm, r.minutes) : hm;
-      const cls = (r.score==null) ? 'score-none' : (r.score>=80?'score-high':r.score>=50?'score-mid':'score-low');
-      const minsLabel = (r.minutes!=null) ? minutesToLabel(r.minutes) : '';
-      return `
-        <div class="cal-detail-item record">
-          <div class="left">
-            <div class="title">${escapeHtml(r.subject)}｜${escapeHtml(r.title)}</div>
-            <div class="meta">
-              <span class="badge badge-record">${escapeHtml(r.recordType||'activity')}</span>
-              <span>🕒 ${escapeHtml(range)}</span>
-              ${r.minutes!=null?`<span>⏱ ${escapeHtml(minsLabel)}（${r.minutes}分）</span>`:''}
-              ${r.note?`<span>📝 ${escapeHtml(r.note)}</span>`:''}
-              ${r.planId?`<span>🔗 計画紐付け</span>`:''}
-            </div>
-          </div>
-          <div class="right">
-            ${score?`<span class="score-badge ${cls}" style="padding:6px 10px;border-radius:14px;font-size:0.82rem;">${score}</span>`:''}
-            <button class="btn-small btn-danger" data-del-rec="${escapeHtml(r.id)}">削除</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
+  html += `<div style="font-size:0.78rem;color:#666;font-weight:700;margin:10px 0 6px;">実績</div>`;
+  if(!records.length) html += `<div class="help">実績がありません</div>`;
+  else html += records.map(r=>`
+    <div style="padding:10px;background:#f7f9fc;border-radius:10px;margin-bottom:6px;border-left:4px solid #7f8c8d;">
+      <div style="font-weight:700;color:#1a2a4a;">${escapeHtml(r.subject)}｜${escapeHtml(r.title)}</div>
+      <div style="font-size:0.72rem;color:#888;margin-top:3px;">
+        🕒 ${escapeHtml(formatHMFromISO(r.date))}
+        ${r.minutes!=null?`⏱ ${escapeHtml(minutesToLabel(r.minutes))}（${r.minutes}分）`:''}
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn-small btn-danger" data-del-rec="${escapeHtml(r.id)}">削除</button>
+      </div>
+    </div>
+  `).join('');
 
   detail.innerHTML=html;
   detail.querySelectorAll('[data-do-plan]').forEach(btn=>btn.addEventListener('click',()=>openRecordFromPlan(btn.dataset.doPlan)));
@@ -2148,31 +1199,20 @@ function renderSummary(){
 
   let from,to,label;
   if(scope==='day'){
-    if(!calSelectedDate){
-      document.getElementById('sum-range-badge').textContent='-';
-      document.getElementById('sum-min').textContent='0分';
-      document.getElementById('sum-hm').textContent='0時間0分';
-      document.getElementById('sum-count').textContent='0';
-      return;
-    }
-    from=calSelectedDate+'T00:00:00';
-    to=calSelectedDate+'T23:59:59';
-    label=calSelectedDate;
+    if(!calSelectedDate){ label='-'; from='9999-12-31T00:00:00'; to='0000-01-01T00:00:00'; }
+    else { from=calSelectedDate+'T00:00:00'; to=calSelectedDate+'T23:59:59'; label=calSelectedDate; }
   }else if(scope==='month'){
     const r=monthRange(calYear,calMonth);
-    from=r.first+'T00:00:00';
-    to=r.last+'T23:59:59';
+    from=r.first+'T00:00:00'; to=r.last+'T23:59:59';
     label=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   }else{
     const r=yearRange(calYear);
-    from=r.first+'T00:00:00';
-    to=r.last+'T23:59:59';
+    from=r.first+'T00:00:00'; to=r.last+'T23:59:59';
     label=`${calYear}`;
   }
 
   let recs=filteredRecords().filter(r=>r.date>=from && r.date<=to);
   if(subj!=='__all__') recs=recs.filter(r=>r.subject===subj);
-
   const recsWithMin=recs.filter(r=>r.minutes!=null && !Number.isNaN(parseInt(r.minutes,10)));
   const totalMin=recsWithMin.reduce((sum,r)=>sum+parseInt(r.minutes,10),0);
 
@@ -2181,6 +1221,15 @@ function renderSummary(){
   document.getElementById('sum-hm').textContent=minutesToLabel(totalMin);
   document.getElementById('sum-count').textContent=String(recsWithMin.length);
 }
+function refreshSummarySubjectSelect(){
+  const sel=document.getElementById('sum-subject');
+  const prev=sel.value;
+  const subjects=uniq(filteredRecords().map(r=>r.subject).filter(Boolean)).sort((a,b)=>a.localeCompare(b,'ja'));
+  sel.innerHTML = `<option value="__all__">全科目</option>` + subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+  if([...sel.options].some(o=>o.value===prev)) sel.value=prev;
+}
+
+/* ===== Calendar: plans/records actions ===== */
 async function deletePlanHandler(planId){
   const p=appData.plans.find(x=>x.id===planId);
   if(!p) return;
@@ -2191,7 +1240,8 @@ async function deleteRecordHandler(id){
   if(!confirm('この実績を削除しますか？')) return;
   await delRec(id);
 }
-/* ===== open single plan ===== */
+
+/* ===== openAddPlan/openAddSeries/createSeriesFromModal ===== */
 function openAddPlan(){
   const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
   if(!calSelectedDate){ alert('日付を選択してください'); return; }
@@ -2199,7 +1249,7 @@ function openAddPlan(){
   openCalModal({
     title: '＋ 予定（単発）',
     bodyHtml: `
-      <div class="help" style="margin-bottom:10px;">科目必須。予定時間は「時分」入力できます（例：02:30=2時間30分）。</div>
+      <div class="help" style="margin-bottom:10px;">科目必須。予定時間は「時分」入力できます。</div>
       <div class="plan-grid">
         <div class="form-group">
           <label>科目（必須）</label>
@@ -2228,7 +1278,6 @@ function openAddPlan(){
             <input type="number" id="m-plan-dur-min" min="1" step="1" value="30" style="display:none;">
             <span class="hint">= <span id="m-plan-dur-label">30分</span></span>
           </div>
-          <div class="help">※内部は分で保存します（minutes）。</div>
         </div>
 
         <div class="form-group full">
@@ -2251,15 +1300,9 @@ function openAddPlan(){
 
       await savePlan({
         id: genId(),
-        title, subject,
-        itemId:null,
-        date,
-        startTime,
-        minutes,
-        note,
-        status:'planned',
-        recordId:null,
-        seriesId:null,
+        title, subject, itemId:null,
+        date, startTime, minutes, note,
+        status:'planned', recordId:null, seriesId:null,
         createdAt:new Date().toISOString(),
         updatedAt:new Date().toISOString()
       });
@@ -2269,7 +1312,6 @@ function openAddPlan(){
   bindDurationWidget('m-plan');
 }
 
-/* ===== open series (repeat) ===== */
 function openAddSeries(){
   const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
   const defaultStart = calSelectedDate || ymd(new Date());
@@ -2280,8 +1322,7 @@ function openAddSeries(){
     title: '＋ 繰り返し（シリーズ作成）',
     bodyHtml: `
       <div class="help" style="margin-bottom:10px;">
-        ルール：毎日／平日（月〜金）／毎週／隔週／毎月（指定日）／毎月（第n曜日）<br>
-        ※「毎月の指定日」で存在しない日（例：2/30）は <b>スキップ</b> します。
+        ルール：毎日／平日／毎週／隔週／毎月（指定日）／毎月（第n曜日）
       </div>
       <div class="plan-grid">
         <div class="form-group">
@@ -2315,7 +1356,7 @@ function openAddSeries(){
           <label>ルール</label>
           <select id="m-ser-rule">
             <option value="daily">毎日</option>
-            <option value="weekdays">平日のみ（月〜金）</option>
+            <option value="weekdays">平日（月〜金）</option>
             <option value="weekly">毎週（曜日指定）</option>
             <option value="biweekly">隔週（2週ごと・曜日指定）</option>
             <option value="monthlyDay">毎月（指定日）</option>
@@ -2326,9 +1367,11 @@ function openAddSeries(){
 
         <div class="form-group full" id="m-ser-weekday-wrap" style="display:none;">
           <label>曜日</label>
-          <div class="weekday-row">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
             ${WEEK_LABELS.map((w,i)=>`
-              <label class="weekday-chip"><input type="checkbox" name="rep-wd" value="${i}">${w}</label>
+              <label style="display:flex;gap:6px;align-items:center;background:#f7f9fc;border:1px solid #dde3ea;border-radius:999px;padding:6px 10px;font-size:0.82rem;">
+                <input type="checkbox" name="rep-wd" value="${i}">${w}
+              </label>
             `).join('')}
           </div>
         </div>
@@ -2391,13 +1434,12 @@ function openAddSeries(){
     mdWrap.style.display = (r==='monthlyDay') ? '' : 'none';
     nthWrap.style.display = (r==='monthlyNth') ? '' : 'none';
     nthWWrap.style.display = (r==='monthlyNth') ? '' : 'none';
-
     helpEl.textContent = ({
       daily:'毎日',
       weekdays:'平日（月〜金）',
       weekly:'毎週（曜日）',
       biweekly:'隔週（開始日基準で2週ごと）',
-      monthlyDay:'毎月（指定日。存在しない日はスキップ）',
+      monthlyDay:'毎月（指定日）',
       monthlyNth:'毎月（第n曜日）'
     }[r]||'');
   }
@@ -2405,7 +1447,6 @@ function openAddSeries(){
   refreshRuleUI();
 }
 
-/* ===== generate series ===== */
 async function createSeriesFromModal(){
   const u=auth.currentUser; if(!u) return;
 
@@ -2477,7 +1518,6 @@ async function createSeriesFromModal(){
     const weekday=parseInt(document.getElementById('m-ser-nthweekday').value,10);
     const startD=new Date(start+'T00:00:00');
     let y=startD.getFullYear(), m=startD.getMonth();
-
     while(true){
       const monthStart=ymd(new Date(y,m,1));
       if(monthStart>end) break;
@@ -2503,19 +1543,11 @@ async function createSeriesFromModal(){
     for(const date of chunk){
       const plan={
         id: genId(),
-        title, subject,
-        itemId:null,
-        date,
-        startTime,
-        minutes,
-        note,
-        status:'planned',
-        recordId:null,
-        seriesId,
-        seriesName,
-        repeatRule: rule,
-        repeatStart: start,
-        repeatEnd: end,
+        title, subject, itemId:null,
+        date, startTime, minutes, note,
+        status:'planned', recordId:null,
+        seriesId, seriesName,
+        repeatRule: rule, repeatStart: start, repeatEnd: end,
         createdAt:new Date().toISOString(),
         updatedAt:new Date().toISOString()
       };
@@ -2526,3 +1558,342 @@ async function createSeriesFromModal(){
   showSync();
   alert(`繰り返しを作成しました（${dates.length}件）`);
 }
+
+/* ===== plan -> record (execute) ===== */
+async function openRecordFromPlan(planId){
+  const plan=appData.plans.find(p=>p.id===planId);
+  if(!plan) return;
+
+  const now=new Date();
+  const defaultHM = plan.startTime || `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const defaultDate = plan.date;
+
+  openCalModal({
+    title:'✅ 予定を実行（実績登録）',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">計画の minutes を引き継ぎます。</div>
+      <div class="plan-grid">
+        <div class="form-group"><label>科目</label><input type="text" id="m-rec-subject" value="${escapeHtml(plan.subject)}" disabled></div>
+        <div class="form-group"><label>開始時刻</label><input type="time" id="m-rec-time" value="${escapeHtml(defaultHM)}"></div>
+        <div class="form-group full"><label>タイトル</label><input type="text" id="m-rec-title" value="${escapeHtml(plan.title)}"></div>
+        <div class="form-group"><label>日付</label><input type="date" id="m-rec-date" value="${escapeHtml(defaultDate)}"></div>
+
+        <div class="form-group full">
+          <label>実施時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-rec-dur-hm" value="${escapeHtml(minutesToHM(plan.minutes||0))}" step="60">
+            <input type="number" id="m-rec-dur-min" min="1" step="1" value="${escapeHtml(String(plan.minutes||0))}" style="display:none;">
+            <span class="hint">= <span id="m-rec-dur-label">${escapeHtml(minutesToLabel(plan.minutes||0))}</span></span>
+          </div>
+        </div>
+
+        <div class="form-group full"><label>メモ</label><input type="text" id="m-rec-note" value="${escapeHtml(plan.note||'')}"></div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const date=document.getElementById('m-rec-date').value;
+      const hm=document.getElementById('m-rec-time').value;
+      const minutes=parseInt(document.getElementById('m-rec-dur-min').value,10);
+      const title=document.getElementById('m-rec-title').value.trim();
+      const note=document.getElementById('m-rec-note').value.trim();
+      if(!date||!hm||!title||!minutes){ alert('入力が不足しています'); return; }
+
+      const iso = date+'T'+hm+':00';
+      const rec={
+        id: genId(),
+        recordType:'activity',
+        planId: plan.id,
+        subject: plan.subject,
+        itemId: plan.itemId||null,
+        title,
+        date: iso,
+        minutes,
+        score: null,
+        note
+      };
+      await saveRec(rec);
+      await savePlan({...plan, status:'done', recordId: rec.id, updatedAt:new Date().toISOString()});
+      closeCalModal();
+      renderAll();
+    }
+  });
+  bindDurationWidget('m-rec');
+}
+
+/* ===== add record without plan ===== */
+function openAddRecord(){
+  if(!calSelectedDate){ alert('日付を選択してください'); return; }
+  const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
+  const now=new Date();
+  const defaultHM=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  openCalModal({
+    title:'＋ 実績（計画なし）',
+    bodyHtml: `
+      <div class="plan-grid">
+        <div class="form-group">
+          <label>科目（必須）</label>
+          <select id="m-rfree-subject">
+            <option value="">選択してください</option>
+            ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>開始時刻</label><input type="time" id="m-rfree-time" value="${escapeHtml(defaultHM)}"></div>
+        <div class="form-group full"><label>タイトル</label><input type="text" id="m-rfree-title" placeholder="例：講義視聴 / 復習 など"></div>
+        <div class="form-group"><label>日付</label><input type="date" id="m-rfree-date" value="${escapeHtml(calSelectedDate)}"></div>
+
+        <div class="form-group full">
+          <label>実施時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-rfree-dur-hm" value="00:30" step="60">
+            <input type="number" id="m-rfree-dur-min" min="1" step="1" value="30" style="display:none;">
+            <span class="hint">= <span id="m-rfree-dur-label">30分</span></span>
+          </div>
+        </div>
+        <div class="form-group full"><label>メモ</label><input type="text" id="m-rfree-note" placeholder="補足メモ..."></div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const subject=document.getElementById('m-rfree-subject').value;
+      const title=document.getElementById('m-rfree-title').value.trim();
+      const date=document.getElementById('m-rfree-date').value;
+      const hm=document.getElementById('m-rfree-time').value;
+      const minutes=parseInt(document.getElementById('m-rfree-dur-min').value,10);
+      const note=document.getElementById('m-rfree-note').value.trim();
+      if(!subject||!title||!date||!hm||!minutes){ alert('入力が不足しています'); return; }
+      await saveRec({
+        id: genId(),
+        recordType:'activity',
+        planId:null,
+        subject,
+        itemId:null,
+        title,
+        date: date+'T'+hm+':00',
+        minutes,
+        score:null,
+        note
+      });
+      closeCalModal();
+    }
+  });
+  bindDurationWidget('m-rfree');
+}
+
+/* ===== series manager (planned only) ===== */
+function openSeriesManager(){
+  const plannedSeries = filteredPlans()
+    .filter(p=>p.status==='planned' && p.seriesId)
+    .reduce((acc,p)=>{
+      const sid=p.seriesId;
+      if(!acc[sid]) acc[sid]={seriesId:sid, seriesName:p.seriesName||'(no name)', count:0};
+      acc[sid].count++;
+      return acc;
+    },{});
+  const seriesList = Object.values(plannedSeries).sort((a,b)=>a.seriesName.localeCompare(b.seriesName,'ja'));
+
+  if(!seriesList.length){
+    openCalModal({title:'🧩 シリーズ管理', bodyHtml:`<div class="help">未完了のシリーズ予定がありません</div>`, onSave: ()=>closeCalModal()});
+    document.getElementById('cal-modal-save-btn').textContent='閉じる';
+    return;
+  }
+
+  openCalModal({
+    title:'🧩 シリーズ管理（未完了のみ）',
+    bodyHtml: `
+      <div class="form-group">
+        <label>シリーズを選択</label>
+        <select id="m-sm-series">
+          ${seriesList.map(s=>`<option value="${escapeHtml(s.seriesId)}">${escapeHtml(s.seriesName)}（${s.count}件）</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end;">
+        <button class="btn-small btn-danger" id="m-sm-del">🗑 未完了一括削除</button>
+      </div>
+      <div class="help" style="margin-top:8px;">※簡易版：一括削除のみ対応</div>
+    `,
+    onSave: ()=>closeCalModal()
+  });
+  document.getElementById('cal-modal-save-btn').textContent='閉じる';
+
+  document.getElementById('m-sm-del').addEventListener('click', async ()=>{
+    const u=auth.currentUser; if(!u) return;
+    const seriesId=document.getElementById('m-sm-series').value;
+    if(!seriesId) return;
+    if(!confirm('このシリーズの未完了予定を一括削除します。よろしいですか？')) return;
+    const targets=appData.plans.filter(p=>p.status==='planned' && p.seriesId===seriesId);
+    const chunks=[];
+    for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
+    for(const chunk of chunks){
+      const batch=writeBatch(db);
+      chunk.forEach(p=>batch.delete(doc(db,'users',u.uid,'plans',p.id)));
+      await batch.commit();
+    }
+    showSync();
+    closeCalModal();
+  });
+}
+
+/* ===== render ===== */
+function renderAll(){
+  renderTree();
+  renderContentSelect();
+  renderManageList();
+  refreshSettingsSubjectChecklist();
+  refreshSummarySubjectSelect();
+
+  if(document.getElementById('tab-calendar').classList.contains('active')){
+    renderCalendar();
+    renderDayPanel();
+    renderSummary();
+  }
+}
+
+/* ===== Auth ===== */
+onAuthStateChanged(auth, async user=>{
+  const authBar=document.getElementById('auth-bar');
+  const overlay=document.getElementById('login-overlay');
+
+  if(user){
+    currentUserRole = ADMIN_EMAILS.includes(user.email)?'admin':'user';
+    authBar.innerHTML = `
+      <span style="font-size:0.82rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:white;">
+        ${escapeHtml(user.email)}${currentUserRole==='admin'?' 👑':''}
+      </span>
+      <button id="signout-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 10px;border-radius:14px;cursor:pointer;font-size:0.78rem;">
+        ログアウト
+      </button>
+    `;
+    document.getElementById('signout-btn').addEventListener('click',()=>signOut(auth));
+    document.getElementById('admin-tab-btn').style.display = currentUserRole==='admin'?'flex':'none';
+
+    overlay.classList.remove('show');
+    document.getElementById('login-error').textContent='';
+    startSync(user.uid);
+  }else{
+    authBar.innerHTML='';
+    overlay.classList.add('show');
+    currentUserRole='user';
+    document.getElementById('admin-tab-btn').style.display='none';
+
+    [unsubData,unsubRecords,unsubPlans,unsubSettings].forEach(u=>{if(u)u();});
+    unsubData=unsubRecords=unsubPlans=unsubSettings=null;
+
+    appData.data=[]; appData.records=[]; appData.plans=[];
+    appData.settings={ subjectViewMode:'activeOnly', activeSubjects:[] };
+    appData.selectedId=null;
+    renderAll();
+  }
+});
+
+document.getElementById('login-btn').addEventListener('click', async ()=>{
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  const errEl=document.getElementById('login-error'); errEl.textContent='';
+  if(!email||!pass){ errEl.textContent='メールアドレスとパスワードを入力してください'; return; }
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+  }catch(e){
+    errEl.textContent='ログインに失敗しました';
+  }
+});
+
+/* ===== Sync ===== */
+function startSync(uid){
+  unsubSettings = onSnapshot(doc(db,'users',uid,'settings','app'), snap=>{
+    appData.settings = snap.exists() ? { subjectViewMode:'activeOnly', activeSubjects:[], ...snap.data() } : { subjectViewMode:'activeOnly', activeSubjects:[] };
+    syncSettingsUI();
+    renderAll();
+  });
+  unsubData = onSnapshot(query(collection(db,'users',uid,'data')), snap=>{
+    appData.data = snap.docs.map(d=>d.data());
+    renderAll();
+  });
+  unsubRecords = onSnapshot(query(collection(db,'users',uid,'records')), snap=>{
+    appData.records = snap.docs.map(d=>d.data());
+    renderAll();
+  });
+  unsubPlans = onSnapshot(query(collection(db,'users',uid,'plans')), snap=>{
+    appData.plans = snap.docs.map(d=>d.data());
+    renderAll();
+  });
+}
+
+/* ===== Event bindings ===== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>switchTab(btn.dataset.tab,btn));
+});
+document.getElementById('hamburger-btn').addEventListener('click',toggleSidebar);
+document.getElementById('sidebar-overlay').addEventListener('click',closeSidebar);
+document.getElementById('sidebar-close-btn').addEventListener('click',closeSidebar);
+
+document.getElementById('settings-btn').addEventListener('click',toggleSettings);
+document.getElementById('settings-close-btn').addEventListener('click',closeSettings);
+
+document.getElementById('save-subject-settings-btn').addEventListener('click',saveSubjectSettingsHandler);
+document.getElementById('auto-fill-subjects-btn').addEventListener('click',autoFillSubjects);
+
+document.getElementById('manage-add-btn').addEventListener('click',openAddModal);
+document.getElementById('sidebar-add-btn').addEventListener('click',()=>{closeSidebar();openAddModal();});
+
+document.getElementById('modal-cancel-btn').addEventListener('click',closeAddModal);
+document.getElementById('modal-add-btn').addEventListener('click',addItemHandler);
+document.getElementById('new-subject-sel').addEventListener('change',onNewSubjectSelChange);
+document.getElementById('new-chapter-sel').addEventListener('change',onNewChapterSelChange);
+
+document.getElementById('save-item-btn').addEventListener('click',saveItemHandler);
+document.getElementById('save-item-btn2').addEventListener('click',saveItemHandler);
+document.getElementById('delete-item-btn').addEventListener('click',deleteItemHandler);
+document.getElementById('delete-item-btn2').addEventListener('click',deleteItemHandler);
+
+document.getElementById('list-subject-filter').addEventListener('change',renderManageList);
+document.getElementById('list-rank-filter').addEventListener('change',renderManageList);
+document.getElementById('list-sort').addEventListener('change',renderManageList);
+
+document.getElementById('sel-subject').addEventListener('change',onSubjectChange);
+document.getElementById('sel-chapter').addEventListener('change',onChapterChange);
+document.getElementById('confirm-select-btn').addEventListener('click',confirmContentSelect);
+
+document.getElementById('nav-toggle-btn').addEventListener('click',toggleNav);
+document.getElementById('show-text-btn').addEventListener('click',toggleTextPane);
+
+document.getElementById('mode-view-btn').addEventListener('click',()=>setMode('view'));
+document.getElementById('mode-anki-btn').addEventListener('click',()=>setMode('anki'));
+document.getElementById('mode-pillar-btn').addEventListener('click',()=>setMode('pillar'));
+document.getElementById('mode-typing-btn').addEventListener('click',()=>setMode('typing'));
+
+document.getElementById('typing-input').addEventListener('input',calcScore);
+document.getElementById('show-diff-btn').addEventListener('click',showDiff);
+document.getElementById('clear-typing-btn').addEventListener('click',clearTyping);
+document.getElementById('save-record-btn').addEventListener('click',saveRecordHandler);
+
+document.getElementById('pillar-input').addEventListener('input',calcPillarScore);
+document.getElementById('show-pillar-diff-btn').addEventListener('click',showPillarDiff);
+document.getElementById('clear-pillar-btn').addEventListener('click',clearPillar);
+document.getElementById('save-pillar-record-btn').addEventListener('click',savePillarRecordHandler);
+
+document.getElementById('cal-prev-btn').addEventListener('click',()=>changeMonth(-1));
+document.getElementById('cal-next-btn').addEventListener('click',()=>changeMonth(1));
+document.getElementById('cal-add-plan-btn').addEventListener('click',openAddPlan);
+document.getElementById('cal-add-series-btn').addEventListener('click',openAddSeries);
+document.getElementById('cal-add-record-btn').addEventListener('click',openAddRecord);
+document.getElementById('cal-open-series-btn').addEventListener('click',openSeriesManager);
+
+document.getElementById('sum-scope').addEventListener('change',renderSummary);
+document.getElementById('sum-subject').addEventListener('change',renderSummary);
+
+document.getElementById('cal-modal-cancel-btn').addEventListener('click',closeCalModal);
+document.getElementById('cal-modal-save-btn').addEventListener('click',()=>{ if(calModalOnSave) calModalOnSave(); });
+
+/* ===== init ===== */
+(function initCalendarState(){
+  const t=ymd(new Date());
+  calSelectedDate=t;
+  const d=new Date(t+'T00:00:00');
+  calYear=d.getFullYear();
+  calMonth=d.getMonth();
+})();
+renderAll();
+
+</script>
+</body>
+</html>
