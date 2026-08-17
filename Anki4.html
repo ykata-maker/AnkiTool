@@ -214,12 +214,23 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 .pillar-section-title { font-weight:700; font-size:0.92rem; border:2px solid #1a2a4a; border-radius:4px; padding:3px 10px; display:inline-block; margin-bottom:4px; }
 .pillar-item1-title { font-weight:700; font-size:0.88rem; padding-left:0.5em; }
 
-/* ===== Calendar (2 columns) ===== */
+/* ===== Calendar (2 columns + fixed summary) ===== */
 #tab-calendar { overflow-y:auto; }
 .calendar-shell { padding:12px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; flex:1; }
 .calendar-layout { display:flex; gap:10px; align-items:flex-start; }
 .calendar-left { flex: 1.05; min-width: 320px; display:flex; flex-direction:column; gap:10px; }
-.calendar-right { flex: 0.95; min-width: 280px; display:flex; flex-direction:column; gap:10px; position:sticky; top:106px; }
+.calendar-right {
+  flex: 0.95;
+  min-width: 320px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  position: sticky;
+  top: 106px;
+  height: calc(100vh - 106px - 12px);
+}
+.calendar-right .panel { flex-shrink:0; }
+#day-detail { overflow:auto; max-height: calc(100vh - 106px - 12px - 240px); padding-right:2px; }
 
 .calendar-nav { background:white; border-radius:12px; padding:10px 14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; align-items:center; gap:10px; }
 .cal-title { font-size:0.95rem; font-weight:700; flex:1; text-align:center; }
@@ -274,7 +285,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 /* ===== Modal ===== */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; align-items:flex-end; justify-content:center; }
 .modal-overlay.open { display:flex; }
-.modal { background:white; border-radius:20px 20px 0 0; padding:20px 16px; width:100%; max-width:680px; box-shadow:0 -4px 24px rgba(0,0,0,0.18); max-height:92vh; overflow-y:auto; overflow-x:hidden; word-break:break-word; }
+.modal { background:white; border-radius:20px 20px 0 0; padding:20px 16px; width:100%; max-width:720px; box-shadow:0 -4px 24px rgba(0,0,0,0.18); max-height:92vh; overflow-y:auto; overflow-x:hidden; word-break:break-word; }
 .modal-drag { width:36px; height:4px; background:#ddd; border-radius:2px; margin:0 auto 14px; }
 .modal h3 { margin-bottom:12px; color:#1a2a4a; font-size:0.95rem; }
 .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; flex-wrap:wrap; }
@@ -285,8 +296,12 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 /* Duration input (HH:MM + minutes mirror) */
 .duration-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .duration-row input[type="time"] { width: 140px; }
-.duration-row input[type="number"] { width: 120px; }
 .duration-row .hint { font-size:0.76rem; color:#888; }
+
+/* weekday chips */
+.weekday-row { display:flex; gap:8px; flex-wrap:wrap; }
+.weekday-chip { display:flex; gap:6px; align-items:center; background:#f7f9fc; border:1px solid #dde3ea; border-radius:999px; padding:6px 10px; font-size:0.82rem; }
+.weekday-chip input { transform: translateY(1px); }
 
 /* ===== Color popup ===== */
 #color-popup { position:fixed; z-index:800; background:white; border-radius:12px; padding:10px 12px; box-shadow:0 4px 20px rgba(0,0,0,0.25); display:none; flex-direction:column; gap:8px; min-width:180px; }
@@ -302,7 +317,8 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 /* ===== Responsive ===== */
 @media (max-width:980px){
   .calendar-layout { flex-direction:column; }
-  .calendar-right { position:static; }
+  .calendar-right { position:static; height:auto; }
+  #day-detail { max-height:none; overflow:visible; }
 }
 @media (max-width:480px) {
   .manage-layout { flex-direction:column; height:auto; overflow:visible; }
@@ -404,7 +420,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
 
     <div class="settings-item">
       <label>ℹ️ バージョン</label>
-      <div class="help">税理士理論暗記ツール v2.1（カレンダー統合・集計・2カラム）</div>
+      <div class="help">税理士理論暗記ツール v2.2（繰り返し一括登録＋追加ルール）</div>
     </div>
   </div>
 </div>
@@ -619,7 +635,7 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
       </div>
 
       <div class="calendar-right">
-        <div class="panel">
+        <div class="panel" id="summary-panel">
           <h3>📊 集計</h3>
           <div class="sum-row" style="margin-bottom:10px;">
             <div class="inline-select">
@@ -657,9 +673,11 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
           <h3 id="day-title">📅 選択日：-</h3>
           <div class="panel-actions">
             <button class="btn-small btn-success" id="cal-add-plan-btn">＋予定</button>
+            <button class="btn-small btn-success" id="cal-add-series-btn">＋繰り返し</button>
             <button class="btn-small btn-primary" id="cal-add-record-btn">＋実績（計画なし）</button>
             <button class="btn-small btn-warning" id="cal-open-series-btn">🧩 シリーズ管理</button>
           </div>
+
           <div id="day-detail"></div>
         </div>
 
@@ -783,6 +801,7 @@ const MARK_COLORS = [
 ];
 const IROHA=['(イ)','(ロ)','(ハ)','(ニ)','(ホ)','(ヘ)','(ト)','(チ)','(リ)','(ヌ)','(ル)','(ヲ)'];
 const MARU=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮'];
+const WEEK_LABELS=['日','月','火','水','木','金','土'];
 
 /* ===== State ===== */
 const appData = {
@@ -800,9 +819,7 @@ let editBlocks=[];
 let pendingMark=null;
 let navCollapsed=false;
 let showTextPane=false;
-
 let calSelectedDate=null; // YYYY-MM-DD
-let calSelectedDayNum=null;
 
 /* ===== Utils ===== */
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -813,12 +830,21 @@ function ymd(d){
   const dt = (d instanceof Date)? d : new Date(d);
   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
 }
-function formatDateTime(iso){
-  const d=new Date(iso);
-  const dd=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-  const tt=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  return `${dd} ${tt}`;
+function addDays(dateStr, days){
+  const d=new Date(dateStr+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return ymd(d);
 }
+function monthRange(y,m){
+  const first=ymd(new Date(y,m,1));
+  const last=ymd(new Date(y,m+1,0));
+  return {first,last};
+}
+function yearRange(y){
+  return {first:`${y}-01-01`, last:`${y}-12-31`};
+}
+function uniq(arr){ return [...new Set(arr)]; }
+
 function formatHMFromISO(iso){
   const d=new Date(iso);
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
@@ -835,12 +861,6 @@ function formatRangeHM(hmStart, minutes){
   const hmEnd=addMinutesToHM(hmStart, minutes);
   return `${hmStart}-${hmEnd}`;
 }
-function addDays(dateStr, days){
-  const d=new Date(dateStr+'T00:00:00');
-  d.setDate(d.getDate()+days);
-  return ymd(d);
-}
-function uniq(arr){ return [...new Set(arr)]; }
 
 /* ===== Duration helpers ===== */
 function minutesToLabel(min){
@@ -866,7 +886,7 @@ function minutesToHM(min){
 
 /* ===== Subject filter ===== */
 function subjectAllowed(subject){
-  if(!subject) return false; // 科目必須
+  if(!subject) return false;
   const mode = appData.settings?.subjectViewMode || 'activeOnly';
   if(mode==='all') return true;
   const active = appData.settings?.activeSubjects || [];
@@ -928,7 +948,7 @@ onAuthStateChanged(auth, async user=>{
     }
 
     authBar.innerHTML = `
-      <span style="font-size:0.82rem;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:white;">
+      <span style="font-size:0.82rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:white;">
         ${escapeHtml(user.email)}${currentUserRole==='admin'?' 👑':''}
       </span>
       <button id="signout-btn" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 10px;border-radius:14px;cursor:pointer;font-size:0.78rem;">
@@ -1060,7 +1080,7 @@ function initAllResizers(){
   });
 }
 
-/* ===== UI toggles ===== */
+/* ===== UI toggles / tabs ===== */
 function toggleSidebar(){
   const o=document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebar-overlay').classList.toggle('open',o);
@@ -1122,12 +1142,10 @@ async function saveSubjectSettingsHandler(){
 }
 function autoFillSubjects(){
   const subjects=allSubjectsFromData();
-  document.querySelectorAll('.active-subj-chk').forEach(el=>{
-    el.checked = subjects.includes(el.value);
-  });
+  document.querySelectorAll('.active-subj-chk').forEach(el=>{ el.checked = subjects.includes(el.value); });
 }
 
-/* ===== Manage list / tree / selectors ===== */
+/* ===== Manage / Tree / Selectors ===== */
 function getSortedList(){
   return [...filteredData()].sort((a,b)=>{
     const sc=a.subject.localeCompare(b.subject,'ja'); if(sc) return sc;
@@ -1272,7 +1290,7 @@ function renderManageList(){
   wrap.querySelectorAll('tr[data-id]').forEach(tr=>tr.addEventListener('click',()=>selectItem(tr.dataset.id)));
 }
 
-/* ===== Select item & manage save/delete & add modal ===== */
+/* ===== Select item / save/delete / add modal ===== */
 function selectItem(id){
   appData.selectedId=id;
   const item=appData.data.find(d=>d.id===id);
@@ -1304,6 +1322,7 @@ function selectItem(id){
   clearTyping();
   clearPillar();
 }
+
 function saveItemHandler(){
   const id=appData.selectedId; if(!id) return;
   const item=appData.data.find(d=>d.id===id); if(!item) return;
@@ -1407,7 +1426,7 @@ function setMode(mode){
   if(item) updateStudyView(item);
 }
 
-/* ===== Color popup ===== */
+/* ===== Color popup + marking ===== */
 function initColorPopup(){
   const swatches=document.getElementById('color-swatches');
   swatches.innerHTML='';
@@ -1480,6 +1499,7 @@ function onLivePreviewSelect(){
   const range=sel.getRangeAt(0);
   const start=getPlainTextOffset(fieldEl,range.startContainer,range.startOffset);
   const end=getPlainTextOffset(fieldEl,range.endContainer,range.endOffset);
+
   const sourceText=getSourceText(block,fieldKey);
   if(start<0||end>sourceText.length||start>=end){ sel.removeAllRanges(); return; }
 
@@ -1514,8 +1534,6 @@ function removeMark(){
   hideColorPopup();
   saveItem(item).then(()=>{updateLivePreview();updateStudyView(item);});
 }
-
-/* ===== Theory render ===== */
 function applyMarksToText(text,marks,fieldKey,anki=false){
   const fieldMarks=(marks||[]).filter(m=>m.fieldKey===fieldKey);
   if(!fieldMarks.length) return escapeHtml(text).replace(/\n/g,'<br>');
@@ -1722,7 +1740,7 @@ function syncBlockFromDOM(){
   updateLivePreview();
 }
 
-/* ===== Typing / pillar scoring ===== */
+/* ===== Typing/pillar scoring (same as v2.1) ===== */
 function extractPillarText(item){
   if(!item||!item.blocks) return '';
   return item.blocks.filter(b=>b.type==='section'||b.type==='item1').map(b=>b.title||'').join('');
@@ -1871,23 +1889,79 @@ function saveRecordHandler(){
   saveRec(rec).then(()=>{ renderAll(); alert(`保存しました！ スコア: ${score}%`); });
 }
 
-/* ===== Calendar rendering & logic ===== */
+/* ===== Modal helper ===== */
+let calModalOnSave=null;
+function openCalModal({title, bodyHtml, onSave}){
+  calModalOnSave = onSave;
+  document.getElementById('cal-modal-title').textContent=title;
+  document.getElementById('cal-modal-body').innerHTML=bodyHtml;
+  document.getElementById('cal-modal').classList.add('open');
+}
+function closeCalModal(){
+  document.getElementById('cal-modal').classList.remove('open');
+  calModalOnSave=null;
+}
+
+/* ===== Duration widget ===== */
+function bindDurationWidget(prefix){
+  const hmEl=document.getElementById(prefix+'-dur-hm');
+  const minEl=document.getElementById(prefix+'-dur-min');
+  const labEl=document.getElementById(prefix+'-dur-label');
+  if(!hmEl||!minEl||!labEl) return;
+
+  function syncFromHM(){
+    const m=hmToMinutes(hmEl.value);
+    minEl.value = String(m);
+    labEl.textContent = minutesToLabel(m);
+  }
+  function syncFromMin(){
+    const m=parseInt(minEl.value||'0',10);
+    hmEl.value = minutesToHM(m);
+    labEl.textContent = minutesToLabel(m);
+  }
+
+  hmEl.addEventListener('change',syncFromHM);
+  hmEl.addEventListener('input',syncFromHM);
+  minEl.addEventListener('change',syncFromMin);
+  minEl.addEventListener('input',syncFromMin);
+
+  syncFromMin();
+}
+
+/* ===== Repeat rule helpers ===== */
+function isISODateString(s){ return /^\d{4}-\d{2}-\d{2}$/.test(String(s||'')); }
+function weekdaySetFromChecks(prefix){ // prefix: "rep-wd-"
+  const nodes=[...document.querySelectorAll(`input[name="${prefix}"]:checked`)];
+  return new Set(nodes.map(n=>parseInt(n.value,10)));
+}
+function buildSeriesName({subject,title,ruleLabel,start,end}){
+  return `${subject}｜${title}｜${ruleLabel}｜${start}〜${end}`;
+}
+function calcWeekIndexFromStart(startYmd, dateYmd){
+  const start=new Date(startYmd+'T00:00:00');
+  const d=new Date(dateYmd+'T00:00:00');
+  const diffDays=Math.floor((d-start)/86400000);
+  return Math.floor(diffDays/7); // 0-based
+}
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); } // m:0-11
+function nthWeekdayOfMonth(y,m,weekday,nth){
+  // y:2026, m:0-11, weekday:0-6, nth:1-5
+  const first=new Date(y,m,1);
+  const firstW=first.getDay();
+  const offset=(weekday - firstW + 7) % 7;
+  const day=1 + offset + (nth-1)*7;
+  const dim=daysInMonth(y,m);
+  if(day>dim) return null;
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+
+/* ===== Calendar core ===== */
 function changeMonth(delta){
   calMonth += delta;
   if(calMonth>11){calMonth=0; calYear++;}
   if(calMonth<0){calMonth=11; calYear--;}
   renderCalendar();
   renderSummary();
-}
-function monthRange(){
-  const first=ymd(new Date(calYear,calMonth,1));
-  const last=ymd(new Date(calYear,calMonth+1,0));
-  return {first,last};
-}
-function yearRange(){
-  const first=`${calYear}-01-01`;
-  const last=`${calYear}-12-31`;
-  return {first,last};
 }
 function renderCalendar(){
   document.getElementById('cal-title').textContent=`${calYear}年 ${calMonth+1}月`;
@@ -1897,7 +1971,7 @@ function renderCalendar(){
   const prevLast=new Date(calYear,calMonth,0).getDate();
   const today=new Date();
 
-  const dayMap={}; // day -> {plans:[], records:[]}
+  const dayMap={};
   for(const p of filteredPlans()){
     if(p.status!=='planned') continue;
     const d=new Date(p.date+'T00:00:00');
@@ -1928,7 +2002,6 @@ function renderCalendar(){
     if(!otherMonth){
       cell.addEventListener('click',()=>{
         calSelectedDate=dateStr;
-        calSelectedDayNum=day;
         renderCalendar();
         renderDayPanel();
         renderSummary();
@@ -2069,8 +2142,6 @@ function renderDayPanel(){
   detail.querySelectorAll('[data-del-plan]').forEach(btn=>btn.addEventListener('click',()=>deletePlanHandler(btn.dataset.delPlan)));
   detail.querySelectorAll('[data-del-rec]').forEach(btn=>btn.addEventListener('click',()=>deleteRecordHandler(btn.dataset.delRec)));
 }
-
-/* ===== Summary ===== */
 function renderSummary(){
   const scope=document.getElementById('sum-scope').value;
   const subj=document.getElementById('sum-subject').value;
@@ -2088,12 +2159,12 @@ function renderSummary(){
     to=calSelectedDate+'T23:59:59';
     label=calSelectedDate;
   }else if(scope==='month'){
-    const r=monthRange();
+    const r=monthRange(calYear,calMonth);
     from=r.first+'T00:00:00';
     to=r.last+'T23:59:59';
     label=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
   }else{
-    const r=yearRange();
+    const r=yearRange(calYear);
     from=r.first+'T00:00:00';
     to=r.last+'T23:59:59';
     label=`${calYear}`;
@@ -2110,8 +2181,6 @@ function renderSummary(){
   document.getElementById('sum-hm').textContent=minutesToLabel(totalMin);
   document.getElementById('sum-count').textContent=String(recsWithMin.length);
 }
-
-/* ===== Calendar actions ===== */
 async function deletePlanHandler(planId){
   const p=appData.plans.find(x=>x.id===planId);
   if(!p) return;
@@ -2123,46 +2192,7 @@ async function deleteRecordHandler(id){
   await delRec(id);
 }
 
-/* ===== Modal helper ===== */
-let calModalOnSave=null;
-function openCalModal({title, bodyHtml, onSave}){
-  calModalOnSave = onSave;
-  document.getElementById('cal-modal-title').textContent=title;
-  document.getElementById('cal-modal-body').innerHTML=bodyHtml;
-  document.getElementById('cal-modal').classList.add('open');
-}
-function closeCalModal(){
-  document.getElementById('cal-modal').classList.remove('open');
-  calModalOnSave=null;
-}
-
-/* ===== Duration widget binding ===== */
-function bindDurationWidget(prefix){
-  const hmEl=document.getElementById(prefix+'-dur-hm');
-  const minEl=document.getElementById(prefix+'-dur-min');
-  const labEl=document.getElementById(prefix+'-dur-label');
-  if(!hmEl||!minEl||!labEl) return;
-
-  function syncFromHM(){
-    const m=hmToMinutes(hmEl.value);
-    minEl.value = String(m);
-    labEl.textContent = minutesToLabel(m);
-  }
-  function syncFromMin(){
-    const m=parseInt(minEl.value||'0',10);
-    hmEl.value = minutesToHM(m);
-    labEl.textContent = minutesToLabel(m);
-  }
-
-  hmEl.addEventListener('change',syncFromHM);
-  hmEl.addEventListener('input',syncFromHM);
-  minEl.addEventListener('change',syncFromMin);
-  minEl.addEventListener('input',syncFromMin);
-
-  syncFromMin();
-}
-
-/* ===== Add plan (single) ===== */
+/* ===== open single plan / record ===== */
 function openAddPlan(){
   const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
   if(!calSelectedDate){ alert('日付を選択してください'); return; }
@@ -2240,512 +2270,611 @@ function openAddPlan(){
   bindDurationWidget('m-plan');
 }
 
-/* ===== Create record from plan ===== */
-function openRecordFromPlan(planId){
-  const p=appData.plans.find(x=>x.id===planId);
-  if(!p) return;
-
-  const now=new Date();
-  const defaultIso = new Date(`${p.date}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:00`).toISOString();
+/* ===== ここから「繰り返し（シリーズ作成）」 ===== */
+function openAddSeries(){
+  const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
+  const defaultStart = calSelectedDate || ymd(new Date());
+  const d=new Date(defaultStart+'T00:00:00');
+  const endDefault = ymd(new Date(d.getFullYear(), d.getMonth()+1, 0)); // 月末
 
   openCalModal({
-    title: '✅ 実績登録（計画から）',
+    title: '＋ 繰り返し（シリーズ作成）',
     bodyHtml: `
       <div class="help" style="margin-bottom:10px;">
-        計画：<b>${escapeHtml(p.subject)}｜${escapeHtml(p.title)}</b><br>
-        保存すると、計画は完了になり「予定」から消えます。
+        ルール：毎日／平日（月〜金）／毎週／隔週／毎月（指定日）／毎月（第n曜日）<br>
+        ※「毎月の指定日」で存在しない日（例：2/30）は <b>スキップ</b> します。
       </div>
-      <div class="plan-grid">
-        <div class="form-group full">
-          <label>実施日時</label>
-          <input type="datetime-local" id="m-rec-dt" value="${escapeHtml(defaultIso.slice(0,16))}">
-        </div>
-
-        <div class="form-group full">
-          <label>実施時間（時分）</label>
-          <div class="duration-row">
-            <input type="time" id="m-rec-dur-hm" value="${escapeHtml(minutesToHM(p.minutes||30))}" step="60">
-            <input type="number" id="m-rec-dur-min" min="1" step="1" value="${escapeHtml(String(p.minutes||30))}" style="display:none;">
-            <span class="hint">= <span id="m-rec-dur-label">${escapeHtml(minutesToLabel(p.minutes||30))}</span></span>
-          </div>
-        </div>
-
-        <div class="form-group full">
-          <label>メモ（任意）</label>
-          <input type="text" id="m-rec-note" placeholder="補足メモ...">
-        </div>
-      </div>
-    `,
-    onSave: async ()=>{
-      const dt=document.getElementById('m-rec-dt').value;
-      const minutes=parseInt(document.getElementById('m-rec-dur-min').value,10);
-      const note=document.getElementById('m-rec-note').value.trim();
-      if(!dt){alert('実施日時を入力してください');return;}
-      if(!minutes||minutes<1){alert('実施時間が不正です');return;}
-
-      const recId=genId();
-      const rec={
-        id: recId,
-        recordType:'activity',
-        planId:p.id,
-        subject:p.subject,
-        itemId:p.itemId||null,
-        title:p.title,
-        date: new Date(dt).toISOString(),
-        minutes,
-        score: null,
-        note
-      };
-      await saveRec(rec);
-
-      const upd={...p, status:'done', recordId:recId, updatedAt:new Date().toISOString()};
-      await savePlan(upd);
-
-      closeCalModal();
-    }
-  });
-  bindDurationWidget('m-rec');
-}
-
-/* ===== Add record without plan ===== */
-function openAddRecordNoPlan(){
-  if(!calSelectedDate){ alert('日付を選択してください'); return; }
-  const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
-  const now=new Date();
-  const defaultIso = new Date(`${calSelectedDate}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:00`).toISOString();
-
-  openCalModal({
-    title: '＋ 実績（計画なし）',
-    bodyHtml: `
-      <div class="help" style="margin-bottom:10px;">科目必須。実施時間は「時分」入力できます。</div>
       <div class="plan-grid">
         <div class="form-group">
           <label>科目（必須）</label>
-          <select id="m-rec2-subject">
+          <select id="m-ser-subject">
             <option value="">選択してください</option>
             ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
           </select>
         </div>
 
+        <div class="form-group">
+          <label>開始時刻（任意）</label>
+          <input type="time" id="m-ser-time">
+        </div>
+
         <div class="form-group full">
           <label>タイトル</label>
-          <input type="text" id="m-rec2-title" placeholder="例：理論暗記 / 講義受講 / 復習など">
+          <input type="text" id="m-ser-title" placeholder="例：理論暗記 / 講義 / 答練 など">
         </div>
 
-        <div class="form-group full">
-          <label>実施日時</label>
-          <input type="datetime-local" id="m-rec2-dt" value="${escapeHtml(defaultIso.slice(0,16))}">
-        </div>
-
-        <div class="form-group full">
-          <label>実施時間（時分）</label>
-          <div class="duration-row">
-            <input type="time" id="m-rec2-dur-hm" value="00:30" step="60">
-            <input type="number" id="m-rec2-dur-min" min="1" step="1" value="30" style="display:none;">
-            <span class="hint">= <span id="m-rec2-dur-label">30分</span></span>
-          </div>
-        </div>
-
-        <div class="form-group full">
-          <label>メモ（任意）</label>
-          <input type="text" id="m-rec2-note" placeholder="補足メモ...">
-        </div>
-      </div>
-    `,
-    onSave: async ()=>{
-      const subject=document.getElementById('m-rec2-subject').value;
-      const title=document.getElementById('m-rec2-title').value.trim();
-      const dt=document.getElementById('m-rec2-dt').value;
-      const minutes=parseInt(document.getElementById('m-rec2-dur-min').value,10);
-      const note=document.getElementById('m-rec2-note').value.trim();
-
-      if(!subject){alert('科目は必須です');return;}
-      if(!title){alert('タイトルを入力してください');return;}
-      if(!dt){alert('実施日時を入力してください');return;}
-      if(!minutes||minutes<1){alert('実施時間が不正です');return;}
-
-      const rec={
-        id: genId(),
-        recordType:'activity',
-        planId:null,
-        subject,
-        itemId:null,
-        title,
-        date:new Date(dt).toISOString(),
-        minutes,
-        score:null,
-        note
-      };
-      await saveRec(rec);
-      closeCalModal();
-    }
-  });
-  bindDurationWidget('m-rec2');
-}
-
-/* ===== Series management (same asあなたの貼った版そのまま) ===== */
-function seriesSummary(){
-  const plans=filteredPlans();
-  const map=new Map();
-  for(const p of plans){
-    if(!p.seriesId) continue;
-    const key=p.seriesId;
-    if(!map.has(key)){
-      map.set(key,{ seriesId:key, seriesName: p.seriesName || '(series)', total:0, planned:0, done:0 });
-    }
-    const s=map.get(key);
-    s.total++;
-    if(p.status==='planned') s.planned++;
-    if(p.status==='done') s.done++;
-  }
-  return [...map.values()].sort((a,b)=>(a.seriesName||'').localeCompare(b.seriesName||''));
-}
-
-function openSeriesManager(){
-  const arr=seriesSummary();
-  if(!arr.length){
-    alert('シリーズがありません（seriesId付きの予定がありません）');
-    return;
-  }
-  openCalModal({
-    title: '🧩 シリーズ管理（未完了のみ）',
-    bodyHtml: `
-      <div class="help" style="margin-bottom:10px;">
-        未完了（planned）の予定だけを一括修正・一括削除できます。<br>
-        ※タイトルが被っても、シリーズ名で識別できます。
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        ${arr.map(s=>`
-          <div style="background:#f7f9fc;border:1px solid #dde3ea;border-radius:12px;padding:10px;">
-            <div style="font-weight:800;color:#1a2a4a;">${escapeHtml(s.seriesName)}</div>
-            <div class="help" style="margin-top:4px;">総数:${s.total} / 未完了:${s.planned} / 完了:${s.done} / seriesId:${escapeHtml(s.seriesId)}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px;">
-              <button class="btn-small btn-warning" data-series-edit="${escapeHtml(s.seriesId)}">未完了一括修正</button>
-              <button class="btn-small btn-danger" data-series-del="${escapeHtml(s.seriesId)}">未完了一括削除</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `,
-    onSave: async ()=>{
-      closeCalModal();
-    }
-  });
-
-  document.getElementById('cal-modal-save-btn').textContent='閉じる';
-
-  document.getElementById('cal-modal-body').querySelectorAll('[data-series-edit]').forEach(btn=>{
-    btn.addEventListener('click',()=>openSeriesBulkEdit(btn.dataset.seriesEdit));
-  });
-  document.getElementById('cal-modal-body').querySelectorAll('[data-series-del]').forEach(btn=>{
-    btn.addEventListener('click',()=>bulkDeleteUndoneBySeries(btn.dataset.seriesDel));
-  });
-}
-
-function openSeriesBulkEdit(seriesId){
-  const series = seriesSummary().find(s=>s.seriesId===seriesId);
-  if(!series){ alert('シリーズが見つかりません'); return; }
-
-  openCalModal({
-    title: '🧩 未完了を一括修正',
-    bodyHtml: `
-      <div class="help" style="margin-bottom:10px;">
-        対象：<b>${escapeHtml(series.seriesName)}</b><br>
-        未完了（planned）の予定だけをまとめて変更します。
-      </div>
-      <div class="plan-grid">
-        <div class="form-group full">
-          <label>新しいタイトル（空なら変更しない）</label>
-          <input type="text" id="bulk-title" placeholder="例：理論暗記（45分）など">
+        <div class="form-group">
+          <label>開始日（必須）</label>
+          <input type="date" id="m-ser-start" value="${escapeHtml(defaultStart)}">
         </div>
         <div class="form-group">
-          <label>新しい開始時刻（空なら変更しない）</label>
-          <input type="time" id="bulk-startTime">
+          <label>終了日（必須）</label>
+          <input type="date" id="m-ser-end" value="${escapeHtml(endDefault)}">
         </div>
 
         <div class="form-group full">
-          <label>新しい予定時間（時分）（空なら変更しない）</label>
-          <div class="duration-row">
-            <input type="time" id="bulk-dur-hm" value="" step="60">
-            <input type="number" id="bulk-dur-min" value="" style="display:none;">
-            <span class="hint">（入力すると反映）</span>
+          <label>ルール</label>
+          <select id="m-ser-rule">
+            <option value="daily">毎日</option>
+            <option value="weekdays">平日のみ（月〜金）</option>
+            <option value="weekly">毎週（曜日指定）</option>
+            <option value="biweekly">隔週（2週ごと・曜日指定）</option>
+            <option value="monthlyDay">毎月（指定日）</option>
+            <option value="monthlyNth">毎月（第n曜日）</option>
+          </select>
+          <div class="help" style="margin-top:6px;" id="m-ser-rule-help"></div>
+        </div>
+
+        <div class="form-group full" id="m-ser-weekday-wrap" style="display:none;">
+          <label>曜日</label>
+          <div class="weekday-row">
+            ${WEEK_LABELS.map((w,i)=>`
+              <label class="weekday-chip"><input type="checkbox" name="rep-wd" value="${i}">${w}</label>
+            `).join('')}
           </div>
-          <div class="help">例：02:30 → 150分</div>
+          <div class="help">毎週/隔週で使用します。</div>
+        </div>
+
+        <div class="form-group full" id="m-ser-monthday-wrap" style="display:none;">
+          <label>日付（例：1,15,28）</label>
+          <input type="text" id="m-ser-monthdays" placeholder="例：1,15">
+          <div class="help">毎月（指定日）で使用。存在しない日はスキップ。</div>
+        </div>
+
+        <div class="form-group" id="m-ser-nth-wrap" style="display:none;">
+          <label>第n</label>
+          <select id="m-ser-nth">
+            <option value="1">第1</option>
+            <option value="2" selected>第2</option>
+            <option value="3">第3</option>
+            <option value="4">第4</option>
+            <option value="5">第5</option>
+          </select>
+        </div>
+        <div class="form-group" id="m-ser-nthweekday-wrap" style="display:none;">
+          <label>曜日</label>
+          <select id="m-ser-nthweekday">
+            ${WEEK_LABELS.map((w,i)=>`<option value="${i}">${w}</option>`).join('')}
+          </select>
         </div>
 
         <div class="form-group full">
-          <label>新しいメモ（空なら変更しない）</label>
-          <input type="text" id="bulk-note" placeholder="補足メモ...">
+          <label>予定時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-ser-dur-hm" value="00:30" step="60">
+            <input type="number" id="m-ser-dur-min" min="1" step="1" value="30" style="display:none;">
+            <span class="hint">= <span id="m-ser-dur-label">30分</span></span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>メモ</label>
+          <input type="text" id="m-ser-note" placeholder="補足メモ...">
         </div>
       </div>
     `,
     onSave: async ()=>{
-      const newTitle=document.getElementById('bulk-title').value.trim();
-      const newStartTime=document.getElementById('bulk-startTime').value || null;
-      const hm=document.getElementById('bulk-dur-hm').value;
-      const newMinutes = hm ? hmToMinutes(hm) : null;
-      const newNote=document.getElementById('bulk-note').value.trim();
-
-      if(newMinutes!==null && (!newMinutes || newMinutes<1)){
-        alert('予定時間が不正です'); return;
-      }
-      await bulkUpdateUndoneBySeries(seriesId,{newTitle,newStartTime,newMinutes,newNote});
+      await createSeriesFromModal();
       closeCalModal();
-      alert('未完了一括修正が完了しました');
     }
   });
 
-  document.getElementById('cal-modal-save-btn').textContent='保存';
+  // duration binding
+  bindDurationWidget('m-ser');
+
+  // rule UI toggle
+  const ruleEl=document.getElementById('m-ser-rule');
+  const helpEl=document.getElementById('m-ser-rule-help');
+  const wdWrap=document.getElementById('m-ser-weekday-wrap');
+  const mdWrap=document.getElementById('m-ser-monthday-wrap');
+  const nthWrap=document.getElementById('m-ser-nth-wrap');
+  const nthWWrap=document.getElementById('m-ser-nthweekday-wrap');
+
+  function refreshRuleUI(){
+    const r=ruleEl.value;
+    wdWrap.style.display = (r==='weekly'||r==='biweekly') ? '' : 'none';
+    mdWrap.style.display = (r==='monthlyDay') ? '' : 'none';
+    nthWrap.style.display = (r==='monthlyNth') ? '' : 'none';
+    nthWWrap.style.display = (r==='monthlyNth') ? '' : 'none';
+
+    helpEl.textContent = ({
+      daily:'毎日、開始日〜終了日の全日を生成します。',
+      weekdays:'平日のみ（月〜金）を生成します。',
+      weekly:'毎週、指定曜日だけ生成します。',
+      biweekly:'隔週（2週ごと）。開始日を基準に、2週ごとに指定曜日を生成します。',
+      monthlyDay:'毎月、指定日（例：1,15）だけ生成します。存在しない日はスキップ。',
+      monthlyNth:'毎月、第n曜日（例：第2土曜）だけ生成します。'
+    }[r]||'');
+  }
+  ruleEl.addEventListener('change',refreshRuleUI);
+  refreshRuleUI();
 }
 
-async function bulkUpdateUndoneBySeries(seriesId, {newTitle,newStartTime,newMinutes,newNote}){
+/* ===== 繰り返し生成ロジック ===== */
+async function createSeriesFromModal(){
   const u=auth.currentUser; if(!u) return;
-  const targets = appData.plans.filter(p=>p.seriesId===seriesId && p.status==='planned');
-  if(!targets.length){ alert('未完了の予定がありません'); return; }
-  if(!confirm(`未完了 ${targets.length}件を更新します。よろしいですか？`)) return;
 
-  const chunks=[];
-  for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
+  const subject=document.getElementById('m-ser-subject').value;
+  const title=document.getElementById('m-ser-title').value.trim();
+  const start=document.getElementById('m-ser-start').value;
+  const end=document.getElementById('m-ser-end').value;
+  const startTime=document.getElementById('m-ser-time').value||null;
+  const minutes=parseInt(document.getElementById('m-ser-dur-min').value,10);
+  const note=document.getElementById('m-ser-note').value.trim();
+  const rule=document.getElementById('m-ser-rule').value;
 
-  for(const chunk of chunks){
-    const batch=writeBatch(db);
-    for(const p of chunk){
-      const upd={...p, updatedAt:new Date().toISOString()};
-      if(newTitle) upd.title=newTitle;
-      if(newStartTime!==null && newStartTime!=='') upd.startTime=newStartTime;
-      if(newMinutes!==null) upd.minutes=newMinutes;
-      if(newNote) upd.note=newNote;
+  if(!subject){ alert('科目は必須です'); throw new Error('subject required'); }
+  if(!title){ alert('タイトルを入力してください'); throw new Error('title required'); }
+  if(!isISODateString(start)||!isISODateString(end)){ alert('開始日・終了日を入力してください'); throw new Error('date required'); }
+  if(end<start){ alert('終了日は開始日以降にしてください'); throw new Error('date order'); }
+  if(!minutes||minutes<1){ alert('予定時間が不正です'); throw new Error('minutes'); }
 
-      if(newTitle && upd.seriesName){
-        upd.seriesName = (upd.seriesName||'').replace(`｜${p.title}｜`, `｜${newTitle}｜`);
+  let dates=[];
+  if(rule==='daily'){
+    let cur=start;
+    while(cur<=end){ dates.push(cur); cur=addDays(cur,1); }
+  }else if(rule==='weekdays'){
+    let cur=start;
+    while(cur<=end){
+      const d=new Date(cur+'T00:00:00');
+      const wd=d.getDay();
+      if(wd>=1 && wd<=5) dates.push(cur);
+      cur=addDays(cur,1);
+    }
+  }else if(rule==='weekly' || rule==='biweekly'){
+    const wdSet=weekdaySetFromChecks('rep-wd');
+    if(wdSet.size===0){ alert('曜日を1つ以上選んでください'); throw new Error('weekday'); }
+    let cur=start;
+    while(cur<=end){
+      const d=new Date(cur+'T00:00:00');
+      const wd=d.getDay();
+      if(wdSet.has(wd)){
+        if(rule==='weekly'){
+          dates.push(cur);
+        }else{
+          const weekIndex=calcWeekIndexFromStart(start, cur);
+          if(weekIndex%2===0) dates.push(cur);
+        }
       }
-      batch.set(doc(db,'users',u.uid,'plans',p.id), upd);
+      cur=addDays(cur,1);
     }
-    await batch.commit();
+  }else if(rule==='monthlyDay'){
+    const raw=document.getElementById('m-ser-monthdays').value.trim();
+    if(!raw){ alert('日付（例：1,15）を入力してください'); throw new Error('monthdays'); }
+    const days=raw.split(',').map(s=>parseInt(s.trim(),10)).filter(n=>Number.isFinite(n)&&n>=1&&n<=31);
+    if(!days.length){ alert('日付の形式が不正です'); throw new Error('monthdays parse'); }
+
+    const startD=new Date(start+'T00:00:00');
+    const endD=new Date(end+'T00:00:00');
+    let y=startD.getFullYear(), m=startD.getMonth();
+
+    while(true){
+      // month first date
+      const firstOfMonth=new Date(y,m,1);
+      const monthStart=ymd(firstOfMonth);
+      const monthEnd=ymd(new Date(y,m+1,0));
+      // month range overlap?
+      if(monthEnd<start) { m++; if(m>11){m=0;y++;} continue; }
+      if(monthStart>end) break;
+
+      const dim=daysInMonth(y,m);
+      for(const day of days){
+        if(day>dim) continue; // スキップ仕様
+        const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        if(dateStr>=start && dateStr<=end) dates.push(dateStr);
+      }
+
+      m++; if(m>11){m=0;y++;}
+    }
+    dates.sort();
+  }else if(rule==='monthlyNth'){
+    const nth=parseInt(document.getElementById('m-ser-nth').value,10);
+    const weekday=parseInt(document.getElementById('m-ser-nthweekday').value,10);
+    const startD=new Date(start+'T00:00:00');
+    let y=startD.getFullYear(), m=startD.getMonth();
+
+    while(true){
+      const monthStart=ymd(new Date(y,m,1));
+      if(monthStart>end) break;
+      const dateStr=nthWeekdayOfMonth(y,m,weekday,nth);
+      if(dateStr && dateStr>=start && dateStr<=end) dates.push(dateStr);
+      m++; if(m>11){m=0;y++;}
+    }
   }
-  showSync();
-}
 
-async function bulkDeleteUndoneBySeries(seriesId){
-  const u=auth.currentUser; if(!u) return;
-  const targets = appData.plans.filter(p=>p.seriesId===seriesId && p.status==='planned');
-  if(!targets.length){ alert('未完了の予定がありません'); return; }
-  if(!confirm(`未完了 ${targets.length}件を削除します。よろしいですか？`)) return;
+  dates = uniq(dates);
+  if(!dates.length){ alert('条件に合う日付がありませんでした'); throw new Error('no dates'); }
 
+  const seriesId='series_'+genId();
+  const ruleLabel = ({
+    daily:'毎日',
+    weekdays:'平日',
+    weekly:'毎週('+[...weekdaySetFromChecks('rep-wd')].sort().map(i=>WEEK_LABELS[i]).join('')+')',
+    biweekly:'隔週('+[...weekdaySetFromChecks('rep-wd')].sort().map(i=>WEEK_LABELS[i]).join('')+')',
+    monthlyDay:'毎月('+document.getElementById('m-ser-monthdays').value.trim()+')',
+    monthlyNth:`毎月(第${document.getElementById('m-ser-nth').value}${WEEK_LABELS[parseInt(document.getElementById('m-ser-nthweekday').value,10)]})`
+  }[rule]||rule);
+  const seriesName = buildSeriesName({subject,title,ruleLabel,start,end});
+
+  if(!confirm(`${dates.length}件の予定を作成します。\nシリーズ名：${seriesName}\nよろしいですか？`)) throw new Error('cancel');
+
+  // batch commit (<=500)
   const chunks=[];
-  for(let i=0;i<targets.length;i+=450) chunks.push(targets.slice(i,i+450));
+  for(let i=0;i<dates.length;i+=450) chunks.push(dates.slice(i,i+450));
+
   for(const chunk of chunks){
     const batch=writeBatch(db);
-    for(const p of chunk) batch.delete(doc(db,'users',u.uid,'plans',p.id));
+    for(const date of chunk){
+      const plan={
+        id: genId(),
+        title,
+        subject,
+        itemId:null,
+        date,
+        startTime,
+        minutes,
+        note,
+        status:'planned',
+        recordId:null,
+        seriesId,
+        seriesName,
+        repeatRule: rule,
+        repeatStart: start,
+        repeatEnd: end,
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      };
+      batch.set(doc(db,'users',u.uid,'plans',plan.id), plan);
+    }
     await batch.commit();
   }
   showSync();
-  alert('未完了分を削除しました');
+  alert(`繰り返しを作成しました（${dates.length}件）`);
 }
-
-/* ===== Calendar modal buttons ===== */
-document.getElementById('cal-modal-cancel-btn').addEventListener('click',()=>{
-  closeCalModal();
-  document.getElementById('cal-modal-save-btn').textContent='保存';
-});
-document.getElementById('cal-modal-save-btn').addEventListener('click',async ()=>{
-  if(calModalOnSave) await calModalOnSave();
-});
-
-/* ===== Admin (users) ===== */
-async function addUserHandler(){
-  if(currentUserRole!=='admin') return;
-  const email=document.getElementById('new-user-email').value.trim();
-  const pass=document.getElementById('new-user-password').value;
-  const name=document.getElementById('new-user-name').value.trim();
-  const role=document.getElementById('new-user-role').value;
-  const errEl=document.getElementById('add-user-error'); errEl.textContent=''; errEl.style.color='#c0392b';
-  if(!email||!pass||!name){ errEl.textContent='すべての項目を入力してください'; return; }
-  if(pass.length<8){ errEl.textContent='パスワードは8文字以上にしてください'; return; }
-  try{
-    const secondaryApp=initializeApp(firebaseConfig,'secondary-'+Date.now());
-    const secondaryAuth=getAuth(secondaryApp);
-    const cred=await createUserWithEmailAndPassword(secondaryAuth,email,pass);
-    await setDoc(doc(db,'userProfiles',cred.user.uid),{uid:cred.user.uid,email,displayName:name,role,createdAt:new Date().toISOString()});
-    await signOut(secondaryAuth);
-    errEl.style.color='#27ae60';
-    errEl.textContent=`✅ 「${name}」を追加しました`;
-    document.getElementById('new-user-email').value='';
-    document.getElementById('new-user-password').value='';
-    document.getElementById('new-user-name').value='';
-    document.getElementById('new-user-role').value='user';
-    renderUserList();
-  }catch(e){
-    const map={'auth/email-already-in-use':'このメールアドレスはすでに使用されています','auth/weak-password':'パスワードが弱すぎます','auth/invalid-email':'メールアドレスの形式が正しくありません'};
-    errEl.textContent=map[e.code]||('エラー: '+e.message);
-  }
-}
-async function renderUserList(){
-  if(currentUserRole!=='admin') return;
-  const listEl=document.getElementById('user-list');
-  listEl.innerHTML='<div class="help">読み込み中...</div>';
-  try{
-    const snap=await getDocs(collection(db,'userProfiles'));
-    const users=snap.docs.map(d=>d.data()).sort((a,b)=>a.email.localeCompare(b.email));
-    if(!users.length){
-      listEl.innerHTML='<div class="empty-state"><div class="icon">👥</div>ユーザーがいません</div>';
-      return;
-    }
-    listEl.innerHTML=users.map(u=>{
-      const roleLabel=u.role==='admin'?'👑 管理者':'👤 一般';
-      const isSelf=auth.currentUser && auth.currentUser.uid===u.uid;
-      return `
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f7f9fc;border-radius:8px;margin-bottom:6px;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:0.86rem;font-weight:600;color:#1a2a4a;">${escapeHtml(u.displayName||u.email)}</div>
-            <div class="help">${escapeHtml(u.email)}</div>
+          <div class="duration-row">
+            <input type="time" id="m-plan-dur-hm" value="00:30" step="60">
+            <input type="number" id="m-plan-dur-min" min="1" step="1" value="30" style="display:none;">
+            <span class="hint">= <span id="m-plan-dur-label">30分</span></span>
           </div>
-          <span class="badge badge-record">${roleLabel}</span>
-          ${!isSelf?`<button class="btn-small btn-danger" data-deluid="${escapeHtml(u.uid)}" data-delemail="${escapeHtml(u.email)}">削除</button>`:'<span class="help">（自分）</span>'}
+          <div class="help">※内部は分で保存します（minutes）。</div>
         </div>
-      `;
-    }).join('');
-    listEl.querySelectorAll('[data-deluid]').forEach(btn=>btn.addEventListener('click',()=>deleteUserHandler(btn.dataset.deluid,btn.dataset.delemail)));
-  }catch(e){
-    listEl.innerHTML=`<div style="color:#c0392b;font-size:0.86rem;">読み込みエラー: ${e.message}</div>`;
-  }
-}
-async function deleteUserHandler(uid,email){
-  if(!confirm(`「${email}」のプロフィールを削除しますか？`)) return;
-  try{ await deleteDoc(doc(db,'userProfiles',uid)); renderUserList(); }
-  catch(e){ alert('削除エラー: '+e.message); }
-}
 
-/* ===== Bind events & init ===== */
-function switchRightTab(rtab,btn){
-  document.querySelectorAll('.manage-right-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('rtab-info').style.display=rtab==='info'?'block':'none';
-  document.getElementById('rtab-blocks').style.display=rtab==='blocks'?'flex':'none';
-}
-function bindEvents(){
-  document.getElementById('hamburger-btn').addEventListener('click',toggleSidebar);
-  document.getElementById('settings-btn').addEventListener('click',toggleSettings);
-  document.getElementById('sidebar-close-btn').addEventListener('click',closeSidebar);
-  document.getElementById('sidebar-overlay').addEventListener('click',closeSidebar);
-  document.getElementById('settings-close-btn').addEventListener('click',closeSettings);
+        <div class="form-group full">
+          <label>メモ</label>
+          <input type="text" id="m-plan-note" placeholder="補足メモ...">
+        </div>
+      </div>
+    `,
+    onSave: async ()=>{
+      const subject=document.getElementById('m-plan-subject').value;
+      const title=document.getElementById('m-plan-title').value.trim();
+      const date=document.getElementById('m-plan-date').value;
+      const startTime=document.getElementById('m-plan-time').value||null;
+      const minutes=parseInt(document.getElementById('m-plan-dur-min').value,10);
+      const note=document.getElementById('m-plan-note').value.trim();
+      if(!subject){alert('科目は必須です');return;}
+      if(!title){alert('タイトルを入力してください');return;}
+      if(!date){alert('実施日を入力してください');return;}
+      if(!minutes||minutes<1){alert('予定時間が不正です');return;}
 
-  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab,btn)));
-  document.querySelectorAll('.manage-right-tab').forEach(btn=>btn.addEventListener('click',()=>switchRightTab(btn.dataset.rtab,btn)));
-
-  document.getElementById('manage-add-btn').addEventListener('click',openAddModal);
-  document.getElementById('sidebar-add-btn').addEventListener('click',openAddModal);
-
-  document.getElementById('save-item-btn').addEventListener('click',saveItemHandler);
-  document.getElementById('save-item-btn2').addEventListener('click',saveItemHandler);
-  document.getElementById('delete-item-btn').addEventListener('click',deleteItemHandler);
-  document.getElementById('delete-item-btn2').addEventListener('click',deleteItemHandler);
-
-  document.getElementById('list-subject-filter').addEventListener('change',renderManageList);
-  document.getElementById('list-rank-filter').addEventListener('change',renderManageList);
-  document.getElementById('list-sort').addEventListener('change',renderManageList);
-
-  document.getElementById('modal-cancel-btn').addEventListener('click',closeModal);
-  document.getElementById('modal-add-btn').addEventListener('click',addItemHandler);
-  document.getElementById('add-modal').addEventListener('click',e=>{ if(e.target===document.getElementById('add-modal')) closeModal(); });
-  document.getElementById('new-subject-sel').addEventListener('change',onNewSubjectSelChange);
-  document.getElementById('new-chapter-sel').addEventListener('change',onNewChapterSelChange);
-
-  document.getElementById('sel-subject').addEventListener('change',onSubjectChange);
-  document.getElementById('sel-chapter').addEventListener('change',onChapterChange);
-  document.getElementById('confirm-select-btn').addEventListener('click',confirmContentSelect);
-
-  document.getElementById('nav-toggle-btn').addEventListener('click',toggleNav);
-  document.getElementById('nav-prev-btn').addEventListener('click',()=>{ const {prevId}=getNavInfo(); if(prevId) selectItem(prevId); });
-  document.getElementById('nav-next-btn').addEventListener('click',()=>{ const {nextId}=getNavInfo(); if(nextId) selectItem(nextId); });
-
-  document.getElementById('mode-view-btn').addEventListener('click',()=>setMode('view'));
-  document.getElementById('mode-anki-btn').addEventListener('click',()=>setMode('anki'));
-  document.getElementById('mode-pillar-btn').addEventListener('click',()=>setMode('pillar'));
-  document.getElementById('mode-typing-btn').addEventListener('click',()=>setMode('typing'));
-  document.getElementById('show-text-btn').addEventListener('click',toggleTextPane);
-
-  document.getElementById('typing-input').addEventListener('input',()=>{ if(appData.selectedId) calcScore(); });
-  document.getElementById('pillar-input').addEventListener('input',()=>{ if(appData.selectedId) calcPillarScore(); });
-
-  document.getElementById('save-record-btn').addEventListener('click',saveRecordHandler);
-  document.getElementById('show-diff-btn').addEventListener('click',showDiff);
-  document.getElementById('clear-typing-btn').addEventListener('click',clearTyping);
-
-  document.getElementById('save-pillar-record-btn').addEventListener('click',savePillarRecordHandler);
-  document.getElementById('show-pillar-diff-btn').addEventListener('click',showPillarDiff);
-  document.getElementById('clear-pillar-btn').addEventListener('click',clearPillar);
-
-  document.querySelectorAll('[data-type]').forEach(btn=>{
-    if(btn.id?.startsWith('add-block-')) btn.addEventListener('click',()=>addBlock(btn.dataset.type));
+      await savePlan({
+        id: genId(),
+        title, subject,
+        itemId:null,
+        date,
+        startTime,
+        minutes,
+        note,
+        status:'planned',
+        recordId:null,
+        seriesId:null,
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      });
+      closeCalModal();
+    }
   });
-  document.getElementById('block-live-preview').addEventListener('mouseup',onLivePreviewSelect);
-
-  document.getElementById('save-subject-settings-btn').addEventListener('click',saveSubjectSettingsHandler);
-  document.getElementById('auto-fill-subjects-btn').addEventListener('click',autoFillSubjects);
-
-  document.getElementById('cal-prev-btn').addEventListener('click',()=>changeMonth(-1));
-  document.getElementById('cal-next-btn').addEventListener('click',()=>changeMonth(1));
-  document.getElementById('cal-add-plan-btn').addEventListener('click',openAddPlan);
-  document.getElementById('cal-add-record-btn').addEventListener('click',openAddRecordNoPlan);
-  document.getElementById('cal-open-series-btn').addEventListener('click',openSeriesManager);
-
-  document.getElementById('sum-scope').addEventListener('change',renderSummary);
-  document.getElementById('sum-subject').addEventListener('change',renderSummary);
-
-  document.getElementById('add-user-btn').addEventListener('click',addUserHandler);
+  bindDurationWidget('m-plan');
 }
 
-/* ===== Missing pieces that caused "buttons not work": ensure calendar modal bindings exist ===== */
-document.getElementById('cal-modal-cancel-btn').addEventListener('click',()=>{
-  closeCalModal();
-  document.getElementById('cal-modal-save-btn').textContent='保存';
-});
-document.getElementById('cal-modal-save-btn').addEventListener('click',async ()=>{
-  if(calModalOnSave) await calModalOnSave();
-});
-
-/* ===== Summary subject list ===== */
-function refreshSummarySubjectOptions(){
-  const sel=document.getElementById('sum-subject');
-  const cur=sel.value;
+/* ===== ここから「繰り返し（シリーズ作成）」 ===== */
+function openAddSeries(){
   const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
-  sel.innerHTML = `<option value="__all__">全科目</option>` + subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-  sel.value = (cur && (cur==='__all__' || subjects.includes(cur))) ? cur : '__all__';
-}
+  const defaultStart = calSelectedDate || ymd(new Date());
+  const d=new Date(defaultStart+'T00:00:00');
+  const endDefault = ymd(new Date(d.getFullYear(), d.getMonth()+1, 0)); // 月末
 
-/* ===== renderAll / init ===== */
-function renderAll(){
-  renderTree();
-  renderContentSelect();
-  renderManageList();
-  updateNavButtons();
+  openCalModal({
+    title: '＋ 繰り返し（シリーズ作成）',
+    bodyHtml: `
+      <div class="help" style="margin-bottom:10px;">
+        ルール：毎日／平日（月〜金）／毎週／隔週／毎月（指定日）／毎月（第n曜日）<br>
+        ※「毎月の指定日」で存在しない日（例：2/30）は <b>スキップ</b> します。
+      </div>
+      <div class="plan-grid">
+        <div class="form-group">
+          <label>科目（必須）</label>
+          <select id="m-ser-subject">
+            <option value="">選択してください</option>
+            ${subjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}
+          </select>
+        </div>
 
-  refreshSummarySubjectOptions();
+        <div class="form-group">
+          <label>開始時刻（任意）</label>
+          <input type="time" id="m-ser-time">
+        </div>
 
-  if(!calSelectedDate){
-    const today=ymd(new Date());
-    calSelectedDate=today;
-    const d=new Date(today+'T00:00:00');
-    calYear=d.getFullYear(); calMonth=d.getMonth();
+        <div class="form-group full">
+          <label>タイトル</label>
+          <input type="text" id="m-ser-title" placeholder="例：理論暗記 / 講義 / 答練 など">
+        </div>
+
+        <div class="form-group">
+          <label>開始日（必須）</label>
+          <input type="date" id="m-ser-start" value="${escapeHtml(defaultStart)}">
+        </div>
+        <div class="form-group">
+          <label>終了日（必須）</label>
+          <input type="date" id="m-ser-end" value="${escapeHtml(endDefault)}">
+        </div>
+
+        <div class="form-group full">
+          <label>ルール</label>
+          <select id="m-ser-rule">
+            <option value="daily">毎日</option>
+            <option value="weekdays">平日のみ（月〜金）</option>
+            <option value="weekly">毎週（曜日指定）</option>
+            <option value="biweekly">隔週（2週ごと・曜日指定）</option>
+            <option value="monthlyDay">毎月（指定日）</option>
+            <option value="monthlyNth">毎月（第n曜日）</option>
+          </select>
+          <div class="help" style="margin-top:6px;" id="m-ser-rule-help"></div>
+        </div>
+
+        <div class="form-group full" id="m-ser-weekday-wrap" style="display:none;">
+          <label>曜日</label>
+          <div class="weekday-row">
+            ${WEEK_LABELS.map((w,i)=>`
+              <label class="weekday-chip"><input type="checkbox" name="rep-wd" value="${i}">${w}</label>
+            `).join('')}
+          </div>
+          <div class="help">毎週/隔週で使用します。</div>
+        </div>
+
+        <div class="form-group full" id="m-ser-monthday-wrap" style="display:none;">
+          <label>日付（例：1,15,28）</label>
+          <input type="text" id="m-ser-monthdays" placeholder="例：1,15">
+          <div class="help">毎月（指定日）で使用。存在しない日はスキップ。</div>
+        </div>
+
+        <div class="form-group" id="m-ser-nth-wrap" style="display:none;">
+          <label>第n</label>
+          <select id="m-ser-nth">
+            <option value="1">第1</option>
+            <option value="2" selected>第2</option>
+            <option value="3">第3</option>
+            <option value="4">第4</option>
+            <option value="5">第5</option>
+          </select>
+        </div>
+        <div class="form-group" id="m-ser-nthweekday-wrap" style="display:none;">
+          <label>曜日</label>
+          <select id="m-ser-nthweekday">
+            ${WEEK_LABELS.map((w,i)=>`<option value="${i}">${w}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label>予定時間（時分）</label>
+          <div class="duration-row">
+            <input type="time" id="m-ser-dur-hm" value="00:30" step="60">
+            <input type="number" id="m-ser-dur-min" min="1" step="1" value="30" style="display:none;">
+            <span class="hint">= <span id="m-ser-dur-label">30分</span></span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>メモ</label>
+          <input type="text" id="m-ser-note" placeholder="補足メモ...">
+        </div>
+      </div>
+    `,
+    onSave: async ()=>{
+      await createSeriesFromModal();
+      closeCalModal();
+    }
+  });
+
+  // duration binding
+  bindDurationWidget('m-ser');
+
+  // rule UI toggle
+  const ruleEl=document.getElementById('m-ser-rule');
+  const helpEl=document.getElementById('m-ser-rule-help');
+  const wdWrap=document.getElementById('m-ser-weekday-wrap');
+  const mdWrap=document.getElementById('m-ser-monthday-wrap');
+  const nthWrap=document.getElementById('m-ser-nth-wrap');
+  const nthWWrap=document.getElementById('m-ser-nthweekday-wrap');
+
+  function refreshRuleUI(){
+    const r=ruleEl.value;
+    wdWrap.style.display = (r==='weekly'||r==='biweekly') ? '' : 'none';
+    mdWrap.style.display = (r==='monthlyDay') ? '' : 'none';
+    nthWrap.style.display = (r==='monthlyNth') ? '' : 'none';
+    nthWWrap.style.display = (r==='monthlyNth') ? '' : 'none';
+
+    helpEl.textContent = ({
+      daily:'毎日、開始日〜終了日の全日を生成します。',
+      weekdays:'平日のみ（月〜金）を生成します。',
+      weekly:'毎週、指定曜日だけ生成します。',
+      biweekly:'隔週（2週ごと）。開始日を基準に、2週ごとに指定曜日を生成します。',
+      monthlyDay:'毎月、指定日（例：1,15）だけ生成します。存在しない日はスキップ。',
+      monthlyNth:'毎月、第n曜日（例：第2土曜）だけ生成します。'
+    }[r]||'');
   }
-  renderCalendar();
-  renderDayPanel();
-  renderSummary();
+  ruleEl.addEventListener('change',refreshRuleUI);
+  refreshRuleUI();
 }
 
-function init(){
-  const now=new Date();
-  calYear=now.getFullYear();
-  calMonth=now.getMonth();
-  calSelectedDate=ymd(now);
+/* ===== 繰り返し生成ロジック ===== */
+async function createSeriesFromModal(){
+  const u=auth.currentUser; if(!u) return;
 
-  initColorPopup();
-  initAllResizers();
-  bindEvents();
-  renderAll();
+  const subject=document.getElementById('m-ser-subject').value;
+  const title=document.getElementById('m-ser-title').value.trim();
+  const start=document.getElementById('m-ser-start').value;
+  const end=document.getElementById('m-ser-end').value;
+  const startTime=document.getElementById('m-ser-time').value||null;
+  const minutes=parseInt(document.getElementById('m-ser-dur-min').value,10);
+  const note=document.getElementById('m-ser-note').value.trim();
+  const rule=document.getElementById('m-ser-rule').value;
+
+  if(!subject){ alert('科目は必須です'); throw new Error('subject required'); }
+  if(!title){ alert('タイトルを入力してください'); throw new Error('title required'); }
+  if(!isISODateString(start)||!isISODateString(end)){ alert('開始日・終了日を入力してください'); throw new Error('date required'); }
+  if(end<start){ alert('終了日は開始日以降にしてください'); throw new Error('date order'); }
+  if(!minutes||minutes<1){ alert('予定時間が不正です'); throw new Error('minutes'); }
+
+  let dates=[];
+  if(rule==='daily'){
+    let cur=start;
+    while(cur<=end){ dates.push(cur); cur=addDays(cur,1); }
+  }else if(rule==='weekdays'){
+    let cur=start;
+    while(cur<=end){
+      const d=new Date(cur+'T00:00:00');
+      const wd=d.getDay();
+      if(wd>=1 && wd<=5) dates.push(cur);
+      cur=addDays(cur,1);
+    }
+  }else if(rule==='weekly' || rule==='biweekly'){
+    const wdSet=weekdaySetFromChecks('rep-wd');
+    if(wdSet.size===0){ alert('曜日を1つ以上選んでください'); throw new Error('weekday'); }
+    let cur=start;
+    while(cur<=end){
+      const d=new Date(cur+'T00:00:00');
+      const wd=d.getDay();
+      if(wdSet.has(wd)){
+        if(rule==='weekly'){
+          dates.push(cur);
+        }else{
+          const weekIndex=calcWeekIndexFromStart(start, cur);
+          if(weekIndex%2===0) dates.push(cur);
+        }
+      }
+      cur=addDays(cur,1);
+    }
+  }else if(rule==='monthlyDay'){
+    const raw=document.getElementById('m-ser-monthdays').value.trim();
+    if(!raw){ alert('日付（例：1,15）を入力してください'); throw new Error('monthdays'); }
+    const days=raw.split(',').map(s=>parseInt(s.trim(),10)).filter(n=>Number.isFinite(n)&&n>=1&&n<=31);
+    if(!days.length){ alert('日付の形式が不正です'); throw new Error('monthdays parse'); }
+
+    const startD=new Date(start+'T00:00:00');
+    const endD=new Date(end+'T00:00:00');
+    let y=startD.getFullYear(), m=startD.getMonth();
+
+    while(true){
+      // month first date
+      const firstOfMonth=new Date(y,m,1);
+      const monthStart=ymd(firstOfMonth);
+      const monthEnd=ymd(new Date(y,m+1,0));
+      // month range overlap?
+      if(monthEnd<start) { m++; if(m>11){m=0;y++;} continue; }
+      if(monthStart>end) break;
+
+      const dim=daysInMonth(y,m);
+      for(const day of days){
+        if(day>dim) continue; // スキップ仕様
+        const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        if(dateStr>=start && dateStr<=end) dates.push(dateStr);
+      }
+
+      m++; if(m>11){m=0;y++;}
+    }
+    dates.sort();
+  }else if(rule==='monthlyNth'){
+    const nth=parseInt(document.getElementById('m-ser-nth').value,10);
+    const weekday=parseInt(document.getElementById('m-ser-nthweekday').value,10);
+    const startD=new Date(start+'T00:00:00');
+    let y=startD.getFullYear(), m=startD.getMonth();
+
+    while(true){
+      const monthStart=ymd(new Date(y,m,1));
+      if(monthStart>end) break;
+      const dateStr=nthWeekdayOfMonth(y,m,weekday,nth);
+      if(dateStr && dateStr>=start && dateStr<=end) dates.push(dateStr);
+      m++; if(m>11){m=0;y++;}
+    }
+  }
+
+  dates = uniq(dates);
+  if(!dates.length){ alert('条件に合う日付がありませんでした'); throw new Error('no dates'); }
+
+  const seriesId='series_'+genId();
+  const ruleLabel = ({
+    daily:'毎日',
+    weekdays:'平日',
+    weekly:'毎週('+[...weekdaySetFromChecks('rep-wd')].sort().map(i=>WEEK_LABELS[i]).join('')+')',
+    biweekly:'隔週('+[...weekdaySetFromChecks('rep-wd')].sort().map(i=>WEEK_LABELS[i]).join('')+')',
+    monthlyDay:'毎月('+document.getElementById('m-ser-monthdays').value.trim()+')',
+    monthlyNth:`毎月(第${document.getElementById('m-ser-nth').value}${WEEK_LABELS[parseInt(document.getElementById('m-ser-nthweekday').value,10)]})`
+  }[rule]||rule);
+  const seriesName = buildSeriesName({subject,title,ruleLabel,start,end});
+
+  if(!confirm(`${dates.length}件の予定を作成します。\nシリーズ名：${seriesName}\nよろしいですか？`)) throw new Error('cancel');
+
+  // batch commit (<=500)
+  const chunks=[];
+  for(let i=0;i<dates.length;i+=450) chunks.push(dates.slice(i,i+450));
+
+  for(const chunk of chunks){
+    const batch=writeBatch(db);
+    for(const date of chunk){
+      const plan={
+        id: genId(),
+        title,
+        subject,
+        itemId:null,
+        date,
+        startTime,
+        minutes,
+        note,
+        status:'planned',
+        recordId:null,
+        seriesId,
+        seriesName,
+        repeatRule: rule,
+        repeatStart: start,
+        repeatEnd: end,
+        createdAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      };
+      batch.set(doc(db,'users',u.uid,'plans',plan.id), plan);
+    }
+    await batch.commit();
+  }
+  showSync();
+  alert(`繰り返しを作成しました（${dates.length}件）`);
 }
-init();
-</script>
-</body>
-</html>
