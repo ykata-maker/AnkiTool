@@ -603,7 +603,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
   <div class="calendar-shell">
     <div class="calendar-layout">
 
-      <!-- Left: month grid -->
       <div class="calendar-left">
         <div class="calendar-nav">
           <button class="cal-nav-btn" id="cal-prev-btn">◀</button>
@@ -619,7 +618,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
         </div>
       </div>
 
-      <!-- Right: selected day detail + actions + summary -->
       <div class="calendar-right">
         <div class="panel">
           <h3>📊 集計</h3>
@@ -662,7 +660,6 @@ header h1 { font-size:1rem; flex:1; white-space:nowrap; overflow:hidden; text-ov
             <button class="btn-small btn-primary" id="cal-add-record-btn">＋実績（計画なし）</button>
             <button class="btn-small btn-warning" id="cal-open-series-btn">🧩 シリーズ管理</button>
           </div>
-
           <div id="day-detail"></div>
         </div>
 
@@ -825,11 +822,6 @@ function formatDateTime(iso){
 function formatHMFromISO(iso){
   const d=new Date(iso);
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-function formatHMFromYmdAndTime(ymdStr, hm){
-  // ymd + HH:MM => HH:MM
-  if(!hm) return '';
-  return hm;
 }
 function addMinutesToHM(hm, minutes){
   if(!hm || !minutes) return '';
@@ -1089,11 +1081,9 @@ function switchTab(tab,btn){
   btn.classList.add('active');
 
   if(tab==='calendar'){
-    // 選択日が未設定なら今日を選択
     if(!calSelectedDate){
       const today=ymd(new Date());
       calSelectedDate=today;
-      // 表示月を今日に合わせる
       const d=new Date(today+'T00:00:00');
       calYear=d.getFullYear(); calMonth=d.getMonth();
     }
@@ -1137,7 +1127,7 @@ function autoFillSubjects(){
   });
 }
 
-/* ===== Manage list / tree / selectors (same as v2.0 minimal) ===== */
+/* ===== Manage list / tree / selectors ===== */
 function getSortedList(){
   return [...filteredData()].sort((a,b)=>{
     const sc=a.subject.localeCompare(b.subject,'ja'); if(sc) return sc;
@@ -1156,7 +1146,6 @@ function updateNavButtons(){
   document.getElementById('nav-next-btn').disabled=!nextId;
   document.getElementById('nav-counter').textContent = idx>=0 ? `${idx+1}/${total}` : '-/-';
 }
-
 function getBestScore(id){
   const r=appData.records.filter(r=>r.itemId===id && r.score!=null);
   return r.length ? Math.max(...r.map(r=>r.score)) : null;
@@ -1214,7 +1203,6 @@ function renderTree(){
     tree.appendChild(subjEl);
   });
 }
-
 function renderContentSelect(){
   const subjects=uniq(filteredData().map(d=>d.subject)).sort((a,b)=>a.localeCompare(b,'ja'));
   const selSubj=document.getElementById('sel-subject');
@@ -1284,7 +1272,7 @@ function renderManageList(){
   wrap.querySelectorAll('tr[data-id]').forEach(tr=>tr.addEventListener('click',()=>selectItem(tr.dataset.id)));
 }
 
-/* ===== Select item & manage save/delete & add modal (kept minimal) ===== */
+/* ===== Select item & manage save/delete & add modal ===== */
 function selectItem(id){
   appData.selectedId=id;
   const item=appData.data.find(d=>d.id===id);
@@ -1304,7 +1292,6 @@ function selectItem(id){
   updateLivePreview();
   updateStudyView(item);
 
-  // sync selector boxes
   const selSubj=document.getElementById('sel-subject');
   if(selSubj.value!==item.subject){ selSubj.value=item.subject; onSubjectChange(); }
   const selChap=document.getElementById('sel-chapter');
@@ -1317,7 +1304,6 @@ function selectItem(id){
   clearTyping();
   clearPillar();
 }
-
 function saveItemHandler(){
   const id=appData.selectedId; if(!id) return;
   const item=appData.data.find(d=>d.id===id); if(!item) return;
@@ -1421,7 +1407,7 @@ function setMode(mode){
   if(item) updateStudyView(item);
 }
 
-/* ===== Color mark / theory render (same as before, included minimal) ===== */
+/* ===== Color popup ===== */
 function initColorPopup(){
   const swatches=document.getElementById('color-swatches');
   swatches.innerHTML='';
@@ -1451,6 +1437,7 @@ function showColorPopup(x,y,hasExisting){
   popup.style.left=left+'px';popup.style.top=top+'px';
 }
 function hideColorPopup(){document.getElementById('color-popup').classList.remove('show');pendingMark=null;}
+
 function getPlainTextOffset(containerEl,targetNode,targetOffset){
   let offset=0;
   function walk(node){
@@ -1489,11 +1476,13 @@ function onLivePreviewSelect(){
   const block=editBlocks.find(b=>b.id===blockId); if(!block) return;
   const fieldEl=findFieldEl(sel.anchorNode); if(!fieldEl) return;
   const fieldKey=fieldEl.dataset.field;
+
   const range=sel.getRangeAt(0);
   const start=getPlainTextOffset(fieldEl,range.startContainer,range.startOffset);
   const end=getPlainTextOffset(fieldEl,range.endContainer,range.endOffset);
   const sourceText=getSourceText(block,fieldKey);
   if(start<0||end>sourceText.length||start>=end){ sel.removeAllRanges(); return; }
+
   const marks=(block.marks||[]).filter(m=>m.fieldKey===fieldKey);
   const overlapping=marks.find(m=>!(end<=m.start||start>=m.end));
   pendingMark={blockId,fieldKey,start,end,existingMark:overlapping||null};
@@ -1525,6 +1514,8 @@ function removeMark(){
   hideColorPopup();
   saveItem(item).then(()=>{updateLivePreview();updateStudyView(item);});
 }
+
+/* ===== Theory render ===== */
 function applyMarksToText(text,marks,fieldKey,anki=false){
   const fieldMarks=(marks||[]).filter(m=>m.fieldKey===fieldKey);
   if(!fieldMarks.length) return escapeHtml(text).replace(/\n/g,'<br>');
@@ -1614,6 +1605,7 @@ function bindAnkiReveal(container){
 }
 function buildPillarDisplay(item){
   const el=document.getElementById('pillar-display');
+  if(!el) return;
   if(!item||!item.blocks||!item.blocks.length){
     el.innerHTML='<div class="empty-state"><div class="icon">🏛</div>ブロックがありません</div>';
     return;
@@ -1730,7 +1722,7 @@ function syncBlockFromDOM(){
   updateLivePreview();
 }
 
-/* ===== Typing / pillar scoring (kept) ===== */
+/* ===== Typing / pillar scoring ===== */
 function extractPillarText(item){
   if(!item||!item.blocks) return '';
   return item.blocks.filter(b=>b.type==='section'||b.type==='item1').map(b=>b.title||'').join('');
@@ -1897,7 +1889,6 @@ function yearRange(){
   const last=`${calYear}-12-31`;
   return {first,last};
 }
-
 function renderCalendar(){
   document.getElementById('cal-title').textContent=`${calYear}年 ${calMonth+1}月`;
 
@@ -1908,7 +1899,6 @@ function renderCalendar(){
 
   const dayMap={}; // day -> {plans:[], records:[]}
   for(const p of filteredPlans()){
-    // 未完了のみカレンダー側の「予定」扱いにする（完了は消える）
     if(p.status!=='planned') continue;
     const d=new Date(p.date+'T00:00:00');
     if(d.getFullYear()===calYear && d.getMonth()===calMonth){
@@ -1951,8 +1941,6 @@ function renderCalendar(){
   for(let d=1;d<=lastDate;d++) appendCell(d,false);
   const remain=(firstDay+lastDate)%7;
   if(remain) for(let d=1;d<=7-remain;d++) appendCell(d,true);
-
-  // default selected: if selected date is not in this month, keep it but highlight none
 }
 function createDayCell(day,otherMonth,payload,isToday,isSelected){
   const cell=document.createElement('div');
@@ -1988,7 +1976,6 @@ function createDayCell(day,otherMonth,payload,isToday,isSelected){
   }
   return cell;
 }
-
 function plansForSelectedDate(){
   if(!calSelectedDate) return [];
   return filteredPlans().filter(p=>p.status==='planned' && p.date===calSelectedDate)
@@ -2002,7 +1989,6 @@ function recordsForSelectedDate(){
     .filter(r=>r.date>=start && r.date<=end)
     .sort((a,b)=>b.date.localeCompare(a.date));
 }
-
 function renderDayPanel(){
   const title=document.getElementById('day-title');
   const detail=document.getElementById('day-detail');
@@ -2017,7 +2003,6 @@ function renderDayPanel(){
   const records=recordsForSelectedDate();
 
   let html='';
-
   html += `<div class="cal-section-title">予定（未完了のみ）</div>`;
   if(!plans.length){
     html += `<div class="help" style="margin-bottom:8px;">予定がありません</div>`;
@@ -2080,20 +2065,17 @@ function renderDayPanel(){
   }
 
   detail.innerHTML=html;
-
-  // bind actions
   detail.querySelectorAll('[data-do-plan]').forEach(btn=>btn.addEventListener('click',()=>openRecordFromPlan(btn.dataset.doPlan)));
   detail.querySelectorAll('[data-del-plan]').forEach(btn=>btn.addEventListener('click',()=>deletePlanHandler(btn.dataset.delPlan)));
   detail.querySelectorAll('[data-del-rec]').forEach(btn=>btn.addEventListener('click',()=>deleteRecordHandler(btn.dataset.delRec)));
 }
 
-/* ===== Summary (year/month/day & subject) ===== */
+/* ===== Summary ===== */
 function renderSummary(){
   const scope=document.getElementById('sum-scope').value;
   const subj=document.getElementById('sum-subject').value;
 
   let from,to,label;
-
   if(scope==='day'){
     if(!calSelectedDate){
       document.getElementById('sum-range-badge').textContent='-';
@@ -2120,7 +2102,6 @@ function renderSummary(){
   let recs=filteredRecords().filter(r=>r.date>=from && r.date<=to);
   if(subj!=='__all__') recs=recs.filter(r=>r.subject===subj);
 
-  // minutesがある実績のみ集計
   const recsWithMin=recs.filter(r=>r.minutes!=null && !Number.isNaN(parseInt(r.minutes,10)));
   const totalMin=recsWithMin.reduce((sum,r)=>sum+parseInt(r.minutes,10),0);
 
@@ -2130,7 +2111,7 @@ function renderSummary(){
   document.getElementById('sum-count').textContent=String(recsWithMin.length);
 }
 
-/* ===== Calendar actions (plans/records) ===== */
+/* ===== Calendar actions ===== */
 async function deletePlanHandler(planId){
   const p=appData.plans.find(x=>x.id===planId);
   if(!p) return;
@@ -2157,13 +2138,10 @@ function closeCalModal(){
 
 /* ===== Duration widget binding ===== */
 function bindDurationWidget(prefix){
-  // prefix: element id prefix, expects:
-  //  - ${prefix}-dur-hm (time: "HH:MM" where HH is hours, MM is minutes)
-  //  - ${prefix}-dur-min (number)
-  //  - ${prefix}-dur-label (span)
   const hmEl=document.getElementById(prefix+'-dur-hm');
   const minEl=document.getElementById(prefix+'-dur-min');
   const labEl=document.getElementById(prefix+'-dur-label');
+  if(!hmEl||!minEl||!labEl) return;
 
   function syncFromHM(){
     const m=hmToMinutes(hmEl.value);
@@ -2181,18 +2159,14 @@ function bindDurationWidget(prefix){
   minEl.addEventListener('change',syncFromMin);
   minEl.addEventListener('input',syncFromMin);
 
-  // init
   syncFromMin();
 }
 
 /* ===== Add plan (single) ===== */
-function allSubjectsFromData(){ return uniq(appData.data.map(d=>d.subject).filter(Boolean)).sort((a,b)=>a.localeCompare(b,'ja')); }
-
 function openAddPlan(){
   const subjects=allSubjectsFromData().filter(s=>subjectAllowed(s) || appData.settings.subjectViewMode==='all');
-  if(!calSelectedDate){
-    alert('日付を選択してください'); return;
-  }
+  if(!calSelectedDate){ alert('日付を選択してください'); return; }
+
   openCalModal({
     title: '＋ 予定（単発）',
     bodyHtml: `
@@ -2324,7 +2298,6 @@ function openRecordFromPlan(planId){
       };
       await saveRec(rec);
 
-      // planをdoneにする（表示対象はplannedのみなので予定から消える）
       const upd={...p, status:'done', recordId:recId, updatedAt:new Date().toISOString()};
       await savePlan(upd);
 
@@ -2410,7 +2383,7 @@ function openAddRecordNoPlan(){
   bindDurationWidget('m-rec2');
 }
 
-/* ===== Series management: simplified (bulk edit/delete planned by seriesId) ===== */
+/* ===== Series management (same asあなたの貼った版そのまま) ===== */
 function seriesSummary(){
   const plans=filteredPlans();
   const map=new Map();
@@ -2418,11 +2391,7 @@ function seriesSummary(){
     if(!p.seriesId) continue;
     const key=p.seriesId;
     if(!map.has(key)){
-      map.set(key,{
-        seriesId:key,
-        seriesName: p.seriesName || '(series)',
-        total:0, planned:0, done:0
-      });
+      map.set(key,{ seriesId:key, seriesName: p.seriesName || '(series)', total:0, planned:0, done:0 });
     }
     const s=map.get(key);
     s.total++;
@@ -2459,15 +2428,12 @@ function openSeriesManager(){
       </div>
     `,
     onSave: async ()=>{
-      // このモーダル自体は保存ボタン不要（閉じる）
       closeCalModal();
     }
   });
 
-  // saveボタンを「閉じる」に見せるためラベルを変える
   document.getElementById('cal-modal-save-btn').textContent='閉じる';
 
-  // bind
   document.getElementById('cal-modal-body').querySelectorAll('[data-series-edit]').forEach(btn=>{
     btn.addEventListener('click',()=>openSeriesBulkEdit(btn.dataset.seriesEdit));
   });
@@ -2523,14 +2489,12 @@ function openSeriesBulkEdit(seriesId){
       if(newMinutes!==null && (!newMinutes || newMinutes<1)){
         alert('予定時間が不正です'); return;
       }
-
       await bulkUpdateUndoneBySeries(seriesId,{newTitle,newStartTime,newMinutes,newNote});
       closeCalModal();
       alert('未完了一括修正が完了しました');
     }
   });
 
-  // saveボタンラベルを戻す
   document.getElementById('cal-modal-save-btn').textContent='保存';
 }
 
@@ -2547,10 +2511,10 @@ async function bulkUpdateUndoneBySeries(seriesId, {newTitle,newStartTime,newMinu
     const batch=writeBatch(db);
     for(const p of chunk){
       const upd={...p, updatedAt:new Date().toISOString()};
-      if(newTitle) { upd.title=newTitle; }
-      if(newStartTime!==null && newStartTime!=='') { upd.startTime=newStartTime; }
-      if(newMinutes!==null) { upd.minutes=newMinutes; }
-      if(newNote) { upd.note=newNote; }
+      if(newTitle) upd.title=newTitle;
+      if(newStartTime!==null && newStartTime!=='') upd.startTime=newStartTime;
+      if(newMinutes!==null) upd.minutes=newMinutes;
+      if(newNote) upd.note=newNote;
 
       if(newTitle && upd.seriesName){
         upd.seriesName = (upd.seriesName||'').replace(`｜${p.title}｜`, `｜${newTitle}｜`);
@@ -2588,7 +2552,7 @@ document.getElementById('cal-modal-save-btn').addEventListener('click',async ()=
   if(calModalOnSave) await calModalOnSave();
 });
 
-/* ===== Admin user list (kept) ===== */
+/* ===== Admin (users) ===== */
 async function addUserHandler(){
   if(currentUserRole!=='admin') return;
   const email=document.getElementById('new-user-email').value.trim();
@@ -2712,19 +2676,14 @@ function bindEvents(){
   document.getElementById('show-pillar-diff-btn').addEventListener('click',showPillarDiff);
   document.getElementById('clear-pillar-btn').addEventListener('click',clearPillar);
 
-  // block add buttons
   document.querySelectorAll('[data-type]').forEach(btn=>{
-    if(btn.id?.startsWith('add-block-')){
-      btn.addEventListener('click',()=>addBlock(btn.dataset.type));
-    }
+    if(btn.id?.startsWith('add-block-')) btn.addEventListener('click',()=>addBlock(btn.dataset.type));
   });
   document.getElementById('block-live-preview').addEventListener('mouseup',onLivePreviewSelect);
 
-  // settings
   document.getElementById('save-subject-settings-btn').addEventListener('click',saveSubjectSettingsHandler);
   document.getElementById('auto-fill-subjects-btn').addEventListener('click',autoFillSubjects);
 
-  // calendar controls
   document.getElementById('cal-prev-btn').addEventListener('click',()=>changeMonth(-1));
   document.getElementById('cal-next-btn').addEventListener('click',()=>changeMonth(1));
   document.getElementById('cal-add-plan-btn').addEventListener('click',openAddPlan);
@@ -2734,10 +2693,19 @@ function bindEvents(){
   document.getElementById('sum-scope').addEventListener('change',renderSummary);
   document.getElementById('sum-subject').addEventListener('change',renderSummary);
 
-  // admin
   document.getElementById('add-user-btn').addEventListener('click',addUserHandler);
 }
 
+/* ===== Missing pieces that caused "buttons not work": ensure calendar modal bindings exist ===== */
+document.getElementById('cal-modal-cancel-btn').addEventListener('click',()=>{
+  closeCalModal();
+  document.getElementById('cal-modal-save-btn').textContent='保存';
+});
+document.getElementById('cal-modal-save-btn').addEventListener('click',async ()=>{
+  if(calModalOnSave) await calModalOnSave();
+});
+
+/* ===== Summary subject list ===== */
 function refreshSummarySubjectOptions(){
   const sel=document.getElementById('sum-subject');
   const cur=sel.value;
@@ -2746,14 +2714,15 @@ function refreshSummarySubjectOptions(){
   sel.value = (cur && (cur==='__all__' || subjects.includes(cur))) ? cur : '__all__';
 }
 
+/* ===== renderAll / init ===== */
 function renderAll(){
   renderTree();
   renderContentSelect();
   renderManageList();
   updateNavButtons();
 
-  // calendar side
   refreshSummarySubjectOptions();
+
   if(!calSelectedDate){
     const today=ymd(new Date());
     calSelectedDate=today;
